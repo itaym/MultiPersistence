@@ -12,10 +12,6 @@ import multiPer from './MultiplicativePersistence/multiplicativePersistence.js'
 import needToCheck from './MultiplicativePersistence/needToCheck.js'
 import onNotModulo10 from './MultiplicativePersistence/onNotModulo10.js'
 import { getInitVars, setInitVars } from './Config/getInitVars.js'
-import { createPermutations } from './countPermutations.js'
-
-if (process.selfEnv.CREATE_PERMUTATIONS)
-    await createPermutations()
 
 const colors = ['white', 'yellow']
 let currentColor = 1

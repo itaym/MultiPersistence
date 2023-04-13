@@ -1,0 +1,106 @@
+import fs, { promises as fsPromises } from 'fs'
+import memorize from './memorize.js'
+import Cache from './Cache.js'
+
+let data, permutationsJson
+
+const _getPermutations = (() => {
+
+    const getPCache = new Cache()
+    const getPCacheLast = new Cache()
+
+    return memorize((base, length) => {
+        if (length === 1n) return base
+
+        let baseLast = getPCacheLast.get(length)
+        let checkBase = 1n
+        let result =  0n
+
+        if (!baseLast) baseLast = -1n
+        const theLastOne = baseLast
+        baseLast = BigInt(Math.min(Number(baseLast), Number(base)))
+
+        if (baseLast > -1n) {
+            checkBase = baseLast + 1n
+            result = getPCache.get(`${length},${baseLast}`)
+        }
+
+        for (let runBase = checkBase; runBase <= base; runBase++) {
+            result += _getPermutations(runBase, length - 1n)
+            getPCache.set(`${length},${runBase}`, result)
+            if (runBase > theLastOne) getPCacheLast.set(length, runBase)
+        }
+        return result
+    })
+})()
+
+const getPermutations = (() => {
+
+    const cacheLast = new Cache()
+    const cache = new Cache()
+
+    return (base, length) => {
+
+        let baseLast = cacheLast.get(base)
+        let checkLength = 1n
+        let result = 0n
+
+        if (!baseLast) baseLast = -1n
+        const theLastOne = baseLast
+        baseLast = BigInt(Math.min(Number(baseLast), Number(length)))
+
+        if (baseLast > -1n) {
+            checkLength = baseLast + 1n
+            result = cache.get(`${base},${baseLast}`)
+        }
+
+        for (let runLength = checkLength; runLength <= length; runLength++) {
+            result += _getPermutations(base, runLength)
+            cache.set(`${base},${runLength}`, result)
+            if (runLength > theLastOne) cacheLast.set(base, runLength)
+        }
+        return result
+    }
+})()
+
+const countPermutations = (_length, base) => {
+    if (_length <= 0n) return 0n
+    if (permutationsJson[base] && permutationsJson[base][_length]) {
+        return BigInt(permutationsJson[base][_length])
+    }
+    if (!permutationsJson[base]) permutationsJson[base] = {}
+    permutationsJson[base][_length] = getPermutations(base, _length)
+    countPermutations.unsave++
+
+    if (countPermutations.unsave === 100) {
+        countPermutations.unsave = 0
+        ;(() => {
+            const s = JSON.stringify(permutationsJson, (key, value) => {
+                const name = value?.constructor?.name
+                if (name === 'BigInt') {
+                    return value.toString()
+                }
+                return value
+            }, '\t')
+            const fileHandler = fs.openSync('permutations.json', 'rs+')
+            fs.writeSync(fileHandler, s)
+            fs.closeSync(fileHandler)
+        })()
+    }
+    return permutationsJson[base][_length]
+}
+countPermutations.unsave = 0
+
+try {
+    data = await fsPromises.readFile('permutations.json')
+    permutationsJson = JSON.parse(data, (key, value) => {
+        if (typeof value === 'string')
+            return BigInt(value)
+        return value
+    }) || {}
+}
+catch (e) {
+    permutationsJson = {}
+}
+
+export default countPermutations

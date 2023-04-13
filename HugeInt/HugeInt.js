@@ -1,4 +1,4 @@
-import { digitsObj as baseDigits } from '../Digits/index.js'
+import { digitsObj as baseDigits, digitsValue } from '../Digits/index.js'
 /**
  * type bigint
  */
@@ -142,6 +142,25 @@ class HugeInt {
             }
         })
         return value
+    }
+    convertFromString(str, base = 10) {
+        const digitsArr = str.split('').reverse()
+        this.cellsArr = []
+        let digitCell = { count: 1n, digit: BigInt(digitsValue[digitsArr[0]]) }
+
+        for (let index = 1; index < digitsArr.length; index++) {
+            let value = BigInt(digitsValue[digitsArr[index]])
+            if (value === digitCell.digit) {
+                digitCell.count++
+            }
+            else {
+                this.cellsArr.push(digitCell)
+                digitCell = { count: 1n, digit: value }
+            }
+        }
+        this.cellsArr.push(digitCell)
+        this.base = BigInt(base)
+
     }
     clone() {
         const newHugeInt = new HugeInt(0n, this.base)

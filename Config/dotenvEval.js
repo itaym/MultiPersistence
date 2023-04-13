@@ -1,7 +1,8 @@
+import { argv } from 'node:process';
+
 /**
  *
  * @typedef {Object} Environment
- * @property {string} CREATE_PERMUTATIONS
  * @property {string} DEBUG
  * @property {string} INIT_BASE
  * @property {string} INIT_GOAL_POWER_OF10
@@ -16,7 +17,6 @@
  *
  * @typedef {Object} SelfEnv
  * @augments Environment
- * @property {boolean} CREATE_PERMUTATIONS
  * @property {boolean} DEBUG
  * @property {number} INIT_BASE
  * @property {bigint} INIT_GOAL_NUMBER
@@ -43,5 +43,19 @@ const dotenvEval = ({ parsed }) => {
         }
     }
     process.selfEnv.INIT_GOAL_NUMBER = BigInt(process.selfEnv.INIT_BASE) ** BigInt(process.selfEnv.INIT_GOAL_POWER_OF10)
+
+    // print process.argv
+    argv.forEach((val, index) => {
+        const argArr = val.split('=')
+        if (argArr[0] === 'base') {
+            const base = parseInt(argArr[1])
+            try {
+                if (base > 2 || base < 65537) {
+                    process.selfEnv.INIT_BASE = base
+                }
+            }
+            catch {}
+        }
+    })
 }
 export default dotenvEval

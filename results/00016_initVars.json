@@ -1,0 +1,88 @@
+{
+	"16": {
+		"BASE": 16,
+		"COUNT_ITERATIONS": 1061431101,
+		"CALC_ITERATIONS": "114377958109",
+		"ITERATIONS_NOT_FOUND": 0,
+		"ITERATIONS_NOT_FOUND_LIMIT": 1061431101,
+		"LAST_FOUND": "3644381",
+		"MAX_STEPS": 8,
+		"NUMBER": "443075998594972589747892825020694527",
+		"UP_TIME_MILLISECONDS": 5675048,
+		"STEPS": [
+			{
+				"atRunTime": 17,
+				"combinations": "15",
+				"count": 15,
+				"first": "1",
+				"iteration": "15",
+				"last": "15",
+				"step": 0
+			},
+			{
+				"atRunTime": 28,
+				"combinations": "20",
+				"count": 11,
+				"first": "34",
+				"iteration": "122",
+				"last": "547",
+				"step": 1
+			},
+			null,
+			{
+				"atRunTime": 5675048,
+				"combinations": "7213044477783309001495112997",
+				"count": 91494276,
+				"first": "62",
+				"iteration": "114377958109",
+				"last": "443075998594972589747892825020694527",
+				"step": 3
+			},
+			{
+				"atRunTime": 5674931,
+				"combinations": "4167110846791687239599",
+				"count": 79092,
+				"first": "95",
+				"iteration": "114377707300",
+				"last": "443075998594972587437191948951862751",
+				"step": 4
+			},
+			{
+				"atRunTime": 2844316,
+				"combinations": "63686949208868998",
+				"count": 5586,
+				"first": "187",
+				"iteration": "43528617353",
+				"last": "713940818048578151976976321600989",
+				"step": 5
+			},
+			{
+				"atRunTime": 1802020,
+				"combinations": "11038339498",
+				"count": 1132,
+				"first": "683",
+				"iteration": "20573901650",
+				"last": "4056481920730334084790667164603",
+				"step": 6
+			},
+			{
+				"atRunTime": 107775,
+				"combinations": "2246364750",
+				"count": 400,
+				"first": "15838",
+				"iteration": "335965890",
+				"last": "649325391394578462685",
+				"step": 7
+			},
+			{
+				"atRunTime": 44683,
+				"combinations": "4512273240",
+				"count": 169,
+				"first": "3644381",
+				"iteration": "98835320",
+				"last": "2536427319297801181",
+				"step": 8
+			}
+		]
+	}
+}

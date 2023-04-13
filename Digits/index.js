@@ -1,4 +1,4 @@
-const maxBase = process.selfEnv.INIT_BASE || 65536
+const maxBase = 65536 // process.selfEnv.INIT_BASE || 65536
 
 export const digitsObj = {
     0n: '0', 1n: '1', 2n: '2', 3n: '3', 4n: '4', 5n: '5', 6n: '6', 7n: '7',
