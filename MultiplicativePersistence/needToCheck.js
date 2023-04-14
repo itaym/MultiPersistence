@@ -2,6 +2,11 @@ import countPermutations from '../countPermutations.js'
 import { DigitCell } from '../HugeInt/HugeInt.js'
 import memorize from '../memorize.js'
 
+
+const abc = (base) => {
+    const baseDigits = new Array(base - 2n).fill(0).map((_, index) => index + 2)
+}
+
 const splitAfterCell = (hugeInt, cell, countToLeave) => {
     const newCell = hugeInt.splitCellBefore(cell ,cell.count - countToLeave)
     newCell.digit++

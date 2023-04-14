@@ -70,26 +70,21 @@ const countPermutations = (_length, base) => {
     }
     if (!permutationsJson[base]) permutationsJson[base] = {}
     permutationsJson[base][_length] = getPermutations(base, _length)
-    countPermutations.unsave++
 
-    if (countPermutations.unsave === 100) {
-        countPermutations.unsave = 0
-        ;(() => {
-            const s = JSON.stringify(permutationsJson, (key, value) => {
-                const name = value?.constructor?.name
-                if (name === 'BigInt') {
-                    return value.toString()
-                }
-                return value
-            }, '\t')
-            const fileHandler = fs.openSync('permutations.json', 'rs+')
-            fs.writeSync(fileHandler, s)
-            fs.closeSync(fileHandler)
-        })()
-    }
+    ;(() => {
+        const s = JSON.stringify(permutationsJson, (key, value) => {
+            const name = value?.constructor?.name
+            if (name === 'BigInt') {
+                return value.toString()
+            }
+            return value
+        }, '\t')
+        const fileHandler = fs.openSync('permutations.json', 'rs+')
+        fs.writeSync(fileHandler, s)
+        fs.closeSync(fileHandler)
+    })()
     return permutationsJson[base][_length]
 }
-countPermutations.unsave = 0
 
 try {
     data = await fsPromises.readFile('permutations.json')

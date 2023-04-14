@@ -56,6 +56,15 @@ const dotenvEval = ({ parsed }) => {
             }
             catch {}
         }
+        if (argArr[0] === 'debug') {
+            const debug = eval(argArr[1])
+            try {
+                if (debug !== undefined) {
+                    process.selfEnv.DEBUG = !!debug
+                }
+            }
+            catch {}
+        }
     })
 }
 export default dotenvEval
