@@ -1,5 +1,15 @@
 import getTimeString from '../getTimeString.js'
 import countPermutations from '../countPermutations.js'
+import HugeInt from '../HugeInt/index.js'
+import chalk from 'chalk'
+
+const colors = ['white', 'yellow']
+let currentColor = 1
+
+const getColor = () => {
+    currentColor = 1 - currentColor
+    return colors[currentColor]
+}
 
 export const fromMiddleStringMaxLength= (str, max = Number.MAX_SAFE_INTEGER) => {
     if (str.length > max) {
@@ -13,8 +23,6 @@ export default function logMultiPersistence({
     goalNumber,
     base
 }) {
-    
-    const startSessionTime = Date.now()
     let goalNumber_length = goalNumber.length
     let exIterations = countPermutations(BigInt(goalNumber_length), BigInt(base - 2))
     const maxMilliseconds = BigInt('9'.repeat(500))
@@ -22,6 +30,7 @@ export default function logMultiPersistence({
     return function ({
         calcIterations,
         countIterations,
+        countSteps,
         currentNo,
         endTime,
         iterationsNotFoundLimit,
@@ -29,9 +38,12 @@ export default function logMultiPersistence({
         lastNumberFound,
         maxSteps,
         notFoundIterations,
+        startSessionTime,
         startTime,
         startTimeLog,
     }) {
+        lastNumberFound = new HugeInt(lastNumberFound, base)
+        currentNo = new HugeInt(currentNo, base)
         try {
             const numOfMilliseconds = endTime - startTime
             const numOfMillisecondsLog = endTime - startTimeLog
@@ -49,23 +61,38 @@ export default function logMultiPersistence({
 
             if (timeLeft === Infinity || timeLeft > maxMilliseconds) timeLeft = maxMilliseconds
             timeLeft = BigInt(timeLeft)
-            console.log('-'.repeat(140))
-            console.log(`Current number: ${currentNumberStr} (${currentNo.cellsArr[currentNo.cellsArr.length - 1].digit},${currentNo.cellsArr[currentNo.cellsArr.length - 2]?.digit})`.padEnd(140, '.'))
-            console.log(`Number found in ${maxSteps} -> ${lastNumberFound}`.padEnd(70, '-') +
-                        `Current number length: ${currentNo.length.toLocaleString()} (${cellNo})`.padEnd(70, '-'))
-            console.log(`Calc Iter.: ${calcIterations.toLocaleString()} (${percentDone}%)`.padEnd(70, '-') +
-                        `Real Iter.: ${countIterations.toLocaleString()}`.padEnd(70, '-'))
-            console.log(`Avg Calc Iter./sec: ${iterationsPerSecond.toLocaleString()} (x ${(iterationsPerSecond / countIterationsPerSecond).toFixed(2)})`.padEnd(70, '-') +
-                        `Avg Real Iter./sec: ${countIterationsPerSecond.toLocaleString()}`.padEnd(70, '-'))
-            console.log(`Log Iterations/sec: ${iterationsPerSecondLog.toLocaleString()}`.padEnd(70, '-') +
-                        fromMiddleStringMaxLength(`NFTG left: ${getTimeString(notFoundTimeLeft)} ${notFoundIterations.toLocaleString()}/${iterationsNotFoundLimit.toLocaleString()}`, 70).padEnd(70, '-'))
-            console.log(fromMiddleStringMaxLength(`Up Time: ${getTimeString(numOfMilliseconds)} (${numOfMilliseconds})`, 70).padEnd(70, '-') +
-                        fromMiddleStringMaxLength(`Time left: ${getTimeString(timeLeft)}`, 70).padEnd(70, '-'))
-            console.log(fromMiddleStringMaxLength(`Session: ${getTimeString(sessionMilliseconds)} (${sessionMilliseconds})`, 70).padEnd(70, '-') +
-                        fromMiddleStringMaxLength(`Base: ${process.selfEnv.INIT_BASE}`, 70).padEnd(70, '-'))
+
+            const countLog = []
+            for (let index in countSteps) {
+                let cs = countSteps[index]
+                if (cs?.count) {
+                    countLog.push((index + '').padStart(2, '0').padEnd(5, ' =>') +
+                        `${(cs.count.toLocaleString() + '').padStart(18, ' ')}, ${fromMiddleStringMaxLength(cs.combinations.toLocaleString(), 39).padStart(45, ' ')}, ${(cs.iteration.toLocaleString() + '').padStart(18, ' ')}. ${fromMiddleStringMaxLength(getTimeString(endTime - cs.atRunTime - startTime) + ' (' + (calcIterations - cs.iteration).toLocaleString() + ')', 48)}`)
+                }
+            }
+
+            let logStr = '-'.repeat(140) + '\n'
+            logStr += `Current number: ${currentNumberStr} (${currentNo.cellsArr[currentNo.cellsArr.length - 1].digit},${currentNo.cellsArr[currentNo.cellsArr.length - 2]?.digit},${currentNo.cellsArr[currentNo.cellsArr.length - 3]?.digit})`.padEnd(140, '.') + '\n'
+            logStr += `Number found in ` + fromMiddleStringMaxLength(`${maxSteps} -> ${lastNumberFound}`, 53).padEnd(54, '-') +
+                      `Current number length: ${currentNo.length.toLocaleString()} (${cellNo})`.padEnd(70, '-') + '\n'
+            logStr += `Calc Iter.: ${calcIterations.toLocaleString()} (${percentDone}%) saved: ${(calcIterations - BigInt(countIterations)).toLocaleString()}`.padEnd(70, '-') +
+                      `Real Iter.: ${countIterations.toLocaleString()}`.padEnd(70, '-') + '\n'
+            logStr += `Avg Calc Iter./sec: ${iterationsPerSecond.toLocaleString()} (x ${(iterationsPerSecond / countIterationsPerSecond).toFixed(2)})`.padEnd(70, '-') +
+                      `Avg Real Iter./sec: ${countIterationsPerSecond.toLocaleString()}`.padEnd(70, '-') + '\n'
+            logStr += `Log Iterations/sec: ${iterationsPerSecondLog.toLocaleString()}`.padEnd(70, '-') +
+                      fromMiddleStringMaxLength(`NFTG left: ${getTimeString(notFoundTimeLeft)} ${notFoundIterations.toLocaleString()}/${iterationsNotFoundLimit.toLocaleString()}`, 70).padEnd(70, '-') + '\n'
+            logStr += fromMiddleStringMaxLength(`Up Time: ${getTimeString(numOfMilliseconds)} (${numOfMilliseconds})`, 70).padEnd(70, '-') +
+                      fromMiddleStringMaxLength(`Time left: ${getTimeString(timeLeft)}`, 70).padEnd(70, '-') + '\n'
+            logStr += fromMiddleStringMaxLength(`Session: ${getTimeString(sessionMilliseconds)} (${sessionMilliseconds})`, 70).padEnd(70, '-') +
+                      fromMiddleStringMaxLength(`Base: ${process.env.INIT_BASE}`, 70).padEnd(70, '-')+ '\n'
+
+            currentColor = 1
+            countLog.forEach(logString => logStr += chalk[getColor()](logString) + '\n')
+            logStr = logStr.substring(0, logStr.length - 1)
+            console.log(logStr)
         }
         catch (e) {
-            //debugger
+            debugger
         }
 }}
 

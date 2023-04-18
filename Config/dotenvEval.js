@@ -52,6 +52,7 @@ const dotenvEval = ({ parsed }) => {
             try {
                 if (base > 2 || base < 65537) {
                     process.selfEnv.INIT_BASE = base
+                    process.env.INIT_BASE = base
                 }
             }
             catch {}
@@ -61,6 +62,7 @@ const dotenvEval = ({ parsed }) => {
             try {
                 if (debug !== undefined) {
                     process.selfEnv.DEBUG = !!debug
+                    process.env.DEBUG = !!debug
                 }
             }
             catch {}

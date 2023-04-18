@@ -42,7 +42,7 @@ const reviver = (key, value) => {
         case 'LAST_FOUND':
         case 'first':
         case 'last':
-            return new HugeInt(BigInt(value), base)
+            return BigInt(value)
         case 'CALC_ITERATIONS':
         case 'NUMBER':
         case 'combinations':
@@ -58,7 +58,7 @@ const reviver = (key, value) => {
  * @return {Promise<IterationData|{}>}
  */
 export const getInitVars = async (base) => {
-    const fileName = `./results/${base.toString().padStart(5, '0')}_${process.selfEnv.INIT_VARS_FILE}`
+    const fileName = `./results/${base.toString().padStart(5, '0')}_${process.env.INIT_VARS_FILE}`
     try {
         let data = await fs.readFile(fileName, 'utf-8')
         data = JSON.parse(data, reviver)
@@ -92,6 +92,6 @@ const replacer = (key, value) => {
  * @return {Promise<void>}
  */
 export const setInitVars = async (initVars, base) => {
-    const fileName = `./results/${base.toString().padStart(5, '0')}_${process.selfEnv.INIT_VARS_FILE}`
+    const fileName = `./results/${base.toString().padStart(5, '0')}_${process.env.INIT_VARS_FILE}`
     await fs.writeFile(fileName, JSON.stringify(initVars, replacer, '\t'))
 }

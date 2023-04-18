@@ -159,18 +159,17 @@ const base00010 = (() => {
 
         if (currentNo.hasEvenDigits()) {
             let [cell5, indexOf5] = currentNo.includesCellOf(5n)
-
-            if (indexOf5 === 0) {
-                permutationsSaved = getPermutations(5n, cell5.count, base)
-                cell5.digit++
-            }
-            else if (cell5) {
+            if (cell5) {
+                if (indexOf5 === 0) {
+                    permutationsSaved = getPermutations(5n, cell5.count, base)
+                    cell5.digit++
+                    return { permutationsSaved, skip }
+                }
                 let [cell6, indexOf6] = currentNo.includesCellOf(6n)
                 if (indexOf6 === 0) {
                     permutationsSaved = getPermutations(6n, cell6.count, base)
                     cell6.digit++
-                }
-                else {
+                } else {
                     let [cell8, indexOf8] = currentNo.includesCellOf(8n)
                     if (indexOf8 === 0) {
                         permutationsSaved = getPermutations(8n, cell8.count, base)
@@ -929,6 +928,40 @@ const base00032 = (() => {
     }
 })()
 
+const base00087 = (() => {
+    const base = 87n
+    return (currentNo) => {
+        let skip = false
+        let permutationsSaved = 0n
+
+        let [cell29, indexOf29] = currentNo.includesCellOf(29n)
+        let [cell58, indexOf58] = currentNo.includesCellOf(58n)
+        if (cell29 || cell58) {
+            let cell3Division = null
+            let indexOfCell3Division = -1
+            for (let cell of currentNo.cellsArr) {
+                if (!(cell.digit % 3n)) {
+                    cell3Division = cell
+                    indexOfCell3Division = currentNo.cellIndex(cell3Division)
+                }
+            }
+            if (cell3Division) {
+                const cell2958 = (cell58 || cell29)
+                if (indexOf29 === 0 || indexOf58 === 0) {
+                    permutationsSaved = getPermutations(cell2958.digit, cell2958.count, base)
+                    cell2958.digit++
+                    return {permutationsSaved, skip}
+                }
+                if (indexOfCell3Division === 0) {
+                    permutationsSaved = getPermutations(cell3Division.digit, cell3Division.count, base)
+                    cell3Division.digit++
+                 }
+            }
+        }
+        return { permutationsSaved, skip }
+    }
+})()
+
 const functionToExport = () => {
     const replay = {
         permutationsSaved: 0n,
@@ -957,6 +990,9 @@ const functionToExport = () => {
             break
         case 32:
             fn = base00032
+            break
+        case 87:
+            fn = base00087
             break
         default:
             fn = emptyFunction
