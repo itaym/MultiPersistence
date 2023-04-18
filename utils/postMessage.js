@@ -5,7 +5,7 @@ import sleep from './sleep.js'
  * @param worker { Worker }
  * @param type { string }
  * @param data { Object }
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>}
  */
 const postMessage = async (worker, type, data) => {
 
@@ -20,7 +20,9 @@ const postMessage = async (worker, type, data) => {
             }
         )
         await sleep(1)
+        return true
     }
+    return false
 }
 
 export default postMessage

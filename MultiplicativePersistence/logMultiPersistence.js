@@ -92,7 +92,7 @@ export default function logMultiPersistence({
             console.log(logStr)
         }
         catch (e) {
-            debugger
+            //debugger
         }
 }}
 

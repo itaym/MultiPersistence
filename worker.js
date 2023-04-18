@@ -8,6 +8,20 @@ import { setInitVars } from './Config/getInitVars.js'
 let log
 let INIT_VARS
 let base
+const saveConsoleLog = console.log
+console.log = (...args) => {
+    const newArgs = []
+
+    args.forEach(arg => {
+        if (typeof arg === 'string')
+            for (let x = 7; x < 15; x++) {
+                if (x === 10) continue
+                arg = arg.replaceAll(String.fromCharCode(x), 'X')
+            }
+        newArgs.push(arg)
+        saveConsoleLog(...newArgs)
+    })
+}
 
 let onFound = ({ countSteps }) => {
 
@@ -68,7 +82,10 @@ parentPort.on('message', async (messageObj) => {
                 notFoundIterations,
                 startTime,
             } = messageObj.data
-            messages.forEach(message => onFound(message))
+            messages.forEach(message => {
+                message.currentNo =  new HugeInt(message.currentNo.value)
+                onFound(message)
+            })
 
             INIT_VARS[base].COUNT_ITERATIONS = countIterations
             INIT_VARS[base].CALC_ITERATIONS = calcIterations

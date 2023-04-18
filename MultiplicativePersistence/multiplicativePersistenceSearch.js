@@ -51,7 +51,7 @@ const multiplicativePersistenceSearch = async ({
     let notFoundIterations = ITERATIONS_NOT_FOUND || 0
 
     const startSessionTime = Date.now()
-    let breakCondition = true
+    let notToBreakCondition = true
     let endTime
     let iterationsPerLog = countIterations
     let messages = []
@@ -62,7 +62,7 @@ const multiplicativePersistenceSearch = async ({
     /**
      * Start (or continue) the Multiplicative Persistence search
      */
-    while (breakCondition) {
+    while (notToBreakCondition) {
 
         onNotModulo10(currentNo)
         const { permutationsSaved, skip } = needToCheck(currentNo)
@@ -81,8 +81,6 @@ const multiplicativePersistenceSearch = async ({
                 atRunTime: Date.now() - startTime,
                 calcIterations,
                 currentNo: {
-                    cellsArr: currentNo.clone().cellsArr,
-                    length: currentNo.length,
                     value: currentNo.value
                 },
                 steps,
@@ -90,7 +88,7 @@ const multiplicativePersistenceSearch = async ({
         }
         else {
             notFoundIterations++
-            breakCondition = iterationsNotFoundLimit > notFoundIterations
+            notToBreakCondition = iterationsNotFoundLimit > notFoundIterations
         }
 
         if ((countIterations > logAfterCountIterations) || (steps > maxSteps)) {
@@ -107,7 +105,7 @@ const multiplicativePersistenceSearch = async ({
             logAfterCountIterations = Math.floor(2000 / timeForSingleIteration) + countIterations
             if (logAfterCountIterations === Infinity) logAfterCountIterations = countIterations + 10_000
 
-            await postMessage(worker, 'found', {
+            if (await postMessage(worker, 'found', {
                 calcIterations,
                 countIterations,
                 currentNo: currentNo.value,
@@ -121,13 +119,13 @@ const multiplicativePersistenceSearch = async ({
                 startSessionTime,
                 startTime,
                 startTimeLog,
-            })
-            messages = []
+            }))
+                messages = []
 
             startTimeLog = Date.now()
             iterationsPerLog = countIterations
         }
-        if (breakCondition) currentNo.addOne()
+        if (notToBreakCondition) currentNo.addOne()
     }
     endTime = Date.now()
 

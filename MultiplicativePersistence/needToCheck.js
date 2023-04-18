@@ -939,10 +939,12 @@ const base00087 = (() => {
         if (cell29 || cell58) {
             let cell3Division = null
             let indexOfCell3Division = -1
-            for (let cell of currentNo.cellsArr) {
+            for (let index = 0; index < currentNo.cellsArr.length; index++) {
+                let cell = currentNo.cellsArr[index]
                 if (!(cell.digit % 3n)) {
                     cell3Division = cell
-                    indexOfCell3Division = currentNo.cellIndex(cell3Division)
+                    indexOfCell3Division = index
+                    break
                 }
             }
             if (cell3Division) {
