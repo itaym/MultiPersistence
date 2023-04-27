@@ -65,11 +65,12 @@ const multiplicativePersistenceSearch = async ({
     while (notToBreakCondition) {
 
         onNotModulo10(currentNo)
-        const { permutationsSaved, skip } = needToCheck(currentNo)
+        const permutationsSaved = needToCheck(currentNo)
 
-        steps = 2
-        if (!skip) steps = multiPer(currentNo, base)
-
+        //steps = 2
+        //if (!skip) steps = multiPer(currentNo, base)
+        steps = multiPer(currentNo, base)
+        //steps = 2
         calcIterations += permutationsSaved + 1n
         countIterations++
 
@@ -105,7 +106,7 @@ const multiplicativePersistenceSearch = async ({
             logAfterCountIterations = Math.floor(2000 / timeForSingleIteration) + countIterations
             if (logAfterCountIterations === Infinity) logAfterCountIterations = countIterations + 10_000
 
-            if (await postMessage(worker, 'found', {
+            if (postMessage(worker, 'found', {
                 calcIterations,
                 countIterations,
                 currentNo: currentNo.value,
@@ -113,6 +114,7 @@ const multiplicativePersistenceSearch = async ({
                 iterationsNotFoundLimit,
                 iterationsPerLog,
                 lastNumberFound: lastNumberFound.value,
+                length: currentNo.length,
                 maxSteps,
                 messages,
                 notFoundIterations,
@@ -124,6 +126,8 @@ const multiplicativePersistenceSearch = async ({
 
             startTimeLog = Date.now()
             iterationsPerLog = countIterations
+
+            console.log(process.env.log)
         }
         if (notToBreakCondition) currentNo.addOne()
     }
@@ -133,7 +137,7 @@ const multiplicativePersistenceSearch = async ({
         await sleep(10)
     }
 
-    await postMessage(worker, 'found', {
+    postMessage(worker, 'found', {
         calcIterations,
         countIterations,
         currentNo: currentNo.value,
@@ -141,6 +145,7 @@ const multiplicativePersistenceSearch = async ({
         iterationsNotFoundLimit,
         iterationsPerLog,
         lastNumberFound: lastNumberFound.value,
+        length: currentNo.length,
         maxSteps,
         messages,
         notFoundIterations,
@@ -151,6 +156,7 @@ const multiplicativePersistenceSearch = async ({
     while (process.env.isWorkerReady !== 'true') {
         await sleep(10)
     }
+    console.log(process.env.log)
     console.log('---------- FINISH ----------')
 }
 

@@ -8,6 +8,7 @@ import multiplicativePersistenceSearch from './MultiplicativePersistence/multipl
 import postMessage from './utils/postMessage.js'
 
 process.env.isWorkerReady = 'false'
+process.env.log = ''
 
 // noinspection JSCheckFunctionSignatures
 const worker = new Worker('./worker.js', { 'env': SHARE_ENV })
@@ -21,6 +22,7 @@ if (!INIT_VARS[process.selfEnv.INIT_BASE]) {
         ITERATIONS_NOT_FOUND: 0,
         ITERATIONS_NOT_FOUND_LIMIT: 1_00_000_000,
         LAST_FOUND: 0n,
+        LENGTHS: {},
         MAX_STEPS: -1,
         NUMBER: process.selfEnv.INIT_NUMBER,
         UP_TIME_MILLISECONDS: process.selfEnv.INIT_UP_TIME_MILLISECONDS,
@@ -29,7 +31,7 @@ if (!INIT_VARS[process.selfEnv.INIT_BASE]) {
 }
 
 let goalNumber = new HugeInt(process.selfEnv.INIT_GOAL_NUMBER, process.selfEnv.INIT_BASE)
-await postMessage( worker, 'init', {
+postMessage( worker, 'init', {
     INIT_VARS: {
         ...INIT_VARS,
         [process.env.INIT_BASE]: {...INIT_VARS[process.env.INIT_BASE], LAST_FOUND: undefined},
@@ -40,3 +42,4 @@ await postMessage( worker, 'init', {
 
 // noinspection JSCheckFunctionSignatures
 await multiplicativePersistenceSearch({ ...INIT_VARS[process.selfEnv.INIT_BASE], worker })
+worker.terminate()

@@ -5,9 +5,9 @@ import sleep from './sleep.js'
  * @param worker { Worker }
  * @param type { string }
  * @param data { Object }
- * @returns {Promise<boolean>}
+ * @returns { boolean }
  */
-const postMessage = async (worker, type, data) => {
+const postMessage = (worker, type, data) => {
 
     if (type === 'init')
         process.env.isWorkerReady = 'true'
@@ -19,7 +19,7 @@ const postMessage = async (worker, type, data) => {
                 data,
             }
         )
-        await sleep(1)
+        //await sleep(1)
         return true
     }
     return false

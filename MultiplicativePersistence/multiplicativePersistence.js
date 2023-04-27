@@ -1,13 +1,14 @@
-import { memorizeForPowerBy } from '../memorize.js'
 import { digitsValue } from '../Digits/index.js'
 
 /**
  *
- * @type {function(...[*]): (bigint|*)}
+ * @param value { bigint }
+ * @param powerBy { bigint }
+ * @returns { bigint }
  */
-const powerBigInt = memorizeForPowerBy((value, powerBy) => {
+const powerBigInt = (value, powerBy) => {
     return value ** powerBy
-})
+}
 /**
  *
  * @param hugeInt {HugeInt}
@@ -18,35 +19,33 @@ const hugeIntCreatePowerArray = hugeInt => {
         ({digit, count}) => powerBigInt(digit, count)
     )
 }
-
 /**
  *
- * @param str {string} Representing a bigint number
+ * @param arr {string[]} Representing a bigint number
  * @return {DigitCell[]}
  */
-function getDigitsLengths(str) {
-    const lengths = []
+function convertToDigitsCells(arr) {
+    const result = []
     let endIndex = 0
     let startIndex = 0
 
-    while (startIndex < str.length) {
-        const digit = str[endIndex]
-        endIndex = str.lastIndexOf(digit) + 1
-        lengths.push({digit:digitsValue[digit], count: BigInt(endIndex - startIndex)})
+    while (startIndex < arr.length) {
+        const digit = arr[endIndex]
+        endIndex = arr.lastIndexOf(digit) + 1
+        result.push({ digit:digitsValue[digit], count: BigInt(endIndex - startIndex) })
         startIndex = endIndex
     }
-    return lengths;
+    return result
 }
-
 /**
  *
- * @param bigIntStr {string}
+ * @param bigIntStr {string[]}
  * @return {DigitCell[]}
  */
 const bigIntCreatePowerArray = bigIntStr => {
     // const digitsArr = bigIntStr.match(/((.)\2*)/g)
-    const lengths = getDigitsLengths(bigIntStr)
-    return lengths.map(
+    const digitCells = convertToDigitsCells(bigIntStr)
+    return digitCells.map(
         ({digit, count}) => powerBigInt(digit, count)
     )
 }
@@ -55,9 +54,7 @@ const bigIntCreatePowerArray = bigIntStr => {
  * @param currentNo {HugeInt}
  * @return {DigitCell[]}
  */
-const toPowerArray1st = (currentNo) => {
-    return hugeIntCreatePowerArray(currentNo)
-}
+const toPowerArray1st = (currentNo) => hugeIntCreatePowerArray(currentNo)
 /**
  *
  * @type {number[]}
@@ -65,7 +62,7 @@ const toPowerArray1st = (currentNo) => {
 const arrayWithZero = [0]
 /**
  *
- * @param currentNo {HugeInt}
+ * @param currentNo {bigint}
  * @param base
  * @return {[number]|(bigint|*)[]}
  */
@@ -73,7 +70,7 @@ const toPowerArray2nd = (currentNo, base) => {
     const currentNoStr = currentNo.toString(base)
     if (currentNoStr.includes('0')) return arrayWithZero
 
-    return bigIntCreatePowerArray(currentNoStr.split('').sort().join(''))
+    return bigIntCreatePowerArray(currentNoStr.split('').sort()) //.join(''))
 }
 /**
  *
@@ -92,10 +89,9 @@ const reduce = (a, b) => {
 const multiplicativePersistence1 = function (toPowerArray) {
     return function (currentNo, base) {
         if (currentNo.isLTBase()) return 0
-        const digits = toPowerArray(currentNo, base)
-        const multiplyResult = digits.reduce(reduce)
 
-        return 1 + multiPer2(multiplyResult, base)
+        const digits = toPowerArray(currentNo, base)
+        return 1 + multiPer2(digits.reduce(reduce), base)
     }
 }
 /**
@@ -108,11 +104,9 @@ const multiplicativePersistence2 = function (toPowerArray) {
         if (currentNo < base) return 0
 
         const digits = toPowerArray(currentNo, base)
-        const multiplyResult = digits.reduce(reduce)
-        return 1 + multiPer2(multiplyResult, base)
+        return 1 + multiPer2(digits.reduce(reduce), base)
     }
 }
-
 /**
  *
  * @type {function(HugeInt, number): number}

@@ -3,13 +3,13 @@
  * @param currentNo {HugeInt}
  * @return {HugeInt}
  */
-const onNotModulo10 = (currentNo, /* base */) => {
+const onNotModulo10 = (currentNo) => {
 
     if (currentNo.moduloBase() === 0n) {
 
         let { firstCell, secondCell, lastCell } = currentNo
 
-        if (lastCell.digit === 1n ) {
+        if (lastCell.digit === 1n) {
             lastCell.digit++
         }
         secondCell.count += firstCell.count

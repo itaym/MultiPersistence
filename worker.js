@@ -8,21 +8,8 @@ import { setInitVars } from './Config/getInitVars.js'
 let log
 let INIT_VARS
 let base
-const saveConsoleLog = console.log
-console.log = (...args) => {
-    const newArgs = []
 
-    args.forEach(arg => {
-        if (typeof arg === 'string')
-            for (let x = 7; x < 15; x++) {
-                if (x === 10) continue
-                arg = arg.replaceAll(String.fromCharCode(x), 'X')
-            }
-        newArgs.push(arg)
-        saveConsoleLog(...newArgs)
-    })
-}
-
+let timerHandler
 let onFound = ({ countSteps }) => {
 
     const newStep = {
@@ -39,6 +26,7 @@ let onFound = ({ countSteps }) => {
         calcIterations,
         currentNo,
         steps,
+        value,
     }) => {
         if (!countSteps[steps]) {
             countSteps[steps] = { ...newStep, step: steps }
@@ -46,7 +34,7 @@ let onFound = ({ countSteps }) => {
         const countStep = countSteps[steps]
 
         if (!countStep.count) {
-            countStep.first = currentNo.value
+            countStep.first = value
         }
         const lengthsArr = currentNo.cellsArr.reduce((arr, cell) => {
             if (cell.count !== 1n) arr.push(cell.count)
@@ -54,7 +42,7 @@ let onFound = ({ countSteps }) => {
         }, [])
         countStep.combinations += factorial(BigInt(currentNo.length)) / calcCellsArrFactorial(lengthsArr)
         countStep.count++
-        countStep.last = currentNo.value
+        countStep.last = value
         countStep.atRunTime = atRunTime
         countStep.iteration = calcIterations
     }
@@ -77,13 +65,15 @@ parentPort.on('message', async (messageObj) => {
                 endTime,
                 iterationsNotFoundLimit,
                 lastNumberFound,
+                length,
                 maxSteps,
                 messages,
                 notFoundIterations,
                 startTime,
             } = messageObj.data
             messages.forEach(message => {
-                message.currentNo =  new HugeInt(message.currentNo.value)
+                message.currentNo =  new HugeInt(message.currentNo.value, base)
+                message.value = message.currentNo.value
                 onFound(message)
             })
 
@@ -92,10 +82,19 @@ parentPort.on('message', async (messageObj) => {
             INIT_VARS[base].ITERATIONS_NOT_FOUND = notFoundIterations
             INIT_VARS[base].ITERATIONS_NOT_FOUND_LIMIT = iterationsNotFoundLimit
             INIT_VARS[base].LAST_FOUND = lastNumberFound
+            if (!INIT_VARS[base].LENGTHS[length]) {
+                INIT_VARS[base].LENGTHS[length] = {
+                    length, time: endTime - startTime
+                }
+            }
             INIT_VARS[base].MAX_STEPS = maxSteps
             INIT_VARS[base].NUMBER = currentNo
             INIT_VARS[base].UP_TIME_MILLISECONDS = endTime - startTime
-            log({...messageObj.data, countSteps: INIT_VARS[process.env.INIT_BASE].STEPS})
+            process.env.log = log({...messageObj.data, countSteps: INIT_VARS[process.env.INIT_BASE].STEPS})
+            clearTimeout(timerHandler)
+            timerHandler = setTimeout(() => {
+                process.env.isWorkerReady = 'true'
+            },4_000)
             if (process.env.DEBUG === 'false') {
                 await setInitVars(INIT_VARS, base)
             }

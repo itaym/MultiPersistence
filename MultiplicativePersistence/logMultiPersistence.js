@@ -49,7 +49,7 @@ export default function logMultiPersistence({
             const numOfMillisecondsLog = endTime - startTimeLog
             const sessionMilliseconds = endTime - startSessionTime
             const cellNo = currentNo.cellsLength
-            const currentNumberStr = fromMiddleStringMaxLength(currentNo.toLocaleString(), 118)
+            const currentNumberStr = currentNo.toLocaleString()
             lastNumberFound = fromMiddleStringMaxLength(lastNumberFound.toLocaleString(), 52)
 
             const iterationsPerSecond = Math.floor(Number(calcIterations / BigInt(Math.ceil(numOfMilliseconds / 1000))))
@@ -57,7 +57,7 @@ export default function logMultiPersistence({
             const iterationsPerSecondLog = Math.floor(iterationsPerLog / (numOfMillisecondsLog / 1000))
             let timeLeft = Math.max(Number((exIterations - calcIterations) / BigInt(iterationsPerSecond + 1)) * 1000, 0)
             const notFoundTimeLeft = Math.max((iterationsNotFoundLimit - notFoundIterations) / countIterationsPerSecond * 1000, 0)
-            const percentDone = (Number(calcIterations * 10_000_000_000n / exIterations * 100n) / 10_000_000_000).toFixed(8)
+            const percentDone = (Number(calcIterations * 1_000_000_000_000n / exIterations * 100n) / 1_000_000_000_000).toFixed(10)
 
             if (timeLeft === Infinity || timeLeft > maxMilliseconds) timeLeft = maxMilliseconds
             timeLeft = BigInt(timeLeft)
@@ -67,16 +67,16 @@ export default function logMultiPersistence({
                 let cs = countSteps[index]
                 if (cs?.count) {
                     countLog.push((index + '').padStart(2, '0').padEnd(5, ' =>') +
-                        `${(cs.count.toLocaleString() + '').padStart(18, ' ')}, ${fromMiddleStringMaxLength(cs.combinations.toLocaleString(), 39).padStart(45, ' ')}, ${(cs.iteration.toLocaleString() + '').padStart(18, ' ')}. ${fromMiddleStringMaxLength(getTimeString(endTime - cs.atRunTime - startTime) + ' (' + (calcIterations - cs.iteration).toLocaleString() + ')', 48)}`)
+                        `${(cs.count.toLocaleString() + '').padStart(18, ' ')}, ${fromMiddleStringMaxLength(cs.combinations.toLocaleString(), 44).padStart(45, ' ')}, ${fromMiddleStringMaxLength(cs.iteration.toLocaleString(),18).padStart(18, ' ')}. ${fromMiddleStringMaxLength(getTimeString(endTime - cs.atRunTime - startTime) + ' (' + (calcIterations - cs.iteration).toLocaleString() + ')', 48)}`)
                 }
             }
 
             let logStr = '-'.repeat(140) + '\n'
-            logStr += `Current number: ${currentNumberStr} (${currentNo.cellsArr[currentNo.cellsArr.length - 1].digit},${currentNo.cellsArr[currentNo.cellsArr.length - 2]?.digit},${currentNo.cellsArr[currentNo.cellsArr.length - 3]?.digit})`.padEnd(140, '.') + '\n'
+            logStr += fromMiddleStringMaxLength(`Current number: ${currentNumberStr} (${currentNo.cellsArr[currentNo.cellsArr.length - 1].digit},${currentNo.cellsArr[currentNo.cellsArr.length - 2]?.digit},${currentNo.cellsArr[currentNo.cellsArr.length - 3]?.digit})`, 140).padEnd(140, '.') + '\n'
             logStr += `Number found in ` + fromMiddleStringMaxLength(`${maxSteps} -> ${lastNumberFound}`, 53).padEnd(54, '-') +
                       `Current number length: ${currentNo.length.toLocaleString()} (${cellNo})`.padEnd(70, '-') + '\n'
-            logStr += `Calc Iter.: ${calcIterations.toLocaleString()} (${percentDone}%) saved: ${(calcIterations - BigInt(countIterations)).toLocaleString()}`.padEnd(70, '-') +
-                      `Real Iter.: ${countIterations.toLocaleString()}`.padEnd(70, '-') + '\n'
+            logStr += `Calc Iter.: ${calcIterations.toLocaleString()} (${percentDone}%)`.padEnd(70, '-') +
+                      `Real Iter.: ${countIterations.toLocaleString()} saved: ${(calcIterations - BigInt(countIterations)).toLocaleString()}`.padEnd(70, '-') + '\n'
             logStr += `Avg Calc Iter./sec: ${iterationsPerSecond.toLocaleString()} (x ${(iterationsPerSecond / countIterationsPerSecond).toFixed(2)})`.padEnd(70, '-') +
                       `Avg Real Iter./sec: ${countIterationsPerSecond.toLocaleString()}`.padEnd(70, '-') + '\n'
             logStr += `Log Iterations/sec: ${iterationsPerSecondLog.toLocaleString()}`.padEnd(70, '-') +
@@ -89,7 +89,8 @@ export default function logMultiPersistence({
             currentColor = 1
             countLog.forEach(logString => logStr += chalk[getColor()](logString) + '\n')
             logStr = logStr.substring(0, logStr.length - 1)
-            console.log(logStr)
+            return logStr
+            //console.log(logStr)
         }
         catch (e) {
             //debugger

@@ -66,7 +66,7 @@ const getPermutations = (() => {
 const countPermutations = (_length, base) => {
     if (_length <= 0n) return 0n
     if (permutationsJson[base] && permutationsJson[base][_length]) {
-        return BigInt(permutationsJson[base][_length])
+        return permutationsJson[base][_length]
     }
     if (!permutationsJson[base]) permutationsJson[base] = {}
     permutationsJson[base][_length] = getPermutations(base, _length)

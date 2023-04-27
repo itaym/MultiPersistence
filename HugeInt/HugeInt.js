@@ -37,6 +37,7 @@ function toString(constructor) {
                 let result = []
                 while (initBigInt !== 0n) {
                     const digit = Number(initBigInt % bigIntBase)
+                    //if (digit === 0) return '0'
                     result.unshift(baseDigits[digit])
                     initBigInt /= bigIntBase
                 }
@@ -138,10 +139,30 @@ class HugeInt {
             for (let x = 0; x < cell.count; x++) {
                 value += digit * (base ** power)
                 power++
-
             }
         })
         return value
+    }
+    createSorted(value, base) {
+        this.base = BigInt(base)
+        const cache = {}
+
+        do {
+            const digit = value % base || base
+            value /= base
+            if (!cache[digit])
+                cache[digit] = { count: 1n, digit }
+            else
+                cache[digit].count++
+        } while (value !== 0n)
+        this.cellsArr = Object.values(cache)
+        this.cellsArr.sort((aCell, bCell) => {
+            // if (aCell.digit === 0n) aCell.digit = base
+            // if (bCell.digit === 0n) bCell.digit = base
+
+            return Number(bCell.digit - aCell.digit)
+        })
+        if (this.cellsArr[0].digit === base) this.cellsArr[0].digit = 0n
     }
     convertFromString(str, base = 10) {
         const digitsArr = str.split('').reverse()
@@ -526,6 +547,19 @@ class HugeInt {
             newArr.push(currentNumber)
         }
         this.cellsArr = newArr
+    }
+
+    /**
+     *
+     * @param digit { string }
+     */
+    contains(digit) {
+        for (let cell of this.cellsArr) {
+            if (baseDigits[cell.digit] === digit) {
+                return true
+            }
+        }
+        return false
     }
     toString() {
         const tmpArr = []
