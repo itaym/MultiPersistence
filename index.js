@@ -11,7 +11,12 @@ process.env.isWorkerReady = 'false'
 process.env.log = ''
 
 // noinspection JSCheckFunctionSignatures
-const worker = new Worker('./worker.js', { 'env': SHARE_ENV })
+const worker = new Worker('./worker.js', {
+    'env': SHARE_ENV,
+    resourceLimits: {
+        maxOldGenerationSizeMb: 16_384
+    },
+})
 
 const INIT_VARS = !process.selfEnv.DEBUG ? await getInitVars(process.selfEnv.INIT_BASE) : {}
 if (!INIT_VARS[process.selfEnv.INIT_BASE]) {

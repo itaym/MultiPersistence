@@ -39,12 +39,12 @@ function convertToDigitsCells(arr) {
 }
 /**
  *
- * @param bigIntStr {string[]}
+ * @param arr {string[]}
  * @return {DigitCell[]}
  */
-const bigIntCreatePowerArray = bigIntStr => {
+const bigIntCreatePowerArray = arr => {
     // const digitsArr = bigIntStr.match(/((.)\2*)/g)
-    const digitCells = convertToDigitsCells(bigIntStr)
+    const digitCells = convertToDigitsCells(arr)
     return digitCells.map(
         ({digit, count}) => powerBigInt(digit, count)
     )
@@ -70,7 +70,7 @@ const toPowerArray2nd = (currentNo, base) => {
     const currentNoStr = currentNo.toString(base)
     if (currentNoStr.includes('0')) return arrayWithZero
 
-    return bigIntCreatePowerArray(currentNoStr.split('').sort()) //.join(''))
+    return bigIntCreatePowerArray(currentNoStr.split('').sort())
 }
 /**
  *

@@ -69,7 +69,13 @@ export const DigitCell = class {
     count = 0n
     digit = 0n
 }
+
 class HugeInt {
+    /**
+     *
+     * @param initBigInt
+     * @param base { number | bigint | string }
+     */
     constructor(initBigInt = 0n, base = 10) {
 
         this.base = BigInt(base)
@@ -411,35 +417,11 @@ class HugeInt {
         return Number(count)
     }
     multiplyBy(hugeInt) {
-
-        const result = new Array(this.length + hugeInt.length).fill(0n);
-        for (let i = 0; i < this.length; i++) {
-            for (let j = 0; j < hugeInt.cellsArr.length; j++) {
-                const digit1 = this.cellsArr[i].digit;
-                const count1 = this.cellsArr[i].count;
-                const digit2 = hugeInt.cellsArr[j].digit;
-                const count2 = hugeInt.cellsArr[j].count;
-                result[i + j] += BigInt(digit1 * digit2) * BigInt(Math.max(count1, 1) * Math.max(count2, 1))
-            }
-        }
-
-        // Convert the result array to a formatted number
-        const formattedResult = [];
-        let carry = 0n;
-        for (let i = result.length - 1; i >= 0; i--) {
-            const digit = result[i] + carry;
-            carry = digit / 10n
-            formattedResult.unshift({ digit: digit % 10n, count: 1 });
-        }
-        if (carry > 0n) {
-            formattedResult.unshift({ digit: carry, count: 1 });
-        }
-        this.cellsArr = formattedResult
-        return formattedResult
+        return new HugeInt(this.value * hugeInt.value, this.base)
     }
     multiplyByBasePower(count) {
         if (this.cellsArr[0].digit === 0n) {
-            this.cellsArr[this.cellsArr.length - 1].count += count
+            this.cellsArr[0].count += count
         }
         else {
             this.cellsArr.unshift({

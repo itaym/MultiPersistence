@@ -6,7 +6,7 @@ import memorize from './memorize.js'
  * @return {bigint}
  */
 const factorialFn = number => {
-    if (number <= 0n) return 1n
+    if (number <= 1n) return 1n
     return number * factorial(number - 1n)
 }
 /**

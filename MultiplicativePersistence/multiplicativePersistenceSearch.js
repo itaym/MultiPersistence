@@ -106,6 +106,11 @@ const multiplicativePersistenceSearch = async ({
             logAfterCountIterations = Math.floor(2000 / timeForSingleIteration) + countIterations
             if (logAfterCountIterations === Infinity) logAfterCountIterations = countIterations + 10_000
 
+            while (process.env.isWorkerReady !== 'true') {
+                console.log('waiting...')
+                await sleep(10)
+            }
+
             if (postMessage(worker, 'found', {
                 calcIterations,
                 countIterations,

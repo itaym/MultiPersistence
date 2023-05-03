@@ -1,4 +1,4 @@
-import getTimeString from '../getTimeString.js'
+import getTimeString from '../utils/getTimeString.js'
 import countPermutations from '../countPermutations.js'
 import HugeInt from '../HugeInt/index.js'
 import chalk from 'chalk'
