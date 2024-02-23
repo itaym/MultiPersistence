@@ -13,7 +13,7 @@ const dateNow = Date.now()
  */
 const now = (hrMilliseconds, dateNow) => () => {
     const hrNowMilliseconds = process.hrtime.bigint()
-    return dateNow + Math.floor(Number(hrNowMilliseconds - hrMilliseconds) / 1000000)
+    return dateNow + Math.floor(Number(hrNowMilliseconds - hrMilliseconds) / 1_000_000)
 }
 
 export default now(hrMilliseconds, dateNow)

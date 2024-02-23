@@ -13,6 +13,6 @@ const factorialFn = number => {
  *
  * @type {function(...[bigint]):bigint}
  */
-const factorial = memorize(factorialFn)
+const factorial = memorize(factorialFn, 'factorial')
 
 export default factorial

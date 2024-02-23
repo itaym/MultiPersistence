@@ -31,7 +31,7 @@ const _getPermutations = (() => {
             if (runBase > theLastOne) getPCacheLast.set(length, runBase)
         }
         return result
-    })
+    }, '_getPermutations')
 })()
 
 const getPermutations = (() => {
@@ -39,7 +39,7 @@ const getPermutations = (() => {
     const cacheLast = new Cache()
     const cache = new Cache()
 
-    return (base, length) => {
+    return memorize((base, length) => {
 
         let baseLast = cacheLast.get(base)
         let checkLength = 1n
@@ -60,9 +60,14 @@ const getPermutations = (() => {
             if (runLength > theLastOne) cacheLast.set(base, runLength)
         }
         return result
-    }
+    }, 'getPermutation')
 })()
-
+/**
+ *
+ * @param _length
+ * @param base
+ * @returns {bigint}
+ */
 const countPermutations = (_length, base) => {
     if (_length <= 0n) return 0n
     if (permutationsJson[base] && permutationsJson[base][_length]) {

@@ -1,6 +1,10 @@
+
 export default class Cache extends Map {
-    constructor(decayPolicy = {}) {
+    constructor(decayPolicy = {}, name) {
         super()
+        this.x = 0
+        this.y = 0
+        this.name = name
         this.decayPolicy = { ...decayPolicy }
 
         if (!this.decayPolicy.maxSize)
@@ -10,6 +14,9 @@ export default class Cache extends Map {
     }
 
     set(key, item) {
+        this.x++
+        // if ((this.x % 10_000) === 0)
+        //console.log(this.name, this.x, this.y, ((this.y - this.x) / this.x).toFixed(4))
         try {
             super.set(key, {
                 // count: 0,
@@ -33,6 +40,7 @@ export default class Cache extends Map {
         // }
     }
     get(key) {
+        this.y++
         const item = super.get(key) || { count: -1 }
         // item.expire = Date.now() + this.decayPolicy.expireIn
         // item.count++

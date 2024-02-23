@@ -1,20 +1,20 @@
-/**
- *
- * @param currentNo {HugeInt}
- * @return {HugeInt}
- */
-const onNotModulo10 = (currentNo) => {
 
-    if (currentNo.moduloBase() === 0n) {
+const onNotModuloBase = (currentNo) => {
 
-        let { firstCell, secondCell, lastCell } = currentNo
+    let firstCell = currentNo.cellsArr[0]
+    if (firstCell.digit === 0n) {
 
-        if (lastCell.digit === 1n) {
-            lastCell.digit++
-        }
-        secondCell.count += firstCell.count
+
+        //let secondCell = currentNo.cellsArr[1]
+        // let lastCell = currentNo.cellsArr[currentNo.cellsArr.length - 1]
+
+        // if (lastCell.digit === 1n) {
+        //     lastCell.digit++
+        // }
+        currentNo.cellsArr[1].count += firstCell.count
+        //secondCell.count += firstCell.count
         currentNo.cellsArr.shift()
     }
 }
 
-export default onNotModulo10
+export default onNotModuloBase

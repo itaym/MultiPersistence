@@ -22,11 +22,9 @@ if (!Array.prototype.group) {
 
 function toString(constructor) {
     const nativeToString = constructor.prototype.toString
-    constructor.prototype.toString = function (radix) {
-        if (!radix) {
-            return nativeToString.call(this)
-        } else if (radix <= 16) {
-            return nativeToString.call(this, radix)
+    constructor.prototype.toString = function (radix = 10n) {
+        if (radix <= 16) {
+            return nativeToString.call(this, Number(radix))
         } else {
             let initBigInt
             initBigInt = BigInt(this)
@@ -78,7 +76,8 @@ class HugeInt {
      */
     constructor(initBigInt = 0n, base = 10) {
 
-        this.base = BigInt(base)
+        this.base = BigInt(Number(base))
+        this.baseMinusOne = this.base - 1n
         this.cellsArr = []
         initBigInt = BigInt(initBigInt)
         // const digitsArr = initBigInt.toString(base).match(/((.)\2*)/g).reverse()
@@ -118,7 +117,7 @@ class HugeInt {
         this._addCellBefore = addCellBefore.bind(this)
     }
     get length() {
-        return Number(this.cellsArr.reduce((a, b) => b.count + a, 0n))
+        return this.cellsArr.reduce((a, b) => b.count + a, 0n)
     }
     get cellsLength() {
         return this.cellsArr.length
@@ -151,6 +150,7 @@ class HugeInt {
     }
     createSorted(value, base) {
         this.base = BigInt(base)
+        this.baseMinusOne = this.base - 1n
         const cache = {}
 
         do {
@@ -170,23 +170,20 @@ class HugeInt {
         })
         if (this.cellsArr[0].digit === base) this.cellsArr[0].digit = 0n
     }
-    convertFromString(str, base = 10) {
-        const digitsArr = str.split('').reverse()
+    fromString(str, base = 10) {
         this.cellsArr = []
-        let digitCell = { count: 1n, digit: BigInt(digitsValue[digitsArr[0]]) }
+        try {
+            const digitsArr = (str.match(/((.)\2*)/g) || [str]).reverse()
 
-        for (let index = 1; index < digitsArr.length; index++) {
-            let value = BigInt(digitsValue[digitsArr[index]])
-            if (value === digitCell.digit) {
-                digitCell.count++
-            }
-            else {
-                this.cellsArr.push(digitCell)
-                digitCell = { count: 1n, digit: value }
+            for (let digits of digitsArr) {
+                this.cellsArr.push({count: BigInt(digits.length), digit: digitsValue[digits[0]]})
             }
         }
-        this.cellsArr.push(digitCell)
+        catch (e) {
+            debugger
+        }
         this.base = BigInt(base)
+        this.baseMinusOne = this.base - 1n
 
     }
     clone() {
@@ -204,47 +201,49 @@ class HugeInt {
         }
         return this.cellsArr[cellIndex].digit
     }
-    addOne(cellIndex = 0) {
+    addOne(cellIndex) {
         let cell = this.cellsArr[cellIndex]
 
-        switch (cell.digit) {
-            case (this.base - 1n):
-                cell.digit = 0n
-
-                if (cellIndex > 0 && this.cellsArr[cellIndex - 1].digit === 0n) {
-                    this.cellsArr[cellIndex - 1].count += cell.count
-                    this.cellsArr.splice(cellIndex, 1)
-                    cellIndex--
-                }
-                if (cellIndex === this.cellsLength - 1) {
-                    this.cellsArr.push({
-                        count: 1n,
-                        digit: 1n
-                    })
-                    return
-                }
-                this.addOne(cellIndex + 1)
+        if (cell.digit !== this.baseMinusOne) {
+            if (cell.count === 1n) {
+                cell.digit++
                 return
-            default:
-                if (cell.count === 1n) {
-                    cell.digit++
-                } else {
-                    this._addCellAfter(cellIndex, {
-                        count: cell.count - 1n,
-                        digit: cell.digit,
-                    })
-                    cell.count = 1n
-                    cell.digit++
-                }
-                if (cellIndex > 0 && (this.cellsArr[cellIndex - 1].digit === cell.digit)) {
-                    this.cellsArr[cellIndex - 1].count += cell.count
-                    this.cellsArr.splice(cellIndex, 1)
-                }
-                if (cellIndex < (this.cellsLength - 1) && (this.cellsArr[cellIndex + 1].digit === cell.digit)) {
-                    this.cellsArr[cellIndex].count += this.cellsArr[cellIndex + 1].count
-                    this.cellsArr.splice(cellIndex + 1, 1)
-                }
+            } else {
+                this._addCellAfter(cellIndex, {
+                    count: cell.count - 1n,
+                    digit: cell.digit,
+                })
+                cell.count = 1n
+                cell.digit++
+                return
+            }
         }
+
+        cell.digit = 0n
+
+        // if (cellIndex && this.cellsArr[cellIndex - 1].digit === 0n) {
+        //     this.cellsArr[cellIndex - 1].count += cell.count
+        //     this.cellsArr.splice(cellIndex, 1)
+        //     cellIndex--
+        // }
+        if (cellIndex === this.cellsLength - 1) {
+            this.cellsArr.push({
+                count: 1n,
+                digit: 2n // 1n
+            })
+            return
+        }
+        this.addOne(cellIndex + 1)
+        // if (cellIndex && (this.cellsArr[cellIndex - 1].digit === cell.digit)) {
+        //     console.log('sdf')
+        //     this.cellsArr[cellIndex - 1].count += cell.count
+        //     this.cellsArr.splice(cellIndex, 1)
+        // }
+        // if (cellIndex < (this.cellsLength - 1) && (this.cellsArr[cellIndex + 1].digit === cell.digit)) {
+        //     console.log('sdf')
+        //     this.cellsArr[cellIndex].count += this.cellsArr[cellIndex + 1].count
+        //     this.cellsArr.splice(cellIndex + 1, 1)
+        // }
     }
     addBasePower(numOfZeros) {
         if (numOfZeros === 0) {
@@ -308,32 +307,6 @@ class HugeInt {
     isGTBase() {
         return (!(this.cellsLength === 1 && this.cellsArr[0].count === 1n))
     }
-    // isGT(hugeInt) {
-    //     if (this.length > hugeInt.length) {
-    //         return true
-    //     }
-    //     if (this.length < hugeInt.length) {
-    //         return false
-    //     }
-    //     for (let cellIndex = this.cellsLength - 1; cellIndex >= 0; cellIndex--) {
-    //         const thisCell = this.cellsArr[cellIndex]
-    //         const hugeIntCell = hugeInt.cellsArr[cellIndex]
-    //
-    //         if (thisCell.digit > hugeIntCell.digit) {
-    //             return true
-    //         }
-    //         if (thisCell.digit < hugeIntCell.digit) {
-    //             return false
-    //         }
-    //         if (thisCell.count > hugeIntCell.count) {
-    //             return true
-    //         }
-    //         if (thisCell.count < hugeIntCell.count) {
-    //             return false
-    //         }
-    //     }
-    //     return false
-    // }
     isGT(hugeInt) {
         if (this.length > hugeInt.length) {
             return true
@@ -381,6 +354,11 @@ class HugeInt {
         }
         return [null, -1]
     }
+    includesCellOf2(digit) {
+        for (let x = this.cellsArr.length - 1; x > -1; x--)
+            if (this.cellsArr[x].digit === digit) return [this.cellsArr[x], x]
+        return [null, -1]
+    }
     includesCellAtIndex0Of(digit) {
         if (this.cellsArr[0].digit === digit) {
             return [this.cellsArr[0], 0]
@@ -393,15 +371,21 @@ class HugeInt {
         }
         return null
     }
+    isCellOf(digit) {
+        for (let cell of this.cellsArr) {
+            if (cell.digit === digit) return true
+        }
+        return false
+    }
     isLTBase() {
-        return (this.cellsArr.length === 1 && this.cellsArr[0].count === 1n)
+        return this.cellsArr.length === 1 && this.cellsArr[0].count === 1n
     }
     moduloBase() {
         return this.cellsArr[0].digit
     }
     hasEvenDigits() {
         for (let cell of this.cellsArr) {
-            if (!(cell.digit % 2n)) {
+            if ((cell.digit % 2n) === 0n) {
                 return true
             }
         }
@@ -543,14 +527,22 @@ class HugeInt {
         }
         return false
     }
-    toString() {
+    toString2() {
+        //slower
         const tmpArr = []
 
         for (let cell of this.cellsArr) {
-            //if (cell !== this.cellsArr[this.cellsArr.length - 1])
             tmpArr.unshift(baseDigits[cell.digit].repeat(Number(cell.count)))
         }
         return tmpArr.join('')
+    }
+    toString() {
+        let tmpStr = ''
+
+        for (let cell of this.cellsArr) {
+            tmpStr = baseDigits[cell.digit].repeat(Number(cell.count)) + tmpStr
+        }
+        return tmpStr
     }
     toLocaleString() {
         const str = this.toString()

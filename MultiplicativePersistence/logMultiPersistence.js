@@ -2,6 +2,7 @@ import getTimeString from '../utils/getTimeString.js'
 import countPermutations from '../countPermutations.js'
 import HugeInt from '../HugeInt/index.js'
 import chalk from 'chalk'
+import sleep from '../utils/sleep.js'
 
 const colors = ['white', 'yellow']
 let currentColor = 1
@@ -9,6 +10,17 @@ let currentColor = 1
 const getColor = () => {
     currentColor = 1 - currentColor
     return colors[currentColor]
+}
+
+const sanitize = (str) => {
+    for (let x = 0; x < 32; x++) {
+        //if (x === 10) continue
+        str = str.replaceAll(String.fromCharCode(x), 'X')
+    }
+    for (let x = 150; x < 167; x++) {
+        str = str.replaceAll(String.fromCharCode(x), 'Y')
+    }
+    return str
 }
 
 export const fromMiddleStringMaxLength= (str, max = Number.MAX_SAFE_INTEGER) => {
@@ -24,8 +36,10 @@ export default function logMultiPersistence({
     base
 }) {
     let goalNumber_length = goalNumber.length
-    let exIterations = countPermutations(BigInt(goalNumber_length), BigInt(base - 2))
+    let exIterations = countPermutations(BigInt(goalNumber_length), base - 2n)
     const maxMilliseconds = BigInt('9'.repeat(500))
+    let previousLength = 0
+    let foundInLength = 0
 
     return function ({
         calcIterations,
@@ -35,13 +49,15 @@ export default function logMultiPersistence({
         endTime,
         iterationsNotFoundLimit,
         iterationsPerLog,
-        lastNumberFound,
+        lengths,
+        messagesCount,
         maxSteps,
         notFoundIterations,
         startSessionTime,
         startTime,
         startTimeLog,
     }) {
+        let lastNumberFound = countSteps[countSteps.length - 1].first
         lastNumberFound = new HugeInt(lastNumberFound, base)
         currentNo = new HugeInt(currentNo, base)
         try {
@@ -49,8 +65,8 @@ export default function logMultiPersistence({
             const numOfMillisecondsLog = endTime - startTimeLog
             const sessionMilliseconds = endTime - startSessionTime
             const cellNo = currentNo.cellsLength
-            const currentNumberStr = currentNo.toLocaleString()
-            lastNumberFound = fromMiddleStringMaxLength(lastNumberFound.toLocaleString(), 52)
+            const currentNumberStr = sanitize(currentNo.toLocaleString())
+            lastNumberFound = fromMiddleStringMaxLength(sanitize(lastNumberFound.toLocaleString()), 52)
 
             const iterationsPerSecond = Math.floor(Number(calcIterations / BigInt(Math.ceil(numOfMilliseconds / 1000))))
             const countIterationsPerSecond = Math.floor(countIterations / (numOfMilliseconds / 1000))
@@ -58,7 +74,8 @@ export default function logMultiPersistence({
             let timeLeft = Math.max(Number((exIterations - calcIterations) / BigInt(iterationsPerSecond + 1)) * 1000, 0)
             const notFoundTimeLeft = Math.max((iterationsNotFoundLimit - notFoundIterations) / countIterationsPerSecond * 1000, 0)
             const percentDone = (Number(calcIterations * 1_000_000_000_000n / exIterations * 100n) / 1_000_000_000_000).toFixed(10)
-
+            const currentNoLength = currentNo.length
+            let totalFound = 0
             if (timeLeft === Infinity || timeLeft > maxMilliseconds) timeLeft = maxMilliseconds
             timeLeft = BigInt(timeLeft)
 
@@ -66,15 +83,21 @@ export default function logMultiPersistence({
             for (let index in countSteps) {
                 let cs = countSteps[index]
                 if (cs?.count) {
+                    totalFound += cs.count
                     countLog.push((index + '').padStart(2, '0').padEnd(5, ' =>') +
                         `${(cs.count.toLocaleString() + '').padStart(18, ' ')}, ${fromMiddleStringMaxLength(cs.combinations.toLocaleString(), 44).padStart(45, ' ')}, ${fromMiddleStringMaxLength(cs.iteration.toLocaleString(),18).padStart(18, ' ')}. ${fromMiddleStringMaxLength(getTimeString(endTime - cs.atRunTime - startTime) + ' (' + (calcIterations - cs.iteration).toLocaleString() + ')', 48)}`)
                 }
             }
+            if (previousLength !== currentNoLength) {
+                previousLength = currentNoLength
+                foundInLength = 0
+            }
+            foundInLength = lengths[currentNoLength + ''] ? lengths[currentNoLength + ''].found : 0
 
             let logStr = '-'.repeat(140) + '\n'
             logStr += fromMiddleStringMaxLength(`Current number: ${currentNumberStr} (${currentNo.cellsArr[currentNo.cellsArr.length - 1].digit},${currentNo.cellsArr[currentNo.cellsArr.length - 2]?.digit},${currentNo.cellsArr[currentNo.cellsArr.length - 3]?.digit})`, 140).padEnd(140, '.') + '\n'
             logStr += `Number found in ` + fromMiddleStringMaxLength(`${maxSteps} -> ${lastNumberFound}`, 53).padEnd(54, '-') +
-                      `Current number length: ${currentNo.length.toLocaleString()} (${cellNo})`.padEnd(70, '-') + '\n'
+                      `Current number length: ${currentNoLength.toLocaleString()} (${cellNo})`.padEnd(70, '-') + '\n'
             logStr += `Calc Iter.: ${calcIterations.toLocaleString()} (${percentDone}%)`.padEnd(70, '-') +
                       `Real Iter.: ${countIterations.toLocaleString()} saved: ${(calcIterations - BigInt(countIterations)).toLocaleString()}`.padEnd(70, '-') + '\n'
             logStr += `Avg Calc Iter./sec: ${iterationsPerSecond.toLocaleString()} (x ${(iterationsPerSecond / countIterationsPerSecond).toFixed(2)})`.padEnd(70, '-') +
@@ -84,7 +107,7 @@ export default function logMultiPersistence({
             logStr += fromMiddleStringMaxLength(`Up Time: ${getTimeString(numOfMilliseconds)} (${numOfMilliseconds})`, 70).padEnd(70, '-') +
                       fromMiddleStringMaxLength(`Time left: ${getTimeString(timeLeft)}`, 70).padEnd(70, '-') + '\n'
             logStr += fromMiddleStringMaxLength(`Session: ${getTimeString(sessionMilliseconds)} (${sessionMilliseconds})`, 70).padEnd(70, '-') +
-                      fromMiddleStringMaxLength(`Base: ${process.env.INIT_BASE}`, 70).padEnd(70, '-')+ '\n'
+                      fromMiddleStringMaxLength(`Base: ${process.env.base} found: ${messagesCount.toLocaleString()} / ${foundInLength.toLocaleString()} / ${totalFound.toLocaleString()}`, 70).padEnd(70, '-')+ '\n'
 
             currentColor = 1
             countLog.forEach(logString => logStr += chalk[getColor()](logString) + '\n')
