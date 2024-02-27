@@ -1,18 +1,17 @@
-import { digitsObj, digitsValue } from '../Digits/index.js'
-import { memorizeForPowerBy } from '../memorize.js'
+import { digitsValue } from '../Digits/index.js'
+import { memorizeForPowerBy } from '../utils/memorize.js'
 
 const powerBy = memorizeForPowerBy((a, b) => a ** b, 'powerBy')
 
-const splitRegEx = /((.)\2*)/g
-
 const convertToPowerArray = (() => {
+    const splitRegEx = /((.)\2*)/g
     const  tbi = []
     for (let int = 0; int < 501; int++) {
         tbi.push(BigInt(int))
     }
     return (str) => {
         const result = []
-        const arr = str.match(splitRegEx) || '1'
+        const arr = str.split('').sort().join('').match(splitRegEx) || '1'
 
         for (let str of arr) {
             result.push(powerBy(digitsValue[str[0]], tbi[str.length]))

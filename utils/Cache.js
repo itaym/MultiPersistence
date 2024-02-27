@@ -40,7 +40,7 @@ export default class Cache extends Map {
         // }
     }
     get(key) {
-        this.y++
+        //this.y++
         const item = super.get(key) || { count: -1 }
         // item.expire = Date.now() + this.decayPolicy.expireIn
         // item.count++

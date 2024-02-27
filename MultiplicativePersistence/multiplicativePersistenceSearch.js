@@ -25,7 +25,7 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
     let notFoundIterations = iterations.found_nothing
 
     const startSessionTime = Date.now()
-    let notToBreakCondition = iterationsNotFoundLimit >= notFoundIterations
+    let notToBreakCondition = iterationsNotFoundLimit > notFoundIterations
     let endTime
     let iterationsPerLog = countIterations
     let messages = []
@@ -115,7 +115,7 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
     while (process.env.isWorkerReady !== 'true') {
         await sleep(10)
     }
-
+    currentNo.subtractOne(0)
     postMessage(worker, 'found', {
         calcIterations,
         countIterations,

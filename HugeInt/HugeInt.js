@@ -36,19 +36,35 @@ function toString(constructor) {
                 while (initBigInt !== 0n) {
                     const digit = Number(initBigInt % bigIntBase)
                     //if (digit === 0) return '0'
-                    result.unshift(baseDigits[digit])
+                    result.push(baseDigits[digit])
                     initBigInt /= bigIntBase
                 }
-                return result.join('')
+                return result.reverse().join('')
             }
         }
     }
 }
-toString(String)
-toString(BigInt)
-toString(Object)
+// toString(String)
+// toString(BigInt)
+// toString(Object)
 
-const addCellAfter = function(index, cell) {
+function toStrNoZero (radix = 10n) {
+    let initBigInt
+    initBigInt = this
+    const bigIntBase = radix
+    let result = []
+    while (initBigInt !== 0n) {
+        const digit = initBigInt % bigIntBase
+        if (digit === 0n) return '0'
+        result.push(baseDigits[digit])
+        initBigInt /= bigIntBase
+    }
+    return result.reverse().join('')
+}
+BigInt.prototype.toStrNoZero = toStrNoZero
+
+
+    const addCellAfter = function(index, cell) {
     this.cellsArr.splice(index + 1, 0, cell)
 }
 const addCellBefore = function(index, cell) {
@@ -234,6 +250,51 @@ class HugeInt {
             return
         }
         this.addOne(cellIndex + 1)
+        // if (cellIndex && (this.cellsArr[cellIndex - 1].digit === cell.digit)) {
+        //     console.log('sdf')
+        //     this.cellsArr[cellIndex - 1].count += cell.count
+        //     this.cellsArr.splice(cellIndex, 1)
+        // }
+        // if (cellIndex < (this.cellsLength - 1) && (this.cellsArr[cellIndex + 1].digit === cell.digit)) {
+        //     console.log('sdf')
+        //     this.cellsArr[cellIndex].count += this.cellsArr[cellIndex + 1].count
+        //     this.cellsArr.splice(cellIndex + 1, 1)
+        // }
+    }
+    subtractOne(cellIndex) {
+        let cell = this.cellsArr[cellIndex]
+
+        if (cell.digit !== 0n) {
+            if (cell.count === 1n) {
+                cell.digit--
+                return
+            } else {
+                this._addCellAfter(cellIndex, {
+                    count: cell.count - 1n,
+                    digit: cell.digit,
+                })
+                cell.count = 1n
+                cell.digit--
+                return
+            }
+        }
+
+        cell.digit = this.baseMinusOne
+
+        // if (cellIndex && this.cellsArr[cellIndex - 1].digit === 0n) {
+        //     this.cellsArr[cellIndex - 1].count += cell.count
+        //     this.cellsArr.splice(cellIndex, 1)
+        //     cellIndex--
+        // }
+        if (cellIndex === this.cellsLength - 1) {
+            cell.digit = 0n
+            // this.cellsArr.push({
+            //     count: 1n,
+            //     digit: 2n // 1n
+            // })
+            return
+        }
+        this.subtractOne(cellIndex + 1)
         // if (cellIndex && (this.cellsArr[cellIndex - 1].digit === cell.digit)) {
         //     console.log('sdf')
         //     this.cellsArr[cellIndex - 1].count += cell.count

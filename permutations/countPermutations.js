@@ -1,6 +1,6 @@
 import fs, { promises as fsPromises } from 'fs'
-import memorize from './memorize.js'
-import Cache from './Cache.js'
+import memorize from '../utils/memorize.js'
+import Cache from '../utils/Cache.js'
 
 let data, permutationsJson
 
@@ -62,12 +62,7 @@ const getPermutations = (() => {
         return result
     }, 'getPermutation')
 })()
-/**
- *
- * @param _length
- * @param base
- * @returns {bigint}
- */
+
 const countPermutations = (_length, base) => {
     if (_length <= 0n) return 0n
     if (permutationsJson[base] && permutationsJson[base][_length]) {
@@ -84,7 +79,7 @@ const countPermutations = (_length, base) => {
             }
             return value
         }, '\t')
-        const fileHandler = fs.openSync('permutations.json', 'rs+')
+        const fileHandler = fs.openSync('permutations/permutations.json', 'rs+')
         fs.writeSync(fileHandler, s)
         fs.closeSync(fileHandler)
     })()
@@ -92,7 +87,7 @@ const countPermutations = (_length, base) => {
 }
 
 try {
-    data = await fsPromises.readFile('permutations.json')
+    data = await fsPromises.readFile('permutations/permutations.json')
     permutationsJson = JSON.parse(data, (key, value) => {
         if (typeof value === 'string')
             return BigInt(value)

@@ -1,6 +1,6 @@
-import countPermutations from '../countPermutations.js'
+import countPermutations from '../permutations/countPermutations.js'
 import { DigitCell } from '../HugeInt/HugeInt.js'
-import memorize from '../memorize.js'
+import memorize from '../utils/memorize.js'
 
 /**
  *

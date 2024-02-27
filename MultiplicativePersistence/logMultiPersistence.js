@@ -1,5 +1,5 @@
 import getTimeString from '../utils/getTimeString.js'
-import countPermutations from '../countPermutations.js'
+import countPermutations from '../permutations/countPermutations.js'
 import HugeInt from '../HugeInt/index.js'
 import chalk from 'chalk'
 import sleep from '../utils/sleep.js'
@@ -57,7 +57,7 @@ export default function logMultiPersistence({
         startTime,
         startTimeLog,
     }) {
-        let lastNumberFound = countSteps[countSteps.length - 1].first
+        let lastNumberFound = countSteps[countSteps.length - 1]?.first || 0
         lastNumberFound = new HugeInt(lastNumberFound, base)
         currentNo = new HugeInt(currentNo, base)
         try {

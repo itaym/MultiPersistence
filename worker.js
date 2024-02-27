@@ -1,6 +1,6 @@
 import HugeInt from './HugeInt/index.js'
-import calcCellsArrFactorial from './calcCellsArrFactorial.js'
-import factorial from './factorial.js'
+import calcCellsArrFactorial from './utils/calcCellsArrFactorial.js'
+import factorial from './utils/factorial.js'
 import logMultiPersistence from './MultiplicativePersistence/logMultiPersistence.js'
 import { parentPort } from 'worker_threads'
 import { setInitVars } from './Config/getInitVars.js'
