@@ -1,7 +1,7 @@
 import { digitsValue } from '../Digits/index.js'
 import { memorizeForPowerBy } from '../utils/memorize.js'
 
-const powerBy = memorizeForPowerBy((a, b) => a ** b, 'powerBy')
+const powerBy = memorizeForPowerBy('powerBy')
 
 const convertToPowerArray = (() => {
     const splitRegEx = /((.)\2*)/g
@@ -9,7 +9,7 @@ const convertToPowerArray = (() => {
     for (let int = 0; int < 501; int++) {
         tbi.push(BigInt(int))
     }
-    return (str) => {
+    return function (str) {
         const result = []
         const arr = str.split('').sort().join('').match(splitRegEx) || '1'
 
@@ -22,7 +22,7 @@ const convertToPowerArray = (() => {
 
 const arrayWithZero = [0n]
 const replace1RegEx = /1/g
-const bigIntCreatePowerArray = (currentNo, base) => {
+function bigIntCreatePowerArray(currentNo, base) {
     let currentNoStr = currentNo.toString(base)
     if (currentNoStr.includes('0')) return arrayWithZero
 
@@ -31,12 +31,28 @@ const bigIntCreatePowerArray = (currentNo, base) => {
     return convertToPowerArray(currentNoStr)
 }
 
-const hugeIntMap = ({ count, digit }) => powerBy(digit ,count)
+function hugeIntMap({ count, digit }) { return powerBy(digit ,count) }
 
-const hugeIntCreatePowerArray = hugeInt =>
-    hugeInt.cellsArr.map(hugeIntMap)
+function hugeIntCreatePowerArray(hugeInt) {
+    return mapHugeInt(hugeInt, hugeIntMap)
+}
 
-const reduce = (a, b) => a * b
+function reduce(arr) {
+    let result = arr[0]
+    for (let x = 1; x < arr.length; x++) {
+        result *= arr[x]
+    }
+    return result
+}
+
+function mapHugeInt(hugeInt, fn) {
+    const result = []
+    const arr = hugeInt.cellsArr
+    for (let x = 0 + hugeInt.startIndex; x < arr.length; x++) {
+        result.push(fn(arr[x]))
+    }
+    return result
+}
 
 export const multiPer = function (currentNo, base) {
     if (currentNo.isLTBase()) return 0
@@ -46,12 +62,12 @@ export const multiPer = function (currentNo, base) {
 export const multiPerNoBaseCheck = function (currentNo, base) {
 
     const digits = hugeIntCreatePowerArray(currentNo)
-    return 1 + multiPer2(digits.reduce(reduce), base)
+    return 1 + multiPer2(reduce(digits), base)
 }
 
 const multiPer2 = function (currentNo, base) {
     if (currentNo < base) return 0
 
     const digits = bigIntCreatePowerArray(currentNo, base)
-    return 1 + multiPer2(digits.reduce(reduce), base)
+    return 1 + multiPer2(reduce(digits), base)
 }

@@ -36,8 +36,8 @@ const _getPermutations = (() => {
 
 const getPermutations = (() => {
 
-    const cacheLast = new Cache()
-    const cache = new Cache()
+    const cacheLast = new Map()
+    const cache = new Map()
 
     return memorize((base, length) => {
 
@@ -47,7 +47,10 @@ const getPermutations = (() => {
 
         if (!baseLast) baseLast = -1n
         const theLastOne = baseLast
-        baseLast = BigInt(Math.min(Number(baseLast), Number(length)))
+
+        if (baseLast > length)
+            baseLast = length
+        //baseLast = BigInt(Math.min(Number(baseLast), Number(length)))
 
         if (baseLast > -1n) {
             checkLength = baseLast + 1n
@@ -57,7 +60,11 @@ const getPermutations = (() => {
         for (let runLength = checkLength; runLength <= length; runLength++) {
             result += _getPermutations(base, runLength)
             cache.set(`${base},${runLength}`, result)
-            if (runLength > theLastOne) cacheLast.set(base, runLength)
+            //console.log(cache.size)
+            if (runLength > theLastOne) {
+                cacheLast.set(base, runLength)
+                //console.log(cacheLast.size)
+            }
         }
         return result
     }, 'getPermutation')

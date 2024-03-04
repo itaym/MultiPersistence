@@ -33,7 +33,7 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
     let permutationsSaved = 0n
     let startTime = Date.now() - up_time
     let startTimeLog = Date.now()
-    let steps = 0
+    let steps = 2
 
     const createMessage = () => {
         const currentNoStr = currentNo.toString()
@@ -86,11 +86,11 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
 
             while (process.env.isWorkerReady !== 'true') {
                 process.stdout.write(".")
-                await sleep(10)
+                await sleep(20)
             }
             console.log(`\n${process.env.log}`)
 
-            postMessage(worker, 'found', {
+            if (postMessage(worker, 'found', {
                 calcIterations,
                 countIterations,
                 currentNo: currentNo.value,
@@ -103,8 +103,7 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
                 startSessionTime,
                 startTime,
                 startTimeLog,
-            })
-            messages = []
+            })) messages = []
             startTimeLog = Date.now()
             iterationsPerLog = countIterations
         }

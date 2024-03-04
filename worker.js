@@ -4,45 +4,43 @@ import factorial from './utils/factorial.js'
 import logMultiPersistence from './MultiplicativePersistence/logMultiPersistence.js'
 import { parentPort } from 'worker_threads'
 import { setInitVars } from './Config/getInitVars.js'
-import { threadId } from 'worker_threads'
+
 let log
 let VARS
 let base
 let approxFound = 0
 
-const newStep = {
-    atRunTime: 0,
-    combinations: 0n,
-    count: 0,
-    first: 0,
-    iteration: 0,
-    last: 0,
-    step: 0,
-}
-
 let onFound = (vars) => {
     const {steps: countSteps, number_lengths} = vars
     return ({
-                atRunTime,
-                calcIterations,
-                currentNo,
-                length,
-                steps,
-            }, startTime, endTime) => {
+            atRunTime,
+            calcIterations,
+            currentNo,
+            length,
+            steps,
+        }, startTime, endTime) => {
         const currentNoValue = currentNo.value
 
         if (!countSteps[steps]) {
-            countSteps[steps] = {...newStep, step: steps}
+            countSteps[steps] = {
+                atRunTime: atRunTime,
+                combinations: 0n,
+                count: 0,
+                first: currentNoValue,
+                iteration: 0,
+                last: 0,
+                step: steps,
+            }
         }
         const countStep = countSteps[steps]
 
-        if (!countStep.count) {
-            countStep.first = currentNoValue
+        const lengthsArr = []
+        for (let x = 0; x < currentNo.cellsArr.length; x++) {
+            let { count } = currentNo.cellsArr[x]
+            if (count !== 1n) lengthsArr.push(count)
         }
-        const lengthsArr = currentNo.cellsArr.reduce((arr, cell) => {
-            if (cell.count !== 1n) arr.push(cell.count)
-            return arr
-        }, [])
+        lengthsArr.sort()
+        if (lengthsArr.length === 0) lengthsArr.push(1n)
 
         const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(lengthsArr)
         countStep.combinations += combinations
@@ -58,15 +56,17 @@ let onFound = (vars) => {
                 steps: {}
             }
         }
-        if (!number_lengths[length].steps[steps]) {
-            number_lengths[length].steps[steps] = {
+        const number_length = number_lengths[length]
+        if (!number_length.steps[steps]) {
+            number_length.steps[steps] = {
                 count: 0, combinations: 0n, first: currentNoValue, last: 0n,
             }
         }
-        number_lengths[length].steps[steps].last = currentNoValue
-        number_lengths[length].steps[steps].count++
-        number_lengths[length].steps[steps].combinations += combinations
-        number_lengths[length].found++
+        const number_length_steps = number_lengths[length].steps[steps]
+        number_length_steps.last = currentNoValue
+        number_length_steps.count++
+        number_length_steps.combinations += combinations
+        number_length.found++
     }
 }
 

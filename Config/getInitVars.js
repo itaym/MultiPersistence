@@ -26,7 +26,7 @@ export const getInitVars = async () => {
             calculated: 0n,
             count: 0,
             found_nothing: 0,
-            found_nothing_break_at: 100_000_000,
+            found_nothing_break_at: 10_000_000,
         },
         last_number: eval(env.last_number),
         number_lengths: {},
