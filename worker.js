@@ -8,17 +8,14 @@ import { setInitVars } from './Config/getInitVars.js'
 let log
 let VARS
 let base
-let approxFound = 0
 
 let onFound = (vars) => {
     const {steps: countSteps, number_lengths} = vars
     return ({
             atRunTime,
             calcIterations,
-            currentNo,
-            length,
             steps,
-        }, startTime, endTime) => {
+        }, currentNo, length, startTime, endTime) => {
         const currentNoValue = currentNo.value
 
         if (!countSteps[steps]) {
@@ -91,16 +88,11 @@ parentPort.on('message', async (messageObj) => {
                 startTime,
             } = messageObj.data
 
-            messageObj.data.messagesCount = messages.length
-            approxFound += messages.length
-
             for (const message of messages) {
                 const currentNo = new HugeInt(0n, base)
                 currentNo.fromString(message.currentNoStr, base)
-                message.currentNo =  currentNo
-                message.length = message.currentNoStr.length
 
-                onFound(message, startTime, endTime)
+                onFound(message, currentNo,  message.currentNoStr.length, startTime, endTime)
             }
 
             VARS.iterations = {
@@ -112,11 +104,14 @@ parentPort.on('message', async (messageObj) => {
 
             VARS.last_number = currentNo
             VARS.up_time = endTime - startTime
+            delete messageObj.messages
+
             process.env.log = log(
                 {...messageObj.data,
                     countSteps: VARS.steps,
+                    messagesCount: messages.length,
                     lengths: VARS.number_lengths})
-            delete messageObj.messages
+
             delete messageObj.data
             messageObj = null
 
@@ -127,4 +122,3 @@ parentPort.on('message', async (messageObj) => {
     }
     process.env.isWorkerReady = 'true'
 })
-

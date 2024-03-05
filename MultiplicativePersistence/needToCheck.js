@@ -462,12 +462,7 @@ const base00016 = (() => {
         }
         return permutationsSaved
     }
-    /**
-     *
-     * @param currentNo {HugeInt}
-     * @param cellE {DigitCell}
-     * @return bigint
-     */
+
     const fn14 = (currentNo, cellE) => {
         let permutationsSaved = 0n
 
@@ -1038,12 +1033,9 @@ const base00032 = (() => {
 
         if (!(checkCell.digit % 2n)) {
             permutationsSaved = checkingFns[checkCell.digit](currentNo, checkCell)
-            skip = currentNo.countEvenDigits() > 4
+            //skip = currentNo.countEvenDigits() > 4
         }
-        return {
-            permutationsSaved,
-            skip,
-        }
+        return permutationsSaved
     }
 })()
 const base00087 = (() => {

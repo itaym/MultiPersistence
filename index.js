@@ -8,6 +8,7 @@ import { Worker, SHARE_ENV } from 'worker_threads'
 import { getInitVars } from './Config/getInitVars.js'
 import { multiplicativePersistenceSearch } from './MultiplicativePersistence/index.js'
 import postMessage from './utils/postMessage.js'
+import sleep from './utils/sleep.js'
 
 
 
@@ -113,6 +114,10 @@ postMessage( worker, 'init', {
     base:  selfEnv.base,
     goalNumber: goalNumber.value,
 })
+while (process.env.isWorkerReady !== 'true') {
+    console.log(`\n${process.env.log}`)
+    await sleep(1000)
+}
 
 // noinspection JSCheckFunctionSignatures
 await multiplicativePersistenceSearch(initVars, worker)

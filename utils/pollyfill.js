@@ -37,7 +37,7 @@ function toString(constructor) {
     }
 }
 // toString(String)
-//toString(BigInt)
+toString(BigInt)
 // toString(Object)
 
 function toStrNoZero (radix = 10n) {

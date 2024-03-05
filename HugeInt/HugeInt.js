@@ -1,10 +1,16 @@
 import { digitsObj as baseDigits, digitsValue } from '../Digits/index.js'
 
+const  tbi = new Array(20_000)
+for (let int = 0; int < 20_000; int++) {
+    tbi[int] = BigInt(int)
+}
+
 function HugeInt(initBigInt = 0n, base = 10) {
 
     let addCellAfter = function(index, cell) {
         cellsArr.splice(index + 1, 0, cell)
     }
+
     let addCellBefore = function(index, cell) {
         if (index === -1) {
             cellsArr.unshift(cell)
@@ -19,9 +25,9 @@ function HugeInt(initBigInt = 0n, base = 10) {
 
     class HugeInt {
 
-        constructor(initBigInt = 0n, base = 10) {
-
-            this.base = BigInt(Number(base))
+        constructor(initBigInt = 0n, base = 10n) {
+            this.tbi = tbi
+            this.base = base
             baseMinusOne = this.base - 1n
             this.cellsArr = []
             cellsArr = this.cellsArr
@@ -33,7 +39,7 @@ function HugeInt(initBigInt = 0n, base = 10) {
                     digit: 0n
                 })
             } else {
-                const bigIntBase = BigInt(base)
+                const bigIntBase = base
                 const digit = initBigInt % bigIntBase
                 initBigInt /= bigIntBase
                 let currentCell = {count: 1n, digit}
@@ -111,8 +117,8 @@ function HugeInt(initBigInt = 0n, base = 10) {
             startIndex = 0
         }
 
-        createSorted(value, base) {
-            this.base = BigInt(base)
+        createSorted(value, base = 10n) {
+            this.base = base
             baseMinusOne = this.base - 1n
             const cache = {}
 
@@ -133,15 +139,16 @@ function HugeInt(initBigInt = 0n, base = 10) {
             if (cellsArr[0].digit === base) cellsArr[0].digit = 0n
         }
 
-        fromString(str, base = 10n) {
-            cellsArr = []
-            this.cellsArr = cellsArr
+        fromString(str, base) {
+
             startIndex = 0
             const digitsArr = str.match(/((.)\2*)/g) || [str]
-
+            cellsArr = Array(digitsArr.length)
+            this.cellsArr = cellsArr
+            let x = 0
             for (let digitIndex = digitsArr.length - 1; digitIndex > -1; digitIndex--) {
                 const digits = digitsArr[digitIndex]
-                cellsArr.push({count: BigInt(digits.length), digit: digitsValue[digits[0]]})
+                cellsArr[x++] = {count: this.tbi[digits.length], digit: digitsValue[digits[0]]}
             }
             this.base = base
             baseMinusOne = this.base - 1n
@@ -287,11 +294,11 @@ function HugeInt(initBigInt = 0n, base = 10) {
                 }
                 if (numOfZeros > 0) {
                     addCellBefore(cellIndex, {
-                        count: BigInt(numOfZeros),
+                        count: tbi[numOfZeros],
                         digit: cellsArr[cellIndex].digit
                     })
                     cellIndex++
-                    cellsArr[cellIndex].count -= BigInt(numOfZeros)
+                    cellsArr[cellIndex].count -= tbi[numOfZeros]
                 }
                 if (cellsArr[cellIndex].count > 1n) {
                     addCellAfter(cellIndex, {
@@ -567,8 +574,115 @@ function HugeInt(initBigInt = 0n, base = 10) {
 export default HugeInt //546
 
 //---------------------------------------------------------------------------------------------------
-// const digitsArr = initBigInt.toString(base).match(/((.)\2*)/g).reverse()
-//
-// for (let digits of digitsArr) {
-//     cellsArr.push({ count: digits.length, digit: digitsValue[digits[0]]})
-// }
+
+export const MyClass = (() => {
+    /** Shared variables and functions among instances */
+    let sharedVariable1 = 'something'
+    let sharedVariable2 = 'otherThing'
+
+    /* DON'T USE 'this' OPERATOR AT ALL */
+
+    /**
+     * 'this' can be passed as an argument
+     * @param {Constructor}_this
+     * @param {*} anything
+     * @return {string}
+     */
+    const sharedFunction1 = (_this, anything) => `Hello there ${anything}`
+    /**
+     * Can access Constructor statics
+     * @param {*} anything
+     * @return {string}
+     */
+    const sharedFunction2 = (anything) => `${Constructor.something} ${anything}`
+
+    /**
+     *
+     * @return {Constructor}
+     *
+     */
+    const Constructor = (() => {
+        /** Variables and functions in instance closure */
+        let closureVariable1 = 'closure something'
+        let closureVariable2 = 'closure otherThing'
+
+        /* DON'T USE 'this' OPERATOR AT ALL */
+        /* BUT YOU CAN USE '_self' INSTEAD! */
+        let _self
+
+        /**
+         * 'this' can be passed as an argument
+         * @param {Constructor} _this
+         * @param {*} anything
+         * @return {string}
+         */
+        const closureFunction1 = (_this, anything) => sharedFunction1(_this, anything)
+        /**
+         * Can access Constructor statics
+         * @param {*} anything
+         * @return {string}
+         */
+        const closureFunction2 = (anything) => sharedFunction2(anything)
+        /**
+         *
+         * @typedef {Constructor}
+         *
+         */
+        class Constructor {
+            constructor(...args) {
+                _self = this
+                this.args = args
+            }
+
+            /**
+             * @static
+             * @name something
+             * @return {string}
+             */
+            static something() {
+                return sharedVariable1
+            }
+
+            /**
+             * @property
+             * @name otherThing
+             * @return {string}
+             */
+            get otherThing() {
+                return sharedVariable2
+            }
+
+            /**
+             * @property
+             * @name otherThing
+             * @param {string} value
+             */
+            set otherThing(value) {
+                sharedVariable2 = value
+            }
+
+            /**
+             *
+             * @method
+             * @return {string}
+             */
+            doSomething () {
+                return sharedFunction1(
+                    this,
+                    closureFunction1(this, closureVariable1))
+            }
+
+            /**
+             *
+             * @method
+             * @return {string}
+             */
+            doOtherThing () {
+                return sharedFunction2(closureFunction2(closureVariable2))
+            }
+        }
+        return Constructor
+    })('Create user-blind closure')
+
+    return (...args) => new Constructor(...args)
+})('Create user-blind closure for cross-instances')

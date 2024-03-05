@@ -1,0 +1,568 @@
+{
+	"base": "3333",
+	"iterations": {
+		"calculated": "45863815",
+		"count": 45863815,
+		"found_nothing": 0,
+		"found_nothing_break_at": 45863815
+	},
+	"last_number": "101674078",
+	"number_lengths": {
+		"1": {
+			"found": 3332,
+			"time": 1,
+			"steps": {
+				"0": {
+					"count": 2002,
+					"combinations": "2002",
+					"first": "1",
+					"last": "2003"
+				},
+				"1": {
+					"count": 1330,
+					"combinations": "1330",
+					"first": "1002",
+					"last": "3332"
+				}
+			}
+		},
+		"2": {
+			"found": 5467455,
+			"time": 28,
+			"steps": {
+				"1": {
+					"count": 10474,
+					"combinations": "20891",
+					"first": "6668",
+					"last": "190039"
+				},
+				"3": {
+					"count": 207662,
+					"combinations": "415191",
+					"first": "12777",
+					"last": "11105555"
+				},
+				"4": {
+					"count": 389801,
+					"combinations": "779368",
+					"first": "16527",
+					"last": "11102222"
+				},
+				"5": {
+					"count": 594253,
+					"combinations": "1188181",
+					"first": "19971",
+					"last": "11105554"
+				},
+				"6": {
+					"count": 758815,
+					"combinations": "1517230",
+					"first": "23327",
+					"last": "11102221"
+				},
+				"7": {
+					"count": 832210,
+					"combinations": "1663989",
+					"first": "29580",
+					"last": "11095555"
+				},
+				"8": {
+					"count": 792100,
+					"combinations": "1583752",
+					"first": "36288",
+					"last": "11098886"
+				},
+				"9": {
+					"count": 661322,
+					"combinations": "1322250",
+					"first": "43020",
+					"last": "11092222"
+				},
+				"10": {
+					"count": 489492,
+					"combinations": "978662",
+					"first": "52863",
+					"last": "11092218"
+				},
+				"11": {
+					"count": 324350,
+					"combinations": "648496",
+					"first": "79542",
+					"last": "11072220"
+				},
+				"12": {
+					"count": 196371,
+					"combinations": "392621",
+					"first": "92937",
+					"last": "11042212"
+				},
+				"13": {
+					"count": 108934,
+					"combinations": "217781",
+					"first": "132370",
+					"last": "11062212"
+				},
+				"14": {
+					"count": 56250,
+					"combinations": "112449",
+					"first": "205483",
+					"last": "11035557"
+				},
+				"15": {
+					"count": 25951,
+					"combinations": "51885",
+					"first": "345326",
+					"last": "10988865"
+				},
+				"16": {
+					"count": 11555,
+					"combinations": "23095",
+					"first": "509597",
+					"last": "10995549"
+				},
+				"17": {
+					"count": 4745,
+					"combinations": "9485",
+					"first": "742868",
+					"last": "10915540"
+				},
+				"18": {
+					"count": 1925,
+					"combinations": "3846",
+					"first": "1005701",
+					"last": "10915546"
+				},
+				"19": {
+					"count": 741,
+					"combinations": "1481",
+					"first": "1346490",
+					"last": "10848873"
+				},
+				"20": {
+					"count": 314,
+					"combinations": "628",
+					"first": "2229672",
+					"last": "10592181"
+				},
+				"21": {
+					"count": 114,
+					"combinations": "228",
+					"first": "2442802",
+					"last": "10792188"
+				},
+				"22": {
+					"count": 50,
+					"combinations": "100",
+					"first": "2869240",
+					"last": "10298810"
+				},
+				"23": {
+					"count": 20,
+					"combinations": "40",
+					"first": "3758896",
+					"last": "8492107"
+				},
+				"24": {
+					"count": 6,
+					"combinations": "12",
+					"first": "4686103",
+					"last": "7608735"
+				}
+			}
+		},
+		"3": {
+			"found": 40033456,
+			"time": 207298,
+			"steps": {
+				"1": {
+					"count": 10534,
+					"combinations": "57404",
+					"first": "22224446",
+					"last": "100043347"
+				},
+				"3": {
+					"count": 833584,
+					"combinations": "4981320",
+					"first": "22226528",
+					"last": "101674026"
+				},
+				"4": {
+					"count": 1818087,
+					"combinations": "10888581",
+					"first": "22227639",
+					"last": "101674077"
+				},
+				"5": {
+					"count": 3149205,
+					"combinations": "18877839",
+					"first": "22230532",
+					"last": "101674073"
+				},
+				"6": {
+					"count": 4547542,
+					"combinations": "27270105",
+					"first": "22231106",
+					"last": "101674078"
+				},
+				"7": {
+					"count": 5583003,
+					"combinations": "33485193",
+					"first": "22234026",
+					"last": "101674065"
+				},
+				"8": {
+					"count": 5921143,
+					"combinations": "35515314",
+					"first": "22237401",
+					"last": "101674075"
+				},
+				"9": {
+					"count": 5485256,
+					"combinations": "32901546",
+					"first": "22240800",
+					"last": "101674070"
+				},
+				"10": {
+					"count": 4497017,
+					"combinations": "26974032",
+					"first": "22250165",
+					"last": "101674074"
+				},
+				"11": {
+					"count": 3286234,
+					"combinations": "19711788",
+					"first": "22266668",
+					"last": "101674067"
+				},
+				"12": {
+					"count": 2169638,
+					"combinations": "13013946",
+					"first": "22274092",
+					"last": "101674066"
+				},
+				"13": {
+					"count": 1318331,
+					"combinations": "7907664",
+					"first": "22310976",
+					"last": "101674060"
+				},
+				"14": {
+					"count": 733919,
+					"combinations": "4402305",
+					"first": "22323236",
+					"last": "101674058"
+				},
+				"15": {
+					"count": 371946,
+					"combinations": "2230872",
+					"first": "22456932",
+					"last": "101674025"
+				},
+				"16": {
+					"count": 175044,
+					"combinations": "1049958",
+					"first": "22474067",
+					"last": "101674033"
+				},
+				"17": {
+					"count": 78074,
+					"combinations": "468276",
+					"first": "22590683",
+					"last": "101673992"
+				},
+				"18": {
+					"count": 33011,
+					"combinations": "198000",
+					"first": "22860890",
+					"last": "101674009"
+				},
+				"19": {
+					"count": 12877,
+					"combinations": "77220",
+					"first": "23193211",
+					"last": "101673056"
+				},
+				"20": {
+					"count": 5601,
+					"combinations": "33603",
+					"first": "23334228",
+					"last": "101658705"
+				},
+				"21": {
+					"count": 2227,
+					"combinations": "13362",
+					"first": "23440702",
+					"last": "101591181"
+				},
+				"22": {
+					"count": 727,
+					"combinations": "4362",
+					"first": "23653828",
+					"last": "101667617"
+				},
+				"23": {
+					"count": 314,
+					"combinations": "1884",
+					"first": "24494062",
+					"last": "100926196"
+				},
+				"24": {
+					"count": 108,
+					"combinations": "648",
+					"first": "25487437",
+					"last": "98869939"
+				},
+				"25": {
+					"count": 31,
+					"combinations": "186",
+					"first": "31373072",
+					"last": "96300205"
+				},
+				"26": {
+					"count": 3,
+					"combinations": "18",
+					"first": "52341407",
+					"last": "94386265"
+				}
+			}
+		}
+	},
+	"up_time": 1699014,
+	"steps": [
+		{
+			"atRunTime": 6,
+			"combinations": "2002",
+			"count": 2002,
+			"first": "1",
+			"iteration": "2003",
+			"last": "2003",
+			"step": 0
+		},
+		{
+			"atRunTime": 1643775,
+			"combinations": "79625",
+			"count": 22338,
+			"first": "1002",
+			"iteration": "44362180",
+			"last": "100043347",
+			"step": 1
+		},
+		null,
+		{
+			"atRunTime": 1699012,
+			"combinations": "5396511",
+			"count": 1041246,
+			"first": "12777",
+			"iteration": "45863763",
+			"last": "101674026",
+			"step": 3
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "11667949",
+			"count": 2207888,
+			"first": "16527",
+			"iteration": "45863814",
+			"last": "101674077",
+			"step": 4
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "20066020",
+			"count": 3743458,
+			"first": "19971",
+			"iteration": "45863810",
+			"last": "101674073",
+			"step": 5
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "28787335",
+			"count": 5306357,
+			"first": "23327",
+			"iteration": "45863815",
+			"last": "101674078",
+			"step": 6
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "35149182",
+			"count": 6415213,
+			"first": "29580",
+			"iteration": "45863802",
+			"last": "101674065",
+			"step": 7
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "37099066",
+			"count": 6713243,
+			"first": "36288",
+			"iteration": "45863812",
+			"last": "101674075",
+			"step": 8
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "34223796",
+			"count": 6146578,
+			"first": "43020",
+			"iteration": "45863807",
+			"last": "101674070",
+			"step": 9
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "27952694",
+			"count": 4986509,
+			"first": "52863",
+			"iteration": "45863811",
+			"last": "101674074",
+			"step": 10
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "20360284",
+			"count": 3610584,
+			"first": "79542",
+			"iteration": "45863804",
+			"last": "101674067",
+			"step": 11
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "13406567",
+			"count": 2366009,
+			"first": "92937",
+			"iteration": "45863803",
+			"last": "101674066",
+			"step": 12
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "8125445",
+			"count": 1427265,
+			"first": "132370",
+			"iteration": "45863797",
+			"last": "101674060",
+			"step": 13
+		},
+		{
+			"atRunTime": 1699014,
+			"combinations": "4514754",
+			"count": 790169,
+			"first": "205483",
+			"iteration": "45863795",
+			"last": "101674058",
+			"step": 14
+		},
+		{
+			"atRunTime": 1699012,
+			"combinations": "2282757",
+			"count": 397897,
+			"first": "345326",
+			"iteration": "45863762",
+			"last": "101674025",
+			"step": 15
+		},
+		{
+			"atRunTime": 1699013,
+			"combinations": "1073053",
+			"count": 186599,
+			"first": "509597",
+			"iteration": "45863770",
+			"last": "101674033",
+			"step": 16
+		},
+		{
+			"atRunTime": 1699011,
+			"combinations": "477761",
+			"count": 82819,
+			"first": "742868",
+			"iteration": "45863729",
+			"last": "101673992",
+			"step": 17
+		},
+		{
+			"atRunTime": 1699011,
+			"combinations": "201846",
+			"count": 34936,
+			"first": "1005701",
+			"iteration": "45863746",
+			"last": "101674009",
+			"step": 18
+		},
+		{
+			"atRunTime": 1699001,
+			"combinations": "78701",
+			"count": 13618,
+			"first": "1346490",
+			"iteration": "45863301",
+			"last": "101673056",
+			"step": 19
+		},
+		{
+			"atRunTime": 1698697,
+			"combinations": "34231",
+			"count": 5915,
+			"first": "2229672",
+			"iteration": "45850972",
+			"last": "101658705",
+			"step": 20
+		},
+		{
+			"atRunTime": 1697203,
+			"combinations": "13590",
+			"count": 2341,
+			"first": "2442802",
+			"iteration": "45793318",
+			"last": "101591181",
+			"step": 21
+		},
+		{
+			"atRunTime": 1698858,
+			"combinations": "4462",
+			"count": 777,
+			"first": "2869240",
+			"iteration": "45858369",
+			"last": "101667617",
+			"step": 22
+		},
+		{
+			"atRunTime": 1674107,
+			"combinations": "1924",
+			"count": 334,
+			"first": "3758896",
+			"iteration": "45205033",
+			"last": "100926196",
+			"step": 23
+		},
+		{
+			"atRunTime": 1641291,
+			"combinations": "660",
+			"count": 114,
+			"first": "4686103",
+			"iteration": "44273201",
+			"last": "98869939",
+			"step": 24
+		},
+		{
+			"atRunTime": 1619904,
+			"combinations": "186",
+			"count": 31,
+			"first": "31373072",
+			"iteration": "43718861",
+			"last": "96300205",
+			"step": 25
+		},
+		{
+			"atRunTime": 1589764,
+			"combinations": "18",
+			"count": 3,
+			"first": "52341407",
+			"iteration": "42919342",
+			"last": "94386265",
+			"step": 26
+		}
+	]
+}

@@ -6,7 +6,7 @@ const powerBy = memorizeForPowerBy('powerBy')
 const convertToPowerArray = (() => {
     const splitRegEx = /((.)\2*)/g
     const  tbi = []
-    for (let int = 0; int < 501; int++) {
+    for (let int = 0; int < 1_000; int++) {
         tbi.push(BigInt(int))
     }
     return function (str) {
