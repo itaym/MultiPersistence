@@ -1,12 +1,12 @@
 {
 	"base": "3333",
 	"iterations": {
-		"calculated": "45863815",
-		"count": 45863815,
+		"calculated": "46519029",
+		"count": 46519029,
 		"found_nothing": 0,
-		"found_nothing_break_at": 45863815
+		"found_nothing_break_at": 46519029
 	},
-	"last_number": "101674078",
+	"last_number": "102481631",
 	"number_lengths": {
 		"1": {
 			"found": 3332,
@@ -171,7 +171,7 @@
 			}
 		},
 		"3": {
-			"found": 40033456,
+			"found": 40685743,
 			"time": 207298,
 			"steps": {
 				"1": {
@@ -181,130 +181,130 @@
 					"last": "100043347"
 				},
 				"3": {
-					"count": 833584,
-					"combinations": "4981320",
+					"count": 842652,
+					"combinations": "5035722",
 					"first": "22226528",
-					"last": "101674026"
+					"last": "102481616"
 				},
 				"4": {
-					"count": 1818087,
-					"combinations": "10888581",
+					"count": 1841381,
+					"combinations": "11028321",
 					"first": "22227639",
-					"last": "101674077"
+					"last": "102481625"
 				},
 				"5": {
-					"count": 3149205,
-					"combinations": "18877839",
+					"count": 3191881,
+					"combinations": "19133856",
 					"first": "22230532",
-					"last": "101674073"
+					"last": "102481627"
 				},
 				"6": {
-					"count": 4547542,
-					"combinations": "27270105",
+					"count": 4614617,
+					"combinations": "27672465",
 					"first": "22231106",
-					"last": "101674078"
+					"last": "102481631"
 				},
 				"7": {
-					"count": 5583003,
-					"combinations": "33485193",
+					"count": 5671720,
+					"combinations": "34017390",
 					"first": "22234026",
-					"last": "101674065"
+					"last": "102481628"
 				},
 				"8": {
-					"count": 5921143,
-					"combinations": "35515314",
+					"count": 6019873,
+					"combinations": "36107595",
 					"first": "22237401",
-					"last": "101674075"
+					"last": "102481630"
 				},
 				"9": {
-					"count": 5485256,
-					"combinations": "32901546",
+					"count": 5579155,
+					"combinations": "33464802",
 					"first": "22240800",
-					"last": "101674070"
+					"last": "102481610"
 				},
 				"10": {
-					"count": 4497017,
-					"combinations": "26974032",
+					"count": 4577568,
+					"combinations": "27457251",
 					"first": "22250165",
-					"last": "101674074"
+					"last": "102481615"
 				},
 				"11": {
-					"count": 3286234,
-					"combinations": "19711788",
+					"count": 3345685,
+					"combinations": "20068434",
 					"first": "22266668",
-					"last": "101674067"
+					"last": "102481609"
 				},
 				"12": {
-					"count": 2169638,
-					"combinations": "13013946",
+					"count": 2208904,
+					"combinations": "13249491",
 					"first": "22274092",
-					"last": "101674066"
+					"last": "102481599"
 				},
 				"13": {
-					"count": 1318331,
-					"combinations": "7907664",
+					"count": 1342435,
+					"combinations": "8052270",
 					"first": "22310976",
-					"last": "101674060"
+					"last": "102481513"
 				},
 				"14": {
-					"count": 733919,
-					"combinations": "4402305",
+					"count": 747080,
+					"combinations": "4481265",
 					"first": "22323236",
-					"last": "101674058"
+					"last": "102481359"
 				},
 				"15": {
-					"count": 371946,
-					"combinations": "2230872",
+					"count": 378702,
+					"combinations": "2271408",
 					"first": "22456932",
-					"last": "101674025"
+					"last": "102481390"
 				},
 				"16": {
-					"count": 175044,
-					"combinations": "1049958",
+					"count": 178162,
+					"combinations": "1068666",
 					"first": "22474067",
-					"last": "101674033"
+					"last": "102481079"
 				},
 				"17": {
-					"count": 78074,
-					"combinations": "468276",
+					"count": 79505,
+					"combinations": "476862",
 					"first": "22590683",
-					"last": "101673992"
+					"last": "102479705"
 				},
 				"18": {
-					"count": 33011,
-					"combinations": "198000",
+					"count": 33566,
+					"combinations": "201327",
 					"first": "22860890",
-					"last": "101674009"
+					"last": "102479197"
 				},
 				"19": {
-					"count": 12877,
-					"combinations": "77220",
+					"count": 13123,
+					"combinations": "78696",
 					"first": "23193211",
-					"last": "101673056"
+					"last": "102481164"
 				},
 				"20": {
-					"count": 5601,
-					"combinations": "33603",
+					"count": 5735,
+					"combinations": "34407",
 					"first": "23334228",
-					"last": "101658705"
+					"last": "102478990"
 				},
 				"21": {
-					"count": 2227,
-					"combinations": "13362",
+					"count": 2268,
+					"combinations": "13608",
 					"first": "23440702",
-					"last": "101591181"
+					"last": "102471325"
 				},
 				"22": {
-					"count": 727,
-					"combinations": "4362",
+					"count": 739,
+					"combinations": "4434",
 					"first": "23653828",
-					"last": "101667617"
+					"last": "102449270"
 				},
 				"23": {
-					"count": 314,
-					"combinations": "1884",
+					"count": 316,
+					"combinations": "1896",
 					"first": "24494062",
-					"last": "100926196"
+					"last": "102444220"
 				},
 				"24": {
 					"count": 108,
@@ -327,7 +327,7 @@
 			}
 		}
 	},
-	"up_time": 1699014,
+	"up_time": 1720237,
 	"steps": [
 		{
 			"atRunTime": 6,
@@ -349,192 +349,192 @@
 		},
 		null,
 		{
-			"atRunTime": 1699012,
-			"combinations": "5396511",
-			"count": 1041246,
+			"atRunTime": 1720236,
+			"combinations": "5450913",
+			"count": 1050314,
 			"first": "12777",
-			"iteration": "45863763",
-			"last": "101674026",
+			"iteration": "46519014",
+			"last": "102481616",
 			"step": 3
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "11667949",
-			"count": 2207888,
+			"atRunTime": 1720237,
+			"combinations": "11807689",
+			"count": 2231182,
 			"first": "16527",
-			"iteration": "45863814",
-			"last": "101674077",
+			"iteration": "46519023",
+			"last": "102481625",
 			"step": 4
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "20066020",
-			"count": 3743458,
+			"atRunTime": 1720237,
+			"combinations": "20322037",
+			"count": 3786134,
 			"first": "19971",
-			"iteration": "45863810",
-			"last": "101674073",
+			"iteration": "46519025",
+			"last": "102481627",
 			"step": 5
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "28787335",
-			"count": 5306357,
+			"atRunTime": 1720237,
+			"combinations": "29189695",
+			"count": 5373432,
 			"first": "23327",
-			"iteration": "45863815",
-			"last": "101674078",
+			"iteration": "46519029",
+			"last": "102481631",
 			"step": 6
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "35149182",
-			"count": 6415213,
+			"atRunTime": 1720237,
+			"combinations": "35681379",
+			"count": 6503930,
 			"first": "29580",
-			"iteration": "45863802",
-			"last": "101674065",
+			"iteration": "46519026",
+			"last": "102481628",
 			"step": 7
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "37099066",
-			"count": 6713243,
+			"atRunTime": 1720237,
+			"combinations": "37691347",
+			"count": 6811973,
 			"first": "36288",
-			"iteration": "45863812",
-			"last": "101674075",
+			"iteration": "46519028",
+			"last": "102481630",
 			"step": 8
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "34223796",
-			"count": 6146578,
+			"atRunTime": 1720236,
+			"combinations": "34787052",
+			"count": 6240477,
 			"first": "43020",
-			"iteration": "45863807",
-			"last": "101674070",
+			"iteration": "46519008",
+			"last": "102481610",
 			"step": 9
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "27952694",
-			"count": 4986509,
+			"atRunTime": 1720236,
+			"combinations": "28435913",
+			"count": 5067060,
 			"first": "52863",
-			"iteration": "45863811",
-			"last": "101674074",
+			"iteration": "46519013",
+			"last": "102481615",
 			"step": 10
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "20360284",
-			"count": 3610584,
+			"atRunTime": 1720236,
+			"combinations": "20716930",
+			"count": 3670035,
 			"first": "79542",
-			"iteration": "45863804",
-			"last": "101674067",
+			"iteration": "46519007",
+			"last": "102481609",
 			"step": 11
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "13406567",
-			"count": 2366009,
+			"atRunTime": 1720236,
+			"combinations": "13642112",
+			"count": 2405275,
 			"first": "92937",
-			"iteration": "45863803",
-			"last": "101674066",
+			"iteration": "46518997",
+			"last": "102481599",
 			"step": 12
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "8125445",
-			"count": 1427265,
+			"atRunTime": 1720235,
+			"combinations": "8270051",
+			"count": 1451369,
 			"first": "132370",
-			"iteration": "45863797",
-			"last": "101674060",
+			"iteration": "46518911",
+			"last": "102481513",
 			"step": 13
 		},
 		{
-			"atRunTime": 1699014,
-			"combinations": "4514754",
-			"count": 790169,
+			"atRunTime": 1720232,
+			"combinations": "4593714",
+			"count": 803330,
 			"first": "205483",
-			"iteration": "45863795",
-			"last": "101674058",
+			"iteration": "46518757",
+			"last": "102481359",
 			"step": 14
 		},
 		{
-			"atRunTime": 1699012,
-			"combinations": "2282757",
-			"count": 397897,
+			"atRunTime": 1720233,
+			"combinations": "2323293",
+			"count": 404653,
 			"first": "345326",
-			"iteration": "45863762",
-			"last": "101674025",
+			"iteration": "46518788",
+			"last": "102481390",
 			"step": 15
 		},
 		{
-			"atRunTime": 1699013,
-			"combinations": "1073053",
-			"count": 186599,
+			"atRunTime": 1720226,
+			"combinations": "1091761",
+			"count": 189717,
 			"first": "509597",
-			"iteration": "45863770",
-			"last": "101674033",
+			"iteration": "46518477",
+			"last": "102481079",
 			"step": 16
 		},
 		{
-			"atRunTime": 1699011,
-			"combinations": "477761",
-			"count": 82819,
+			"atRunTime": 1720207,
+			"combinations": "486347",
+			"count": 84250,
 			"first": "742868",
-			"iteration": "45863729",
-			"last": "101673992",
+			"iteration": "46517853",
+			"last": "102479705",
 			"step": 17
 		},
 		{
-			"atRunTime": 1699011,
-			"combinations": "201846",
-			"count": 34936,
+			"atRunTime": 1720193,
+			"combinations": "205173",
+			"count": 35491,
 			"first": "1005701",
-			"iteration": "45863746",
-			"last": "101674009",
+			"iteration": "46517345",
+			"last": "102479197",
 			"step": 18
 		},
 		{
-			"atRunTime": 1699001,
-			"combinations": "78701",
-			"count": 13618,
+			"atRunTime": 1720228,
+			"combinations": "80177",
+			"count": 13864,
 			"first": "1346490",
-			"iteration": "45863301",
-			"last": "101673056",
+			"iteration": "46518562",
+			"last": "102481164",
 			"step": 19
 		},
 		{
-			"atRunTime": 1698697,
-			"combinations": "34231",
-			"count": 5915,
+			"atRunTime": 1720183,
+			"combinations": "35035",
+			"count": 6049,
 			"first": "2229672",
-			"iteration": "45850972",
-			"last": "101658705",
+			"iteration": "46517138",
+			"last": "102478990",
 			"step": 20
 		},
 		{
-			"atRunTime": 1697203,
-			"combinations": "13590",
-			"count": 2341,
+			"atRunTime": 1720023,
+			"combinations": "13836",
+			"count": 2382,
 			"first": "2442802",
-			"iteration": "45793318",
-			"last": "101591181",
+			"iteration": "46510970",
+			"last": "102471325",
 			"step": 21
 		},
 		{
-			"atRunTime": 1698858,
-			"combinations": "4462",
-			"count": 777,
+			"atRunTime": 1719555,
+			"combinations": "4534",
+			"count": 789,
 			"first": "2869240",
-			"iteration": "45858369",
-			"last": "101667617",
+			"iteration": "46494123",
+			"last": "102449270",
 			"step": 22
 		},
 		{
-			"atRunTime": 1674107,
-			"combinations": "1924",
-			"count": 334,
+			"atRunTime": 1719451,
+			"combinations": "1936",
+			"count": 336,
 			"first": "3758896",
-			"iteration": "45205033",
-			"last": "100926196",
+			"iteration": "46489813",
+			"last": "102444220",
 			"step": 23
 		},
 		{

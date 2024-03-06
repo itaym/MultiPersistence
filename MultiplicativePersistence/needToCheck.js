@@ -1,15 +1,16 @@
 import countPermutations from '../permutations/countPermutations.js'
+import memorize from '../utils/memorize.js'
 
 const splitAfterCell = (hugeInt, cell, countToLeave) => {
     const newCell = hugeInt.splitCellBefore(cell ,cell.count - countToLeave)
     newCell.digit++
 }
 
-const getPermutations = (digit, countChange, base) => {
+const getPermutations = memorize((digit, countChange, base) => {
     if (countChange === 1n) return 1n
     return countPermutations(countChange - 1n, base - digit) -
         countPermutations(countChange - 2n, base - digit)
-}
+}, 'getPermutations')
 
 function emptyFunction() { return 0n }
 
