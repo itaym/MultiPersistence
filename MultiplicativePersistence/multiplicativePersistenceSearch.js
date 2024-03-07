@@ -5,6 +5,16 @@ import onNotModuloBase from '../MultiplicativePersistence/onNotModulo10.js'
 import postMessage from '../utils/postMessage.js'
 import sleep from '../utils/sleep.js'
 
+class ToPrimitive {
+    constructor(obj) {
+        this.obj = obj
+        this.fn = needToCheck.bind(null, this.obj)
+    }
+    [Symbol.toPrimitive]() {
+        return 1n + this.fn();
+    }
+}
+
 export const multiplicativePersistenceSearch = async (initVars, worker) => {
 
     let {
@@ -21,7 +31,7 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
     let currentNo = new HugeInt(last_number, base)
     let iterationsNotFoundLimit = iterations.found_nothing_break_at
     let logAfterCountIterations = iterations.count + 1000
-    let maxSteps = stepsObj.length
+    let maxSteps = stepsObj.length - 1
     let notFoundIterations = iterations.found_nothing
 
     const startSessionTime = Date.now()
@@ -34,6 +44,9 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
     let startTime = Date.now() - up_time
     let startTimeLog = Date.now()
     let steps = 2
+
+    const createPermutations = needToCheck.supported.includes(process.selfEnv.base)
+        ? new ToPrimitive(currentNo) : 1n
 
     const createMessage = () => {
         const currentNoStr = currentNo.toString()
@@ -51,11 +64,11 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
 
         onNotModuloBase(currentNo)
 
-        permutationsSaved = needToCheck(currentNo)
+        permutationsSaved = createPermutations
 
         steps = multiPerFn(currentNo, baseNumber)
 
-        calcIterations += permutationsSaved + 1n
+        calcIterations += permutationsSaved
         countIterations++
 
         if (steps !== 2) {
