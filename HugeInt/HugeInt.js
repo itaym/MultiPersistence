@@ -162,6 +162,7 @@ class HugeInt {
         if (cell.digit !== this.baseMinusOne) {
             if (cell.count === 1n) {
                 cell.digit++
+                cell.powerBy = cell.digit
                 return
             }
             this.addCellAfter(cellIndex, {
@@ -170,10 +171,12 @@ class HugeInt {
             })
             cell.count = 1n
             cell.digit++
+            cell.powerBy = cell.digit
             return
         }
 
         cell.digit = 0n
+        cell.powerBy = undefined
 
         // if (cellIndex && this.cellsArr[cellIndex - 1].digit === 0n) {
         //     this.cellsArr[cellIndex - 1].count += cell.count
@@ -207,6 +210,7 @@ class HugeInt {
         if (cell.digit !== 0n) {
             if (cell.count === 1n) {
                 cell.digit--
+                cell.powerBy = cell.digit
                 return
             } else {
                 this.addCellAfter(cellIndex, {
@@ -215,6 +219,7 @@ class HugeInt {
                 })
                 cell.count = 1n
                 cell.digit--
+                cell.powerBy = cell.digit
                 return
             }
         }
@@ -288,6 +293,7 @@ class HugeInt {
                     digit: this.cellsArr[cellIndex].digit
                 })
                 this.cellsArr[cellIndex].count = 1n
+                this.cellsArr[cellIndex].powerBy = this.cellsArr[cellIndex].digit
             }
             this.addOne(cellIndex - this.startIndex)
         }
@@ -296,6 +302,7 @@ class HugeInt {
     divideBy10power(count) {
         while (count) {
             const lastCell = this.cellsArr[this.cellsArr.length - 1]
+            lastCell.powerBy = undefined
             if (lastCell.count >= count) {
                 lastCell.count -= count
                 count = 0
@@ -382,7 +389,7 @@ class HugeInt {
     }
 
     isLTBase() {
-        return this.cellsArr.length === (1 - this.startIndex) && this.cellsArr[this.startIndex].count === 1n
+        return this.cellsArr.length === (1 + this.startIndex) && this.cellsArr[this.startIndex].count === 1n
     }
 
     moduloBase() {
@@ -415,6 +422,7 @@ class HugeInt {
     multiplyByBasePower(count) {
         if (this.cellsArr[this.startIndex].digit === 0n) {
             this.cellsArr[this.startIndex].count += count
+            this.cellsArr[this.startIndex].powerBy = undefined
         } else if (this.startIndex !== 0) {
             this.startIndex--
             this.cellsArr[this.startIndex] = {
@@ -434,6 +442,7 @@ class HugeInt {
 
         for (let cellIndex = this.startIndex; cellIndex < endIndex; cellIndex++) {
             const currentCell = this.cellsArr[cellIndex]
+            currentCell.powerBy = undefined
             let nextCell = this.cellsArr[cellIndex + 1]
 
             if (currentCell.count === 0n) currentCell.digit = nextCell.digit
@@ -458,6 +467,7 @@ class HugeInt {
         const newCell = {count: cell.count - countToSplit, digit: cell.digit}
         this.addCellAfter(index, newCell)
         cell.count = countToSplit
+        cell.powerBy = undefined
     }
 
     splitCellBefore(cell, countToSplit) {
@@ -467,6 +477,7 @@ class HugeInt {
         const newCell = {count: countToSplit, digit: cell.digit}
         this.addCellBefore(index, newCell)
         cell.count = cell.count - countToSplit
+        cell.powerBy = undefined
         return newCell
     }
 

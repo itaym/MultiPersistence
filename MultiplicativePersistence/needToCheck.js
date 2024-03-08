@@ -153,6 +153,7 @@ const base00010 = (() => {
         if (currentNo.hasEvenDigits()) {
             permutationsSaved = getPermutations(5n, cell5.count, 10n)
             cell5.digit++
+            cell5.powerBy = undefined
             return permutationsSaved
         }
         return 0n
@@ -161,6 +162,7 @@ const base00010 = (() => {
         if (currentNo.isCellOf(5n)) {
             permutationsSaved = getPermutations(6n, cell6.count, 10n)
             cell6.digit++
+            cell6.powerBy = undefined
             return permutationsSaved
         }
         return 0n
@@ -169,6 +171,7 @@ const base00010 = (() => {
         if (currentNo.isCellOf(5n)) {
             permutationsSaved = getPermutations(8n, cell8.count, 10n)
             cell8.digit++
+            cell8.powerBy = undefined
             return permutationsSaved
         }
         return 0n

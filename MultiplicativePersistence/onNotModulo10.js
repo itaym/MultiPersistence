@@ -13,6 +13,7 @@ const onNotModuloBase = (currentNo) => {
         // }
         //currentNo.cellsArr[1].count += firstCell.count
         secondCell.count += firstCell.count
+        secondCell.powerBy = undefined
 
         //currentNo.cellsArr.shift()
         currentNo.startIndex++

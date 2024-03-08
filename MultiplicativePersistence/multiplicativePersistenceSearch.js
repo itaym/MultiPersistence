@@ -82,9 +82,12 @@ export const multiplicativePersistenceSearch = async (initVars, startSessionTime
             notToBreakCondition = iterationsNotFoundLimit > notFoundIterations
         }
 
-        if ((countIterations > logAfterCountIterations) || messages.length === 50_000) {
+        if ((countIterations > logAfterCountIterations) || messages.length === 80_000) {
             endTime = Date.now()
-            multiPerFn = multiPerNoBaseCheck
+            const currentNoValue = currentNo.value
+            if (currentNoValue > base) {
+                multiPerFn = multiPerNoBaseCheck
+            }
             iterationsPerLog = countIterations - iterationsPerLog
 
             const timeForIterations = endTime - startTimeLog
@@ -101,7 +104,7 @@ export const multiplicativePersistenceSearch = async (initVars, startSessionTime
             if (postMessage(worker, 'found', {
                 calcIterations,
                 countIterations,
-                currentNo: currentNo.value,
+                currentNo: currentNoValue,
                 endTime,
                 iterationsNotFoundLimit,
                 iterationsPerLog,
