@@ -11,7 +11,7 @@ const convertToPowerArray = (() => {
     }
     return function (str) {
         const result = []
-        const arr = str.split('').sort().join('').match(splitRegEx) || '1'
+        const arr = str.split('').sort().join('').match(splitRegEx) || ['1']
 
         for (let str of arr) {
             result.push(powerBy(digitsValue[str[0]], tbi[str.length]))
@@ -33,10 +33,6 @@ function bigIntCreatePowerArray(currentNo, base) {
 
 function hugeIntMap({ count, digit }) { return powerBy(digit ,count) }
 
-function hugeIntCreatePowerArray(hugeInt) {
-    return mapHugeInt(hugeInt, hugeIntMap)
-}
-
 function reduce(arr) {
     let result = arr[0]
     for (let x = 1; x < arr.length; x++) {
@@ -45,11 +41,11 @@ function reduce(arr) {
     return result
 }
 
-function mapHugeInt(hugeInt, fn) {
+function hugeIntCreatePowerArray(hugeInt) {
     const result = []
     const arr = hugeInt.cellsArr
-    for (let x = 0 + hugeInt.startIndex; x < arr.length; x++) {
-        result.push(fn(arr[x]))
+    for (let x = hugeInt.startIndex; x < arr.length; x++) {
+        result.push(hugeIntMap(arr[x]))
     }
     return result
 }

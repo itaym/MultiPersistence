@@ -117,7 +117,6 @@ class HugeInt {
         } while (value !== 0n)
         this.startIndex = 0
         this.cellsArr = Object.values(cache)
-        this.cellsArr = this.cellsArr
         this.cellsArr.sort((aCell, bCell) => {
             return Number(bCell.digit - aCell.digit)
         })
@@ -129,7 +128,6 @@ class HugeInt {
         this.startIndex = 0
         const digitsArr = str.match(/((.)\2*)/g) || [str]
         this.cellsArr = Array(digitsArr.length)
-        this.cellsArr = this.cellsArr
         let x = 0
         for (let digitIndex = digitsArr.length - 1; digitIndex > -1; digitIndex--) {
             const digits = digitsArr[digitIndex]
@@ -137,7 +135,6 @@ class HugeInt {
         }
         this.base = base
         this.baseMinusOne = this.base - 1n
-
     }
 
     clone() {
@@ -183,7 +180,7 @@ class HugeInt {
         //     this.cellsArr.splice(cellIndex, 1)
         //     cellIndex--
         // }
-        if (cellIndex === this.cellsLength - 1) {
+        if (cellIndex === this.cellsArr.length - 1) {
             this.cellsArr.push({
                 count: 1n,
                 digit: 2n // 1n

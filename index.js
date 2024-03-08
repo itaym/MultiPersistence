@@ -107,18 +107,22 @@ const worker = new Worker('./worker.js', {
 let initVars = await getInitVars()
 
 let goalNumber = new HugeInt(selfEnv.goal_number, selfEnv.base)
+const startSessionTime = Date.now()
+const startTime = startSessionTime - initVars.up_time
 postMessage( worker, 'init', {
     VARS: {
         ...initVars,
     },
     base:  selfEnv.base,
     goalNumber: goalNumber.value,
+    startSessionTime,
+    startTime,
 })
 while (process.env.isWorkerReady !== 'true') {
     console.log(`\n${process.env.log}`)
-    await sleep(1000)
+    await sleep(100)
 }
 
 // noinspection JSCheckFunctionSignatures
-await multiplicativePersistenceSearch(initVars, worker)
+await multiplicativePersistenceSearch(initVars,startSessionTime, startTime, worker)
 worker.terminate()

@@ -8,6 +8,8 @@ import { setInitVars } from './Config/getInitVars.js'
 let log
 let VARS
 let base
+let startSessionTime
+let startTime
 
 let onFound = (vars) => {
     const {steps: countSteps, number_lengths} = vars
@@ -72,6 +74,8 @@ parentPort.on('message', async (messageObj) => {
         case 'init':
             base = messageObj.data.base * 1n
             VARS = messageObj.data.VARS
+            startSessionTime = messageObj.data.startSessionTime * 1
+            startTime = messageObj.data.startTime * 1
             const goalNumber = new HugeInt(messageObj.data.goalNumber, base)
             log = logMultiPersistence({ goalNumber, base})
             onFound = onFound(VARS)
@@ -85,7 +89,6 @@ parentPort.on('message', async (messageObj) => {
                 iterationsNotFoundLimit,
                 messages,
                 notFoundIterations,
-                startTime,
             } = messageObj.data
 
             for (const message of messages) {
@@ -110,7 +113,10 @@ parentPort.on('message', async (messageObj) => {
                 {...messageObj.data,
                     countSteps: VARS.steps,
                     messagesCount: messages.length,
-                    lengths: VARS.number_lengths})
+                    lengths: VARS.number_lengths,
+                    startSessionTime,
+                    startTime,
+                })
 
             delete messageObj.data
             messageObj = null

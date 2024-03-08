@@ -15,7 +15,7 @@ class ToPrimitive {
     }
 }
 
-export const multiplicativePersistenceSearch = async (initVars, worker) => {
+export const multiplicativePersistenceSearch = async (initVars, startSessionTime, startTime, worker) => {
 
     let {
         base,
@@ -34,15 +34,12 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
     let maxSteps = stepsObj.length - 1
     let notFoundIterations = iterations.found_nothing
 
-    const startSessionTime = Date.now()
     let notToBreakCondition = iterationsNotFoundLimit > notFoundIterations
     let endTime
     let iterationsPerLog = countIterations
     let messages = []
     let multiPerFn = multiPer
-    let permutationsSaved = 0n
-    let startTime = Date.now() - up_time
-    let startTimeLog = Date.now()
+    let startTimeLog = startSessionTime
     let steps = 2
 
     const createPermutations = needToCheck.supported.includes(process.selfEnv.base)
@@ -64,12 +61,10 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
 
         onNotModuloBase(currentNo)
 
-        permutationsSaved = createPermutations
+        calcIterations += createPermutations
+        countIterations++
 
         steps = multiPerFn(currentNo, baseNumber)
-
-        calcIterations += permutationsSaved
-        countIterations++
 
         if (steps !== 2) {
             iterationsNotFoundLimit = Math.max(countIterations, iterationsNotFoundLimit)
@@ -87,7 +82,7 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
             notToBreakCondition = iterationsNotFoundLimit > notFoundIterations
         }
 
-        if (countIterations > logAfterCountIterations) {
+        if ((countIterations > logAfterCountIterations) || messages.length === 50_000) {
             endTime = Date.now()
             multiPerFn = multiPerNoBaseCheck
             iterationsPerLog = countIterations - iterationsPerLog
@@ -113,8 +108,6 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
                 maxSteps,
                 messages,
                 notFoundIterations,
-                startSessionTime,
-                startTime,
                 startTimeLog,
             })) messages = []
             startTimeLog = Date.now()
@@ -139,8 +132,6 @@ export const multiplicativePersistenceSearch = async (initVars, worker) => {
         maxSteps,
         messages,
         notFoundIterations,
-        startSessionTime,
-        startTime,
         startTimeLog,
     })
     while (process.env.isWorkerReady !== 'true') {
