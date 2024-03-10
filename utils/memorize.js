@@ -93,7 +93,6 @@ export const memorizeSortedKey = (fn, name) => {
         if (data) return data
         data = fn(...args)
         cache.set(key, data)
-        console.log(cache.size, key)
         return data
         // return cache.get(key) || (() => {
         //     const data = fn(...args)

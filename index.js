@@ -6,14 +6,9 @@ import './utils/pollyfill.js'
 import HugeInt from './HugeInt/index.js'
 import { Worker, SHARE_ENV } from 'worker_threads'
 import { getInitVars } from './Config/getInitVars.js'
-import { multiplicativePersistenceSearch } from './MultiplicativePersistence/index.js'
-import postMessage from './utils/postMessage.js'
-import sleep from './utils/sleep.js'
-
-
-
-
-
+import { multiPerSearch } from './MultiplicativePersistence/index.js'
+import postMessages from './utils/postMessage.js'
+import gaySchluffen from './utils/sleep.js'
 
 // function reduce(a, b) { return a * b }
 //
@@ -109,7 +104,7 @@ let initVars = await getInitVars()
 let goalNumber = new HugeInt(selfEnv.goal_number, selfEnv.base)
 const startSessionTime = Date.now()
 const startTime = startSessionTime - initVars.up_time
-postMessage( worker, 'init', {
+postMessages( worker, 'init', {
     VARS: {
         ...initVars,
     },
@@ -120,9 +115,10 @@ postMessage( worker, 'init', {
 })
 while (process.env.isWorkerReady !== 'true') {
     console.log(`\n${process.env.log}`)
-    await sleep(100)
+    await gaySchluffen(100)
 }
 
 // noinspection JSCheckFunctionSignatures
-await multiplicativePersistenceSearch(initVars,startSessionTime, startTime, worker)
+await multiPerSearch(initVars,startSessionTime, startTime, worker)
 worker.terminate()
+console.log('---------- FINISH ----------')

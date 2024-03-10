@@ -47,12 +47,12 @@ export default function logMultiPersistence({
         countSteps,
         currentNo,
         endTime,
-        iterationsNotFoundLimit,
+        notFoundLimit,
         iterationsPerLog,
         lengths,
         messagesCount,
         maxSteps,
-        notFoundIterations,
+        notFound,
         startSessionTime,
         startTime,
         startTimeLog,
@@ -72,7 +72,7 @@ export default function logMultiPersistence({
             const countIterationsPerSecond = Math.floor(countIterations / (numOfMilliseconds / 1000))
             const iterationsPerSecondLog = Math.floor(iterationsPerLog / (numOfMillisecondsLog / 1000))
             let timeLeft = Math.max(Number((exIterations - calcIterations) / BigInt(iterationsPerSecond + 1)) * 1000, 0)
-            const notFoundTimeLeft = Math.max((iterationsNotFoundLimit - notFoundIterations) / countIterationsPerSecond * 1000, 0)
+            const notFoundTimeLeft = Math.max((notFoundLimit - notFound) / countIterationsPerSecond * 1000, 0)
             const percentDone = (Number(calcIterations * 1_000_000_000_000n / exIterations * 100n) / 1_000_000_000_000).toFixed(10)
             const currentNoLength = currentNo.length
             let totalFound = 0
@@ -100,10 +100,10 @@ export default function logMultiPersistence({
                       `Current number length: ${currentNoLength.toLocaleString()} (${cellNo})`.padEnd(70, '-') + '\n'
             logStr += `Calc Iter.: ${calcIterations.toLocaleString()} (${percentDone}%)`.padEnd(70, '-') +
                       `Real Iter.: ${countIterations.toLocaleString()} saved: ${(calcIterations - BigInt(countIterations)).toLocaleString()}`.padEnd(70, '-') + '\n'
-            logStr += `Avg Calc Iter./sec: ${iterationsPerSecond.toLocaleString()} (x ${(iterationsPerSecond / countIterationsPerSecond).toFixed(8)})`.padEnd(70, '-') +
+            logStr += `Avg Calc Iter./sec: ${iterationsPerSecond.toLocaleString()} (x ${(Number(calcIterations) / countIterations).toFixed(8)})`.padEnd(70, '-') +
                       `Avg Real Iter./sec: ${countIterationsPerSecond.toLocaleString()}`.padEnd(70, '-') + '\n'
             logStr += `Log Iterations/sec: ${iterationsPerSecondLog.toLocaleString()}`.padEnd(70, '-') +
-                      fromMiddleStringMaxLength(`NFTG left: ${getTimeString(notFoundTimeLeft)} ${notFoundIterations.toLocaleString()}/${iterationsNotFoundLimit.toLocaleString()}`, 70).padEnd(70, '-') + '\n'
+                      fromMiddleStringMaxLength(`NFTG left: ${getTimeString(notFoundTimeLeft)} ${notFound.toLocaleString()}/${notFoundLimit.toLocaleString()}`, 70).padEnd(70, '-') + '\n'
             logStr += fromMiddleStringMaxLength(`Up Time: ${getTimeString(numOfMilliseconds)} (${numOfMilliseconds})`, 70).padEnd(70, '-') +
                       fromMiddleStringMaxLength(`Time left: ${getTimeString(timeLeft)}`, 70).padEnd(70, '-') + '\n'
             logStr += fromMiddleStringMaxLength(`Session: ${getTimeString(sessionMilliseconds)} (${sessionMilliseconds})`, 70).padEnd(70, '-') +

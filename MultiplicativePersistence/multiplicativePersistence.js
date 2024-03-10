@@ -1,7 +1,5 @@
 import { digitsValue } from '../Digits/index.js'
-import { memorizeForPowerBy } from '../utils/memorize.js'
-
-const powerBy = memorizeForPowerBy('powerBy')
+import powerBy from '../utils/powerBy.js'
 
 const convertToPowerArray = (() => {
     const splitRegEx = /((.)\2*)/g
@@ -22,6 +20,13 @@ const convertToPowerArray = (() => {
 
 const arrayWithZero = [0n]
 const replace1RegEx = /1/g
+
+/**
+ *
+ * @param currentNo { bigint }
+ * @param base { number }
+ * @return { bigint[] }
+ */
 function bigIntCreatePowerArray(currentNo, base) {
     let currentNoStr = currentNo.toString(base)
     if (currentNoStr.includes('0')) return arrayWithZero
@@ -44,13 +49,25 @@ function reduce(arr) {
     return result
 }
 
-function hugeIntCreatePowerArray(hugeInt) {
-    const result = []
+function reduceHugeInt(hugeInt) {
+    let lastResult = 1n
     const arr = hugeInt.cellsArr
-    for (let x = hugeInt.startIndex; x < arr.length; x++) {
-        result.push(arr[x].powerBy ? arr[x].powerBy : hugeIntMap(arr[x]))
+    let startIndex = hugeInt.startIndex
+
+    while ((startIndex < arr.length) && arr[startIndex].changed) {
+        startIndex++
     }
-    return result
+    if (startIndex < arr.length) {
+        lastResult =  arr[startIndex].result
+    }
+
+    for (let x =  startIndex - 1; x >= hugeInt.startIndex; x--) {
+        let cell = arr[x]
+        lastResult *= powerBy(cell.digit, cell.count)
+        cell.changed = false
+        cell.result = lastResult
+    }
+    return lastResult
 }
 
 export const multiPer = function (currentNo, base) {
@@ -60,8 +77,7 @@ export const multiPer = function (currentNo, base) {
 }
 export const multiPerNoBaseCheck = function (currentNo, base) {
 
-    const digits = hugeIntCreatePowerArray(currentNo)
-    return 1 + multiPer2(reduce(digits), base)
+    return 1 + multiPer2(reduceHugeInt(currentNo), base)
 }
 
 const multiPer2 = function (currentNo, base) {

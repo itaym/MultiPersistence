@@ -1,5 +1,3 @@
-import sleep from './sleep.js'
-
 /**
  *
  * @param worker { Worker }
@@ -11,6 +9,7 @@ const postMessage = (worker, type, data) => {
 
     if (type === 'init')
         process.env.isWorkerReady = 'true'
+
     if (process.env.isWorkerReady === 'true') {
         process.env.isWorkerReady = 'false'
         worker.postMessage({
@@ -18,7 +17,6 @@ const postMessage = (worker, type, data) => {
                 data,
             }
         )
-        //await sleep(1)
         return true
     }
     return false

@@ -6,16 +6,10 @@ const onNotModuloBase = (currentNo) => {
 
 
         let secondCell = currentNo.secondCell
-        // let lastCell = currentNo.cellsArr[currentNo.cellsArr.length - 1]
 
-        // if (lastCell.digit === 1n) {
-        //     lastCell.digit++
-        // }
-        //currentNo.cellsArr[1].count += firstCell.count
         secondCell.count += firstCell.count
-        secondCell.powerBy = undefined
+        secondCell.changed = true
 
-        //currentNo.cellsArr.shift()
         currentNo.startIndex++
 
         if (currentNo.startIndex > 1_000) {
