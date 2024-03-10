@@ -10,6 +10,7 @@ let VARS
 let base
 let startSessionTime
 let startTime
+let stackMessages = []
 
 let onFound = (vars) => {
     const {steps: countSteps, number_lengths} = vars
@@ -80,18 +81,27 @@ parentPort.on('message', async (messageObj) => {
             log = logMultiPersistence({ goalNumber, base})
             onFound = onFound(VARS)
             break
+        case 'stack':
+            stackMessages.push(messageObj.data.messages)
+            delete messageObj.messages
+            delete messageObj.data
+            messageObj = null
+            break;
         case 'found':
             const {
                 calcIterations,
                 countIterations,
                 currentNo,
                 endTime,
-                iterationsNotFoundLimit,
+                notFoundLimit,
                 messages,
-                notFoundIterations,
+                notFound,
             } = messageObj.data
 
-            for (const message of messages) {
+            stackMessages.push(messages)
+            let allMessages = stackMessages.flat()
+            stackMessages = []
+            for (const message of allMessages) {
                 const currentNo = new HugeInt(0n, base)
                 currentNo.fromString(message.currentNoStr, base)
 
@@ -101,8 +111,8 @@ parentPort.on('message', async (messageObj) => {
             VARS.iterations = {
                 calculated: calcIterations,
                 count: countIterations,
-                found_nothing: notFoundIterations,
-                found_nothing_break_at: iterationsNotFoundLimit,
+                found_nothing: notFound,
+                found_nothing_break_at: notFoundLimit,
             }
 
             VARS.last_number = currentNo
@@ -112,7 +122,7 @@ parentPort.on('message', async (messageObj) => {
             process.env.log = log(
                 {...messageObj.data,
                     countSteps: VARS.steps,
-                    messagesCount: messages.length,
+                    messagesCount: allMessages.length,
                     lengths: VARS.number_lengths,
                     startSessionTime,
                     startTime,
