@@ -119,6 +119,6 @@ while (process.env.isWorkerReady !== 'true') {
 }
 
 // noinspection JSCheckFunctionSignatures
-await multiPerSearch(initVars,startSessionTime, startTime, worker)
+await multiPerSearch(initVars, startSessionTime, startTime, worker)
 worker.terminate()
 console.log('---------- FINISH ----------')
