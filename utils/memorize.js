@@ -9,7 +9,8 @@ const replacer = (key, value) => {
     }
     return value
 }
-const reviver = () => {
+const reviver = (filename) => {
+    if (filename.includes('powerBy.json')) return reviverForPowerBy
     let toggle = 0
     return (key, value) => {
         toggle++
@@ -17,6 +18,14 @@ const reviver = () => {
             toggle = -1
             return BigInt(value)
         }
+        return value
+    }
+}
+const reviverForPowerBy = (key, value) => {
+    try {
+        return BigInt(value)
+    }
+    catch {
         return value
     }
 }
@@ -30,7 +39,7 @@ function saveMapToFile(filename, map) {
 function loadMapFromFileSync(filename) {
     try {
         const data = fs.readFileSync(filename, 'utf8')
-        const entries = JSON.parse(data, reviver()).sort((a , b) => {
+        const entries = JSON.parse(data, reviver(filename)).sort((a , b) => {
             if (a[0] > b[0]) return 1
             if (a[0] < b[0]) return -1
             return 0
@@ -70,7 +79,7 @@ export const  memorizeForPowerBy = (name) => {
 
     return function (a, b) {
         if (b === 1n) return a
-        const key = a + ',' + b
+        const key = (a << 16n) | b
 
         let data = cache.get(key)
         if (data) return data

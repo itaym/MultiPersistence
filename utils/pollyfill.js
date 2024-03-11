@@ -28,7 +28,7 @@ function toString(constructor) {
                 while (initBigInt !== 0n) {
                     const digit = Number(initBigInt % bigIntBase)
                     //if (digit === 0) return '0'
-                    result.push(baseDigits[digit])
+                    result.push(baseDigits.get(digit))
                     initBigInt /= bigIntBase
                 }
                 return result.reverse().join('')
@@ -48,7 +48,7 @@ function toStrNoZero (radix = 10n) {
     while (initBigInt !== 0n) {
         const digit = initBigInt % bigIntBase
         if (digit === 0n) return '0'
-        result.push(baseDigits[digit])
+        result.push(baseDigits.get(digit))
         initBigInt /= bigIntBase
     }
     return result.reverse().join('')

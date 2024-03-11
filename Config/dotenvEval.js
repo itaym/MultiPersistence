@@ -1,8 +1,9 @@
 import { argv } from 'node:process';
 
 const dotenvEval = ({ parsed }) => {
-    let env = process.env || {}
+    let env = process.env
     let selfEnv = process.selfEnv || {}
+    process.selfEnv = selfEnv
 
     for (let [key, value] of Object.entries(parsed)) {
         try {   selfEnv[key.toLowerCase()] = eval(value + '') }
@@ -12,8 +13,8 @@ const dotenvEval = ({ parsed }) => {
 
     argv.forEach((val) => {
         const argArr = val.split('=')
-        if (argArr[0] === 'base') {
-            const base = BigInt(parseInt(argArr[1]))
+         if (argArr[0] === 'base') {
+            const base = BigInt(argArr[1])
             try {
                 if (base > 1n || base < 65537n) {
                     selfEnv.base = base
@@ -23,16 +24,15 @@ const dotenvEval = ({ parsed }) => {
             catch {}
         }
         if (argArr[0] === 'debug') {
-            const debug = eval(argArr[1])
+            const debug = argArr[1] === 'true'
             try {
                 if (debug !== undefined) {
-                    process.selfEnv.debug = !!debug
-                    process.env.debug = !!debug + ''
+                    selfEnv.debug = debug
+                    env.debug = !!debug + ''
                 }
             }
             catch {}
         }
     })
-    process.selfEnv = selfEnv
 }
 export default dotenvEval

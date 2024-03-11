@@ -1,7 +1,7 @@
 import { digitsObj as baseDigits, digitsValue } from '../Digits/index.js'
 
-const  tbi = new Array(20_000)
-for (let int = 0; int < 20_000; int++) {
+const  tbi = new Array(1_000)
+for (let int = 0; int < 1_000; int++) {
     tbi[int] = BigInt(int)
 }
 
@@ -555,7 +555,7 @@ class HugeInt {
 
     contains(digit) {
         for (let cell of this.cellsArr) {
-            if (baseDigits[cell.digit] === digit) {
+            if (baseDigits.get(cell.digit) === digit) {
                 return true
             }
         }
@@ -566,7 +566,7 @@ class HugeInt {
         let tmpStr = ''
         for (let cellIndex = this.startIndex; cellIndex < this.cellsArr.length; cellIndex++) {
             let cell = this.cellsArr[cellIndex]
-            tmpStr = baseDigits[cell.digit].repeat(Number(cell.count)) + tmpStr
+            tmpStr = baseDigits.get(cell.digit).repeat(Number(cell.count)) + tmpStr
         }
         return tmpStr
     }

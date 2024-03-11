@@ -36,11 +36,6 @@ function bigIntCreatePowerArray(currentNo, base) {
     return convertToPowerArray(currentNoStr)
 }
 
-function hugeIntMap(cell) {
-    cell.powerBy = powerBy(cell.digit, cell.count)
-    return cell.powerBy
-}
-
 function reduce(arr) {
     let result = arr[0]
     for (let x = 1; x < arr.length; x++) {
@@ -52,7 +47,7 @@ function reduce(arr) {
 function reduceHugeInt(hugeInt) {
     let lastResult = 1n
     const arr = hugeInt.cellsArr
-    let startIndex = hugeInt.startIndex
+    let startIndex = hugeInt.startIndex + 1
 
     while ((startIndex < arr.length) && arr[startIndex].changed) {
         startIndex++

@@ -21,7 +21,7 @@ export const getInitVars = async () => {
     const fileName = `./results/${selfEnv.base.toString().padStart(5, '0')}_${vars_file}`
 
     const defaultVars = {
-        base: eval(env.base),
+        base: BigInt(env.base.replace('n', '')),
         iterations: {
             calculated: 0n,
             count: 0,

@@ -199,6 +199,7 @@ const base00012 = (() => {
         if (cell2?.count > 1n) {
             permutationsSaved = getPermutations(cell3.digit, cell3.count, base)
             cell3.digit++
+            cell3.changed = true
         }
         return permutationsSaved
     }
@@ -210,6 +211,7 @@ const base00012 = (() => {
         if (cell3) {
             permutationsSaved = getPermutations(4n, cell4.count, base)
             cell4.digit++
+            cell4.changed = true
         }
         return permutationsSaved
     }
@@ -217,13 +219,21 @@ const base00012 = (() => {
         let permutationsSaved = 0n
 
         const cell2 = currentNo.getCellOf(2n)
-        const cell4 = currentNo.getCellOf(4n)
 
-        if (cell2 || cell4) {
+        if (cell2) {
             permutationsSaved = getPermutations(cell6.digit, cell6.count, base)
             cell6.digit++
+            cell6.changed = true
+            return permutationsSaved
         }
-        else if (cell6.count > 1n) {
+        const cell4 = currentNo.getCellOf(4n)
+        if (cell4) {
+            permutationsSaved = getPermutations(cell6.digit, cell6.count, base)
+            cell6.digit++
+            cell6.changed = true
+            return permutationsSaved
+        }
+        if (cell6.count > 1n) {
             permutationsSaved = getPermutations(cell6.digit, cell6.count - 1n, base)
             splitAfterCell(currentNo, cell6, 1n)
         }
@@ -233,11 +243,19 @@ const base00012 = (() => {
         let permutationsSaved = 0n
 
         const cell3 = currentNo.getCellOf(3n)
-        const cell6 = currentNo.getCellOf(6n)
 
-        if (cell3 || cell6) {
+        if (cell3) {
             permutationsSaved = getPermutations(cell8.digit, cell8.count, base)
             cell8.digit++
+            cell8.changed = true
+            return permutationsSaved
+        }
+        const cell6 = currentNo.getCellOf(6n)
+        if (cell6) {
+            permutationsSaved = getPermutations(cell8.digit, cell8.count, base)
+            cell8.digit++
+            cell8.changed = true
+            return permutationsSaved
         }
         return permutationsSaved
     }
@@ -245,13 +263,33 @@ const base00012 = (() => {
         let permutationsSaved = 0n
 
         const cell2 = currentNo.getCellOf(2n)
-        const cell4 = currentNo.getCellOf(4n)
-        const cell6 = currentNo.getCellOf(6n)
-        const cell8 = currentNo.getCellOf(8n)
 
-        if (cell2?.count > 1n || cell4 || cell6?.count > 1n || cell8) {
+        if (cell2?.count > 1n) {
             permutationsSaved = getPermutations(cell9.digit, cell9.count, base)
             cell9.digit++
+            cell9.changed = true
+            return permutationsSaved
+        }
+        const cell4 = currentNo.getCellOf(4n)
+        if (cell4) {
+            permutationsSaved = getPermutations(cell9.digit, cell9.count, base)
+            cell9.digit++
+            cell9.changed = true
+            return permutationsSaved
+        }
+        const cell6 = currentNo.getCellOf(6n)
+        if (cell6?.count > 1n) {
+            permutationsSaved = getPermutations(cell9.digit, cell9.count, base)
+            cell9.digit++
+            cell9.changed = true
+            return permutationsSaved
+        }
+        const cell8 = currentNo.getCellOf(8n)
+        if (cell8) {
+            permutationsSaved = getPermutations(cell9.digit, cell9.count, base)
+            cell9.digit++
+            cell9.changed = true
+            return permutationsSaved
         }
         return permutationsSaved
     }
@@ -268,7 +306,10 @@ const base00012 = (() => {
         if (((cell3 || cell9) && (cell2 || cell4 || cell8)) || cell6) {
             permutationsSaved = getPermutations(cellA.digit, cellA.count, base)
             cellA.digit++
+            cellA.changed = true
+            return permutationsSaved
         }
+
         return permutationsSaved
     }
 
