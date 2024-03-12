@@ -2,8 +2,8 @@
 const onNotModuloBase = (currentNo) => {
 
     let firstCell = currentNo.firstCell
-    if (firstCell.digit === 0n) {
 
+    if (firstCell.digit === 0n) {
 
         let secondCell = currentNo.secondCell
 

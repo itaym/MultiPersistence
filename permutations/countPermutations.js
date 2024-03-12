@@ -25,14 +25,14 @@ const _getPermutations = (() => {
             checkBase = baseLast + 1n
             result = getPCache.get(`${length},${baseLast}`)
         }
-        process.env.log = JSON.stringify({ getPCache: getPCache.size, length: Number(length), checkBase: Number(checkBase), base: Number(base) })
+        //process.env.log = JSON.stringify({ getPCache: getPCache.size, length: Number(length), checkBase: Number(checkBase), base: Number(base) })
 
         for (let runBase = checkBase; runBase <= base; runBase++) {process.env.log += '\n'+runBase
             result += _getPermutations(runBase, length - 1n)
             getPCache.set(`${length},${runBase}`, result)
             if (runBase > theLastOne) getPCacheLast.set(length, runBase)
         }
-        process.env.log += '\n' + JSON.stringify({ getPCache: getPCache.size, length: Number(length), checkBase: Number(checkBase), base: Number(base) })
+        //process.env.log += '\n' + JSON.stringify({ getPCache: getPCache.size, length: Number(length), checkBase: Number(checkBase), base: Number(base) })
         return result
     }
 })()
@@ -63,10 +63,10 @@ const getPermutations = (() => {
         for (let runLength = checkLength; runLength <= length; runLength++) {
             result += _getPermutations(base, runLength)
             cache.set(`${base},${runLength}`, result)
-            process.env.log = JSON.stringify({cache: cache.size})
+            //process.env.log = JSON.stringify({cache: cache.size})
             if (runLength > theLastOne) {
                 cacheLast.set(base, runLength)
-                console.log({cacheLast: cacheLast.size})
+                //console.log({cacheLast: cacheLast.size})
             }
         }
         return result
