@@ -66,7 +66,7 @@ export default function logMultiPersistence({
             const sessionMilliseconds = endTime - startSessionTime
             const cellNo = currentNo.cellsLength
             const currentNumberStr = sanitize(currentNo.toLocaleString())
-            lastNumberFound = fromMiddleStringMaxLength(sanitize(lastNumberFound.toLocaleString()), 52)
+            let lastNumberFoundStr = fromMiddleStringMaxLength(sanitize(lastNumberFound.toLocaleString()), 52)
 
             const iterationsPerSecond = Math.floor(Number(calcIterations / BigInt(Math.ceil(numOfMilliseconds / 1000))))
             const countIterationsPerSecond = Math.floor(countIterations / (numOfMilliseconds / 1000))
@@ -96,7 +96,7 @@ export default function logMultiPersistence({
 
             let logStr = '-'.repeat(140) + '\n'
             logStr += fromMiddleStringMaxLength(`Current number: ${currentNumberStr} (${currentNo.cellsArr[currentNo.cellsArr.length - 1].digit},${currentNo.cellsArr[currentNo.cellsArr.length - 2]?.digit},${currentNo.cellsArr[currentNo.cellsArr.length - 3]?.digit})`, 140).padEnd(140, '.') + '\n'
-            logStr += `Number found in ` + fromMiddleStringMaxLength(`${maxSteps} -> ${lastNumberFound}`, 53).padEnd(54, '-') +
+            logStr += `Number found in ` + fromMiddleStringMaxLength(`${maxSteps} -> ${lastNumberFoundStr}`, 53).padEnd(54, '-') +
                       `Current number length: ${currentNoLength.toLocaleString()} (${cellNo})`.padEnd(70, '-') + '\n'
             logStr += `Calc Iter.: ${calcIterations.toLocaleString()} (${percentDone}%)`.padEnd(70, '-') +
                       `Real Iter.: ${countIterations.toLocaleString()} saved: ${(calcIterations - BigInt(countIterations)).toLocaleString()}`.padEnd(70, '-') + '\n'
@@ -112,11 +112,14 @@ export default function logMultiPersistence({
             currentColor = 1
             countLog.forEach(logString => logStr += chalk[getColor()](logString) + '\n')
             logStr = logStr.substring(0, logStr.length - 1)
+            lastNumberFound.destroy()
+            currentNo.destroy()
             return logStr
-            //console.log(logStr)
         }
         catch (e) {
-            //debugger
+            lastNumberFound.destroy()
+            currentNo.destroy()
         }
+
 }}
 

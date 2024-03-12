@@ -79,6 +79,7 @@ parentPort.on('message', async (messageObj) => {
             startTime = messageObj.data.startTime * 1
             const goalNumber = new HugeInt(messageObj.data.goalNumber, base)
             log = logMultiPersistence({ goalNumber, base})
+            goalNumber.destroy()
             onFound = onFound(VARS)
             break
         case 'stack':
@@ -106,6 +107,7 @@ parentPort.on('message', async (messageObj) => {
                 currentNo.fromString(message.currentNoStr, base)
 
                 onFound(message, currentNo,  message.currentNoStr.length, startTime, endTime)
+                currentNo.destroy()
             }
 
             VARS.iterations = {

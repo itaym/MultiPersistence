@@ -1,15 +1,28 @@
 import { digitsObj as baseDigits, digitsValue } from '../Digits/index.js'
+import { initPools, getPool } from '../utils/objectsPool.js'
 
 const  tbi = new Array(1_000)
 for (let int = 0; int < 1_000; int++) {
     tbi[int] = BigInt(int)
 }
-
+let isPoolsInit = false
 
 
 class HugeInt {
 
     constructor(initBigInt = 0n, base = 10n) {
+        if (!isPoolsInit) {
+            initPools(10, 1200)
+            isPoolsInit = true
+        }
+        this.cellsPool = getPool()
+        this._getObject = this.cellsPool.getObject
+        this._dropObject = this.cellsPool.dropObject
+        this._dropBatchObject = function (arr) {
+            for (let x = 0; x < arr.length; x++)
+                this._dropObject(arr[x])
+        }
+
         this.tbi = tbi
         this.base = base
         this.baseMinusOne = this.base - 1n
@@ -18,16 +31,20 @@ class HugeInt {
         initBigInt = BigInt(initBigInt < 1n ? 0n : initBigInt)
 
         if (initBigInt === 0n) {
-            this.cellsArr.push({
-                changed: true,
-                count: 1n,
-                digit: 0n,
-            })
+            let currentCell = this._getObject()
+            currentCell.changed = true
+            currentCell.count = 1n
+            currentCell.digit = 0n
+            this.cellsArr.push(currentCell)
         } else {
             const bigIntBase = base
             const digit = initBigInt % bigIntBase
             initBigInt /= bigIntBase
-            let currentCell = {count: 1n, digit}
+            let currentCell = this._getObject()
+            if (!currentCell) debugger
+            currentCell.changed = true
+            currentCell.count = 1n
+            currentCell.digit = digit
             while (initBigInt !== 0n) {
                 const digit = initBigInt % bigIntBase
                 initBigInt /= bigIntBase
@@ -35,15 +52,25 @@ class HugeInt {
                     currentCell.count++
                 } else {
                     this.cellsArr.push(currentCell)
-                    currentCell = {
-                        changed: true,
-                        count: 1n,
-                        digit,
-                    }
+                    currentCell = this._getObject()
+                    currentCell.changed = true
+                    currentCell.count = 1n
+                    currentCell.digit = digit
+                    // currentCell = {
+                    //     changed: true,
+                    //     count: 1n,
+                    //     digit,
+                    // }
                 }
             }
             this.cellsArr.push(currentCell)
         }
+    }
+
+    destroy() {
+        delete this.cellsArr
+        delete this.tbi
+        this.cellsPool.dropPool()
     }
 
     get length() {
@@ -100,7 +127,7 @@ class HugeInt {
         this.cellsArr.splice(index, 0, cell)
     }
     initStartIndex() {
-        this.cellsArr.splice(0, this.startIndex)
+        this._dropBatchObject(this.cellsArr.splice(0, this.startIndex))
         this.startIndex = 0
     }
 
@@ -135,7 +162,11 @@ class HugeInt {
         let x = 0
         for (let digitIndex = digitsArr.length - 1; digitIndex > -1; digitIndex--) {
             const digits = digitsArr[digitIndex]
-            this.cellsArr[x++] = {changed: true, count: this.tbi[digits.length], digit: digitsValue[digits[0]]}
+            let newCell = this._getObject()
+            newCell.changed = true
+            newCell.count = this.tbi[digits.length]
+            newCell.digit = digitsValue[digits[0]]
+            this.cellsArr[x++] = newCell
         }
         this.base = base
         this.baseMinusOne = this.base - 1n
@@ -170,11 +201,11 @@ class HugeInt {
                 // cell.result = undefined
                 return
             }
-            this.addCellAfter(cellIndex, {
-                changed: true,
-                count: cell.count - 1n,
-                digit: cell.digit,
-            })
+            let newCell = this._getObject()
+            newCell.changed = true
+            newCell.count = cell.count - 1n
+            newCell.digit = cell.digit
+            this.addCellAfter(cellIndex, newCell)
             cell.count = 1n
             cell.digit++
             cell.changed = true
@@ -192,11 +223,11 @@ class HugeInt {
         //     cellIndex--
         // }
         if (cellIndex === this.cellsArr.length - 1) {
-            this.cellsArr.push({
-                changed: true,
-                count: 1n,
-                digit: 2n // 1n
-            })
+            let newCell = this._getObject()
+            newCell.changed = true
+            newCell.count = 1n
+            newCell.digit = 2n //1n
+            this.cellsArr.push(newCell)
             return
         }
         this.addOne(cellIndex + 1 - this.startIndex)
@@ -223,11 +254,11 @@ class HugeInt {
                 // cell.result = undefined
                 return
             } else {
-                this.addCellAfter(cellIndex, {
-                    changed: true,
-                    count: cell.count - 1n,
-                    digit: cell.digit,
-                })
+                let newCell = this._getObject()
+                newCell.changed = true
+                newCell.count = cell.count - 1n
+                newCell.digit = cell.digit
+                this.addCellAfter(cellIndex, newCell)
                 cell.count = 1n
                 cell.digit--
                 cell.changed = true
@@ -277,38 +308,37 @@ class HugeInt {
             if (cellIndex === this.cellsLength) break
         }
         if (cellIndex === this.cellsLength) {
+            let newCell = this._getObject()
+            newCell.changed = true
+
             if (numOfZeros > 0) {
-                this.cellsArr.push({
-                    changed: true,
-                    count: numOfZeros,
-                    digit: 0n
-                })
+                newCell.count = numOfZeros
+                newCell.digit = 0n
+                this.cellsArr.push(newCell)
             }
-            this.cellsArr.push({
-                changed: true,
-                count: 1n,
-                digit: 1n
-            })
+            newCell.count = 1n
+            newCell.digit = 1n
+            this.cellsArr.push(newCell)
         } else {
             if (this.cellsArr[cellIndex].count === 1n) {
                 this.addOne(cellIndex - this.startIndex)
                 return
             }
             if (numOfZeros > 0) {
-                this.addCellBefore(cellIndex, {
-                    changed: true,
-                    count: tbi[numOfZeros],
-                    digit: this.cellsArr[cellIndex].digit
-                })
+                let newCell = this._getObject()
+                newCell.changed = true
+                newCell.count = tbi[numOfZeros]
+                newCell.digit = this.cellsArr[cellIndex].digit
+                this.addCellBefore(cellIndex, newCell)
                 cellIndex++
                 this.cellsArr[cellIndex].count -= tbi[numOfZeros]
             }
             if (this.cellsArr[cellIndex].count > 1n) {
-                this.addCellAfter(cellIndex, {
-                    changed: true,
-                    count: this.cellsArr[cellIndex].count - 1n,
-                    digit: this.cellsArr[cellIndex].digit
-                })
+                let newCell = this._getObject()
+                newCell.changed = true
+                newCell.count = this.cellsArr[cellIndex].count - 1n
+                newCell.digit = this.cellsArr[cellIndex].digit
+                this.addCellAfter(cellIndex, newCell)
                 this.cellsArr[cellIndex].count = 1n
                 this.cellsArr[cellIndex].changed = true
                 this.cellsArr[cellIndex].result = undefined
@@ -328,7 +358,7 @@ class HugeInt {
                 count = 0
             } else {
                 count -= lastCell.count
-                this.cellsArr.pop()
+                this._dropObject(this.cellsArr.pop())
             }
         }
     }
@@ -446,17 +476,16 @@ class HugeInt {
             this.cellsArr[this.startIndex].result = undefined
         } else if (this.startIndex !== 0) {
             this.startIndex--
-            this.cellsArr[this.startIndex] = {
-                changed: true,
-                count,
-                digit: 0n
-            }
+            let cell = this.cellsArr[this.startIndex]
+            cell.changed = true
+            cell.count = count
+            cell.digit = 0n
         } else {
-            this.cellsArr.unshift({
-                changed: true,
-                count,
-                digit: 0n
-            })
+            let newCell = this._getObject()
+            newCell.changed = true
+            newCell.count = count
+            newCell.digit = 0n
+            this.cellsArr.unshift(newCell)
         }
     }
 
@@ -466,7 +495,7 @@ class HugeInt {
         for (let cellIndex = this.startIndex; cellIndex < endIndex; cellIndex++) {
             const currentCell = this.cellsArr[cellIndex]
             currentCell.changed = true
-            current// cell.result = undefined
+            currentCell.result = undefined
             let nextCell = this.cellsArr[cellIndex + 1]
 
             if (currentCell.count === 0n) currentCell.digit = nextCell.digit
@@ -479,7 +508,7 @@ class HugeInt {
             }
 
             if (deleteCount !== 0) {
-                this.cellsArr.splice(cellIndex, deleteCount + 1, currentCell)
+                this._dropBatchObject(this.cellsArr.splice(cellIndex, deleteCount + 1, currentCell))
             }
         }
     }
@@ -487,8 +516,10 @@ class HugeInt {
     splitCellAfter(cell, countToSplit) {
         let index = this.cellsArr.indexOf(cell)
         if (index < this.startIndex) return
-
-        const newCell = {changed: true, count: cell.count - countToSplit, digit: cell.digit}
+        const newCell = this._getObject()
+        newCell.changed = true
+        newCell.count = cell.count - countToSplit
+        newCell.digit = cell.digit
         this.addCellAfter(index, newCell)
         cell.count = countToSplit
         cell.changed = true
@@ -499,7 +530,10 @@ class HugeInt {
         let index = this.cellsArr.indexOf(cell)
         if (index < this.startIndex) return
 
-        const newCell = {changed: true, count: countToSplit, digit: cell.digit}
+        const newCell = this._getObject()
+        newCell.changed = true
+        newCell.count = countToSplit
+        newCell.digit = cell.digit
         this.addCellBefore(index, newCell)
         cell.count = cell.count - countToSplit
         cell.changed = true
