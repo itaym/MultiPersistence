@@ -1,4 +1,4 @@
-
+const symbolIndex = Symbol('index')
 let pools = []
 let poolSize
 let numOfPools
@@ -16,8 +16,8 @@ let currentPool = -1
  * @return {PoolArray}
  */
 const _createPool = (poolSize, index) => {
-    const pool = new Array(poolSize).fill(0).map((_, index) => ({ __index: index }))
-    pool.__index = index
+    const pool = new Array(poolSize).fill(0).map((_, index) => ({ [symbolIndex]: index }))
+    pool[symbolIndex] = index
     return pool
 }
 
@@ -49,37 +49,26 @@ const _getPool = () => pools[++currentPool]
  */
 const _dropPool = (pool) => {
     const lastUsedPool= pools[currentPool]
-    lastUsedPool.__index = pool.__index
-    pools[lastUsedPool.__index] = lastUsedPool
-    pool.__index = currentPool
+    lastUsedPool[symbolIndex] = pool[symbolIndex]
+    pools[lastUsedPool[symbolIndex]] = lastUsedPool
+    pool[symbolIndex] = currentPool
     pools[currentPool] = pool
     currentPool--
 }
 
 /**
  *
- * @return {{getObject: (function(): *), dropObject: dropObject, dropPool: *}}
+ * @return {{getObject: (function(): object), dropObject: (function(object)), dropPool: (function())}}
  */
 export const getPool = () => {
-    console.log({currentPool})
-
     const pool = _getPool()
-    //if (currentPool === 4) debugger
-    if (pool === undefined) debugger
     let lastObject = -1
 
     /**
      *
      * @return {object}
      */
-    const getObject = () => {
-        try {
-            return pool[++lastObject]
-        }
-        catch (e) {
-            debugger
-        }
-    }
+    const getObject = () => pool[++lastObject]
 
     /**
      *
@@ -87,13 +76,9 @@ export const getPool = () => {
      */
     const dropObject = (obj) => {
         const lastUsedObj = pool[lastObject]
-        try {
-            lastUsedObj.__index = obj.__index
-        } catch (e) {
-            debugger
-        }
-        pool[lastUsedObj.__index] = lastUsedObj
-        obj.__index = lastObject
+        lastUsedObj[symbolIndex] = obj[symbolIndex]
+        pool[lastUsedObj[symbolIndex]] = lastUsedObj
+        obj[symbolIndex] = lastObject
         pool[lastObject] = obj
         lastObject--
     }
