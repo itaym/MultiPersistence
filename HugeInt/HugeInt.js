@@ -15,7 +15,7 @@ class HugeInt {
         this.baseMinusOne = this.base - 1n
         this.cellsArr = []
         this.startIndex = 0
-        initBigInt = BigInt(initBigInt < 1n ? 0n : initBigInt)
+        initBigInt = BigInt(initBigInt)
 
         if (initBigInt === 0n) {
             this.cellsArr.push({
@@ -133,8 +133,8 @@ class HugeInt {
         const digitsArr = str.match(/((.)\2*)/g) || [str]
         this.cellsArr = Array(digitsArr.length)
         let x = 0
-        for (let digitIndex = digitsArr.length - 1; digitIndex > -1; digitIndex--) {
-            const digits = digitsArr[digitIndex]
+        for (let index = digitsArr.length - 1; index > -1; index--) {
+            const digits = digitsArr[index]
             this.cellsArr[x++] = {changed: true, count: this.tbi[digits.length], digit: digitsValue[digits[0]]}
         }
         this.base = base
@@ -311,7 +311,7 @@ class HugeInt {
                 })
                 this.cellsArr[cellIndex].count = 1n
                 this.cellsArr[cellIndex].changed = true
-                this.cellsArr[cellIndex].result = undefined
+                // this.cellsArr[cellIndex].result = undefined
             }
             this.addOne(cellIndex - this.startIndex)
         }
@@ -443,7 +443,7 @@ class HugeInt {
         if (this.cellsArr[this.startIndex].digit === 0n) {
             this.cellsArr[this.startIndex].count += count
             this.cellsArr[this.startIndex].changed = true
-            this.cellsArr[this.startIndex].result = undefined
+            // this.cellsArr[this.startIndex].result = undefined
         } else if (this.startIndex !== 0) {
             this.startIndex--
             this.cellsArr[this.startIndex] = {
@@ -466,7 +466,7 @@ class HugeInt {
         for (let cellIndex = this.startIndex; cellIndex < endIndex; cellIndex++) {
             const currentCell = this.cellsArr[cellIndex]
             currentCell.changed = true
-            current// cell.result = undefined
+            // current// cell.result = undefined
             let nextCell = this.cellsArr[cellIndex + 1]
 
             if (currentCell.count === 0n) currentCell.digit = nextCell.digit

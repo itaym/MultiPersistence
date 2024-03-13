@@ -13,6 +13,10 @@ let startTime
 let stackMessages = []
 
 let onFound = (vars) => {
+    const  tbi = new Array(1_000)
+    for (let int = 0; int < 1_000; int++) {
+        tbi[int] = BigInt(int)
+    }
     const {steps: countSteps, number_lengths} = vars
     return ({
             atRunTime,
@@ -36,13 +40,12 @@ let onFound = (vars) => {
 
         const lengthsArr = []
         for (let x = 0; x < currentNo.cellsArr.length; x++) {
-            let { count } = currentNo.cellsArr[x]
+            let count= currentNo.cellsArr[x].count
             if (count !== 1n) lengthsArr.push(count)
         }
-        lengthsArr.sort()
         if (lengthsArr.length === 0) lengthsArr.push(1n)
 
-        const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(lengthsArr)
+        const combinations = factorial(tbi[length]) / calcCellsArrFactorial(lengthsArr)
         countStep.combinations += combinations
         countStep.count++
         countStep.last = currentNoValue
@@ -97,17 +100,19 @@ parentPort.on('message', async (messageObj) => {
                 messages,
                 notFound,
             } = messageObj.data
-
+            let noOfMessages = 0
             stackMessages.push(messages)
-            let allMessages = stackMessages.flat()
-            stackMessages = []
-            for (const message of allMessages) {
-                const currentNo = new HugeInt(0n, base)
-                currentNo.fromString(message.currentNoStr, base)
+            for (let stackIndex = 0; stackIndex < stackMessages.length; stackIndex++) {
+                for (let messageIndex = 0; messageIndex < stackMessages[stackIndex].length; messageIndex++) {
+                    let message = stackMessages[stackIndex][messageIndex]
+                    noOfMessages++
+                    const currentNo = new HugeInt(0n, base)
+                    currentNo.fromString(message.currentNoStr, base)
 
-                onFound(message, currentNo,  message.currentNoStr.length, startTime, endTime)
+                    onFound(message, currentNo,  message.currentNoStr.length, startTime, endTime)
+                }
             }
-
+            stackMessages = []
             VARS.iterations = {
                 calculated: calcIterations,
                 count: countIterations,
@@ -122,7 +127,7 @@ parentPort.on('message', async (messageObj) => {
             process.env.log = log(
                 {...messageObj.data,
                     countSteps: VARS.steps,
-                    messagesCount: allMessages.length,
+                    messagesCount: noOfMessages,
                     lengths: VARS.number_lengths,
                     startSessionTime,
                     startTime,
