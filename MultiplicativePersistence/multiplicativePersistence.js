@@ -39,9 +39,9 @@ function reduceHugeInt(hugeInt) {
     if (startIndex < arr.length) {
         lastResult =  arr[startIndex].result
     }
-
-    for (let x =  startIndex - 1; x >= hugeInt.startIndex; x--) {
-        let cell = arr[x]
+    startIndex--
+    for (; startIndex >= hugeInt.startIndex; startIndex--) {
+        let cell = arr[startIndex]
         lastResult *= cell.digit ** cell.count
         cell.changed = false
         cell.result = lastResult

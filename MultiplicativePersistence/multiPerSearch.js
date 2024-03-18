@@ -129,7 +129,6 @@ export const multiPerSearch = async (
         currentNo.addOne(0)
     }
 
-
     endTime = Date.now()
     await waitShowLog()
 

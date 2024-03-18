@@ -26,7 +26,7 @@ function toString(constructor) {
                 const bigIntBase = BigInt(radix)
                 let result = []
                 while (initBigInt !== 0n) {
-                    const digit = Number(initBigInt % bigIntBase)
+                    const digit = initBigInt % bigIntBase
                     //if (digit === 0) return '0'
                     result.push(baseDigits.get(digit))
                     initBigInt /= bigIntBase

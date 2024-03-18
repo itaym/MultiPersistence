@@ -27,12 +27,11 @@ const _getPermutations = (() => {
         }
         //process.env.log = JSON.stringify({ getPCache: getPCache.size, length: Number(length), checkBase: Number(checkBase), base: Number(base) })
 
-        for (let runBase = checkBase; runBase <= base; runBase++) {process.env.log += '\n'+runBase
+        for (let runBase = checkBase; runBase <= base; runBase++) {
             result += _getPermutations(runBase, length - 1n)
             getPCache.set(`${length},${runBase}`, result)
             if (runBase > theLastOne) getPCacheLast.set(length, runBase)
         }
-        //process.env.log += '\n' + JSON.stringify({ getPCache: getPCache.size, length: Number(length), checkBase: Number(checkBase), base: Number(base) })
         return result
     }
 })()
