@@ -21,6 +21,7 @@ class HugeInt {
                 changed: true,
                 count: 1n,
                 digit: 0n,
+                result: 0n
             })
         } else {
             const bigIntBase = base
@@ -188,25 +189,23 @@ class HugeInt {
             if (cell.count === 1n) {
                 cell.digit--
                 cell.changed = true
-                // cell.result = undefined
                 return
             } else {
                 this.addCellAfter(cellIndex, {
                     changed: true,
                     count: cell.count - 1n,
                     digit: cell.digit,
+                    result: 0n,
                 })
+                cell.changed = true
                 cell.count = 1n
                 cell.digit--
-                cell.changed = true
-                // cell.result = undefined
                 return
             }
         }
 
         cell.digit = this.baseMinusOne
         cell.changed = true
-        // cell.result = undefined
         // if (cellIndex && this.cellsArr[cellIndex - 1].digit === 0n) {
         //     this.cellsArr[cellIndex - 1].count += cell.count
         //     this.cellsArr.splice(cellIndex, 1)
@@ -301,19 +300,20 @@ class HugeInt {
         if (this.cellsArr[this.startIndex].digit === 0n) {
             this.cellsArr[this.startIndex].count += count
             this.cellsArr[this.startIndex].changed = true
-            // this.cellsArr[this.startIndex].result = undefined
         } else if (this.startIndex !== 0) {
             this.startIndex--
             this.cellsArr[this.startIndex] = {
                 changed: true,
                 count,
-                digit: 0n
+                digit: 0n,
+                result: 0n
             }
         } else {
             this.cellsArr.unshift({
                 changed: true,
                 count,
-                digit: 0n
+                digit: 0n,
+                result: 0n
             })
         }
     }
@@ -324,7 +324,6 @@ class HugeInt {
         for (let cellIndex = this.startIndex; cellIndex < endIndex; cellIndex++) {
             const currentCell = this.cellsArr[cellIndex]
             currentCell.changed = true
-            // current// cell.result = undefined
             let nextCell = this.cellsArr[cellIndex + 1]
 
             if (currentCell.count === 0n) currentCell.digit = nextCell.digit
@@ -346,7 +345,7 @@ class HugeInt {
         let index = this.cellsArr.indexOf(cell)
         if (index < this.startIndex) return
 
-        const newCell = {changed: true, count: cell.count - countToSplit, digit: cell.digit}
+        const newCell = {changed: true, count: cell.count - countToSplit, digit: cell.digit, result: 0n}
         this.addCellAfter(index, newCell)
         cell.count = countToSplit
         cell.changed = true
@@ -356,11 +355,10 @@ class HugeInt {
         let index = this.cellsArr.indexOf(cell)
         if (index < this.startIndex) return
 
-        const newCell = {changed: true, count: countToSplit, digit: cell.digit}
+        const newCell = {changed: true, count: countToSplit, digit: cell.digit, result: 0n}
         this.addCellBefore(index, newCell)
         cell.count = cell.count - countToSplit
         cell.changed = true
-        // cell.result = undefined
         return newCell
     }
 
@@ -392,7 +390,7 @@ class HugeInt {
         const tmpArr = Object.values(groups).flat()
         const newArr = []
         tmpArr.sort((a, b) => Number(b.digit - a.digit))
-        let currentNumber = {changed: true, count: 0n, digit: 0n}
+        let currentNumber = {changed: true, count: 0n, digit: 0n, result: 0n}
 
         for (let number of tmpArr) {
             if (number.digit === currentNumber.digit) {

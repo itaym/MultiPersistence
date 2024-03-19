@@ -1,3 +1,5 @@
+import { getTimeStringMilli } from './getTimeString.js'
+
 function measureTime(fn) {
 
     let count = 0
@@ -8,18 +10,27 @@ function measureTime(fn) {
 
     function callFn(...args) {
         count++
-        startTime = Date.now()
+        startTime = performance.now()
         result = fn(...args)
-        endTime = Date.now()
+        endTime = performance.now()
         duration += endTime - startTime
         return result
     }
+    callFn.reset = function() {
+        count = 0
+        duration = 0
+        endTime = 0
+        result = null
+        startTime = 0
+    }
     callFn.stats = function(multiplyBy) {
         multiplyBy ??= 1
+        let averageDuration = duration / count * multiplyBy
         return {
-            totalDuration: duration,
-            count,
-            averageDuration: duration / count * multiplyBy
+            averageDuration: averageDuration.toFixed(12),
+            count: count.toLocaleString(),
+            perSecond: (Math.round(1_000 / averageDuration)).toLocaleString(),
+            totalDuration: getTimeStringMilli(duration),
         }
     }
     return callFn
