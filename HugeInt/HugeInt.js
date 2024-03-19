@@ -21,13 +21,13 @@ class HugeInt {
                 changed: true,
                 count: 1n,
                 digit: 0n,
-                result: 0n
+                result: 0n,
             })
         } else {
             const bigIntBase = base
             const digit = initBigInt % bigIntBase
             initBigInt /= bigIntBase
-            let currentCell = {count: 1n, digit}
+            let currentCell = {changed: true, count: 1n, digit, result: 0n}
             while (initBigInt !== 0n) {
                 const digit = initBigInt % bigIntBase
                 initBigInt /= bigIntBase
@@ -39,6 +39,7 @@ class HugeInt {
                         changed: true,
                         count: 1n,
                         digit,
+                        result: 0n,
                     }
                 }
             }
@@ -126,7 +127,9 @@ class HugeInt {
             this.cellsArr[x++] = {
                 changed: true,
                 count: this.toBigInt[digits.length],
-                digit: digitsValue[digits[0]]}
+                digit: digitsValue[digits[0]],
+                result: 0n,
+            }
         }
         this.base = base
         this.baseMinusOne = this.base - 1n
@@ -147,6 +150,7 @@ class HugeInt {
                 changed: true,
                 count: cell.count - 1n,
                 digit: cell.digit,
+                result: 0n,
             })
             cell.count = 1n
             cell.digit++
@@ -164,7 +168,8 @@ class HugeInt {
             this.cellsArr.push({
                 changed: true,
                 count: 1n,
-                digit: 2n // 1n
+                digit: 2n, // 1n
+                result: 0n,
             })
             return
         }
