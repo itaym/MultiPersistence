@@ -4,7 +4,8 @@ const arraySize = 1_00
 const multiplyBy = 1
 const numIterations = 1_000_000_001
 const showAfter = 1_000_000
-const testArray = Array(arraySize).fill(0).map((_, index) => BigInt(index))
+const testArray = Array(arraySize).fill(0).map((_, index) => BigInt(index + 1))
+const testMap = new Map(testArray.map((element, index) => [index, element]))
 const warmupIterations = 1_000_000
 
 let run, counter
@@ -14,14 +15,14 @@ const showStats = (fn1, fn2, multiplyBy) => console.table({ fn1: fn1.stats(multi
 function test_1(arr) {
     let result = arr[0]
     for (let x = 1; x < arr.length; x++) {
-        result *= arr[x]
+        result += arr[x]
     }
     return result
 }
-function test_2(arr) {
-    let result = arr[0]
-    for (let x = 1; x < arr.length; x++) {
-        result *= arr[x]
+function test_2(map) {
+    let result = map.get(0)
+    for (let x = 1; x < map.size; x++) {
+        result += map.get(x)
     }
     return result
 }
@@ -32,7 +33,7 @@ run = { fn1, fn2 }
 
 for (let x = 0; x < warmupIterations; x++) {
     run.fn1(testArray)
-    run.fn2(testArray)
+    run.fn2(testMap)
 }
 fn1.reset()
 fn2.reset()
@@ -42,7 +43,7 @@ counter = 1
 for (; counter < numIterations / 2; counter++) {
 
     run.fn1(testArray)
-    run.fn2(testArray)
+    run.fn2(testMap)
 
     if (counter % showAfter === 0) {
         showStats(fn1, fn2, multiplyBy)
@@ -55,7 +56,7 @@ counter = 1
 for (;counter < numIterations / 2; counter++) {
 
     run.fn2(testArray)
-    run.fn1(testArray)
+    run.fn1(testMap)
 
     if (counter % showAfter === 0) {
         showStats(fn1, fn2, multiplyBy)

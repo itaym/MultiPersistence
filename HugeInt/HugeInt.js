@@ -27,7 +27,12 @@ class HugeInt {
             const bigIntBase = base
             const digit = initBigInt % bigIntBase
             initBigInt /= bigIntBase
-            let currentCell = {changed: true, count: 1n, digit, result: 0n}
+            let currentCell = {
+                changed: true,
+                count: 1n,
+                digit,
+                result: 0n,
+            }
             while (initBigInt !== 0n) {
                 const digit = initBigInt % bigIntBase
                 initBigInt /= bigIntBase
@@ -112,7 +117,6 @@ class HugeInt {
     }
     initStartIndex() {
         this.cellsArr = this.cellsArr.slice(this.startIndex)
-        //this.cellsArr.splice(0, this.startIndex)
         this.startIndex = 0
     }
 
