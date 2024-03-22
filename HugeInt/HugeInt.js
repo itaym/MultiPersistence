@@ -301,6 +301,17 @@ class HugeInt {
         return count
     }
 
+    countTwoComponentsNoFirstCell() {
+        let count = 0
+        for (let cellIndex = this.startIndex + 1; cellIndex < this.cellsArr.length; cellIndex++) {
+            let log2 = Math.log2(toNumber[this.cellsArr[cellIndex].digit])
+            if (log2 === Math.floor(log2)) {
+                count += log2 * toNumber[this.cellsArr[cellIndex].count]
+            }
+        }
+        return count
+    }
+
     multiplyBy(hugeInt) {
         return new HugeInt(this.value * hugeInt.value, this.base)
     }

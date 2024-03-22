@@ -6,16 +6,16 @@ const arrayWithZero = [0n]
  *
  * @param currentNo { bigint }
  * @param base { number }
- * @return { bigint[] }
+ * @return { bigint[]|*[] }
  */
 function bigIntCreateDigitsArray(currentNo, base) {
     let currentNoStr = currentNo.toString(base)
     if (currentNoStr.includes('0')) return arrayWithZero
 
-    const result = Array(currentNoStr.length)
+    const result = currentNoStr.split('')
 
-    for (let x = 0; x < currentNoStr.length; x++) {
-        result[x] = digitsValue[currentNoStr[x]]
+    for (var x = 0; x < result.length; x++) {
+        result[x] = digitsValue[result[x]]
     }
     return result
 }
@@ -41,10 +41,9 @@ function reduceHugeInt(hugeInt) {
     }
     startIndex--
     for (; startIndex >= hugeInt.startIndex; startIndex--) {
-        let cell = arr[startIndex]
-        lastResult *= cell.digit ** cell.count
-        cell.changed = false
-        cell.result = lastResult
+        lastResult *= arr[startIndex].digit ** arr[startIndex].count
+        arr[startIndex].changed = false
+        arr[startIndex].result = lastResult
     }
     return lastResult
 }
