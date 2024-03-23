@@ -48,7 +48,7 @@ export const multiPerSearch = async (
 
     let multiPerFn = multiPer.bind(null, currentNo, Number(base))
     let prepareBindMessage = prepareMessage.bind(currentNo)
-    let on_ModuloBase = onModuloBase.bind(null, currentNo)
+    let on_ModuloBase = onModuloBase.bind(currentNo)
 
     /**
      *
@@ -64,7 +64,7 @@ export const multiPerSearch = async (
      */
     const createMessage = () => prepareBindMessage(startTime, calcIterations, steps)
 
-    currentNo.addOne(0)
+    currentNo.addOneToSorted(0)
 
     while (notToBreak) {
 
@@ -126,7 +126,7 @@ export const multiPerSearch = async (
             iterationsPerLog = countIterations
             startTimeLog = Date.now()
         }
-        currentNo.addOne(0)
+        currentNo.addOneToSorted(0)
     }
 
     endTime = Date.now()

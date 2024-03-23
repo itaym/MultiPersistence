@@ -34,3 +34,9 @@ if (maxBase > 64) {
         digitsValue[char] = x + 64n - offset
     }
 }
+
+export const  toBigInt = new Array(1_000)
+for (let int = 0; int < 1_000; int++) {
+    toBigInt[int] = BigInt(int)
+}
+export const toNumber = new Array(1_000).fill(0).map((_, index) => index)

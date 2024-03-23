@@ -1,19 +1,18 @@
 
-const onNotModuloBase = (currentNo) => {
+const onNotModuloBase = function () {
 
-    let firstCell = currentNo.firstCell
+    let firstCell = this.firstCell
 
     if (firstCell.digit === 0n) {
 
-        let secondCell = currentNo.secondCell
+        let secondCell = this.secondCell
 
         secondCell.count += firstCell.count
-        secondCell.changed = true
 
-        currentNo.startIndex++
+        this.startIndex++
 
-        if (currentNo.startIndex > 1_000) {
-            currentNo.initStartIndex()
+        if (this.startIndex> 1_000) {
+            this.initStartIndex()
         }
     }
 }

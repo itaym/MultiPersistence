@@ -1,22 +1,30 @@
-import { digitsObj as baseDigits, digitsValue } from '../Digits/index.js'
+import { digitsObj as baseDigits, digitsValue, toNumber, toBigInt } from '../Digits/index.js'
 
-const  toBigInt = new Array(1_000)
-for (let int = 0; int < 1_000; int++) {
-    toBigInt[int] = BigInt(int)
-}
-const  toNumber = new Array(1_000).fill(0).map((_, index) => index)
+/**
+ * @typedef DigitCell
+ * @property {boolean} changed
+ * @property {bigint} count
+ * @property {toBigInt} digit
+ * @property {bigint} result
+ */
 
+/**
+ * @class HugeInt
+ */
 class HugeInt {
 
-    constructor(initBigInt = 0n, base = 10n) {
-        this.toBigInt = toBigInt
-        this.base = base
-        this.baseMinusOne = this.base - 1n
+    /**
+     *
+     * @param {bigint} initValue
+     * @param {bigint} base
+     */
+    constructor(initValue = 0n, base = 10n) {
+        this.#base = base
+        this.#baseMinusOne = this.#base - 1n
         this.cellsArr = []
         this.startIndex = 0
-        initBigInt = BigInt(initBigInt)
 
-        if (initBigInt === 0n) {
+        if (initValue === 0n) {
             this.cellsArr.push({
                 changed: true,
                 count: 1n,
@@ -24,18 +32,17 @@ class HugeInt {
                 result: 0n,
             })
         } else {
-            const bigIntBase = base
-            const digit = initBigInt % bigIntBase
-            initBigInt /= bigIntBase
+            const digit = initValue % base
+            initValue /= base
             let currentCell = {
                 changed: true,
                 count: 1n,
                 digit,
                 result: 0n,
             }
-            while (initBigInt !== 0n) {
-                const digit = initBigInt % bigIntBase
-                initBigInt /= bigIntBase
+            while (initValue !== 0n) {
+                const digit = initValue % base
+                initValue /= base
                 if (currentCell.digit === digit) {
                     currentCell.count++
                 } else {
@@ -51,17 +58,61 @@ class HugeInt {
             this.cellsArr.push(currentCell)
         }
     }
+    /**
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@PRIVATE FIELDS
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     */
+    #base
+    #baseMinusOne
 
     /**
-     * @desc returns the active amount of cells.
-     * @return {number}
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@GETTERS
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     */
+
+    /**
+     *
+     * @readonly
+     * @property {DigitCell} beforeLastCell
+     */
+    get beforeLastCell() {
+        if ((this.cellsArr.length - 2) < this.startIndex) return undefined
+        return this.cellsArr[this.cellsArr.length - 2]
+    }
+
+    /**
+     *
+     * @readonly
+     * @property {number} cellsLength
      */
     get cellsLength() {
-        return this.cellsArr.length
+        return this.cellsArr.length - this.startIndex
     }
+
     /**
-     * @desc returns the length of the HugeInt in the defined base
-     * @return {bigint}
+     *
+     * @readonly
+     * @property {DigitCell} firstCell
+     */
+    get firstCell() {
+        return this.cellsArr[this.startIndex]
+    }
+
+    /**
+     *
+     * @readonly
+     * @property {DigitCell} lastCell
+     */
+    get lastCell() {
+        return this.cellsArr[this.cellsArr.length - 1]
+    }
+
+    /**
+     *
+     * @readonly
+     * @property {bigint} length
      */
     get length() {
         let length = 0n
@@ -71,29 +122,25 @@ class HugeInt {
         return length
     }
 
-
-
+    /**
+     *
+     * @readonly
+     * @property {DigitCell} secondCell
+     */
     get secondCell() {
         return this.cellsArr[this.startIndex + 1]
     }
 
-    get firstCell() {
-        return this.cellsArr[this.startIndex]
-    }
-
-    get beforeLastCell() {
-        if ((this.cellsLength - 2) < this.startIndex) return undefined
-        return this.cellsArr[this.cellsLength - 2]
-    }
-
-    get lastCell() {
-        return this.cellsArr[this.cellsLength - 1]
-    }
-
+    /**
+     *
+     * @readonly
+     * @property {DigitCell} value
+     */
     get value() {
         let value = 0n
         let power = 0n
-        let base = this.base
+        let base = this.#base
+
         for (let cellIndex = this.startIndex; cellIndex < this.cellsArr.length; cellIndex++) {
             let cell = this.cellsArr[cellIndex]
             const digit = cell.digit
@@ -104,53 +151,81 @@ class HugeInt {
         }
         return value
     }
+
+    /**
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@METHODS
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     */
+
+    /**
+     * @method addCellAfter
+     * @param {number} index
+     * @param {DigitCell} cell
+     * @return {DigitCell[]}
+     */
     addCellAfter(index, cell) {
-        this.cellsArr.splice(index + 1, 0, cell)
+        return this.cellsArr.splice(index + 1, 0, cell)
     }
 
+    /**
+     * @method addCellBefore
+     * @param {number} index
+     * @param {DigitCell} cell
+     * @return {DigitCell[]}
+     */
     addCellBefore(index, cell) {
         if (index === -1) {
             this.cellsArr.unshift(cell)
-            return
+            return []
         }
-        this.cellsArr.splice(index, 0, cell)
+        return this.cellsArr.splice(index, 0, cell)
     }
+
+    /**
+     * @method initStartIndex
+     */
     initStartIndex() {
         this.cellsArr = this.cellsArr.slice(this.startIndex)
         this.startIndex = 0
     }
 
+    /**
+     * @method fromString
+     * @param {string} str
+     * @param {bigint} base
+     */
     fromString(str, base) {
-
-        this.startIndex = 0
         const digitsArr = str.match(/((.)\2*)/g) || [str]
+
+        this.#base = base
+        this.#baseMinusOne = this.#base - 1n
+        this.startIndex = 0
         this.cellsArr = Array(digitsArr.length)
-        let x = 0
-        for (let index = digitsArr.length - 1; index > -1; index--) {
+
+         for (let index = digitsArr.length - 1, x = 0; index > -1; index--, x++) {
             const digits = digitsArr[index]
-            this.cellsArr[x++] = {
+            this.cellsArr[x] = {
                 changed: true,
-                count: this.toBigInt[digits.length],
+                count: toBigInt[digits.length],
                 digit: digitsValue[digits[0]],
                 result: 0n,
             }
         }
-        this.base = base
-        this.baseMinusOne = this.base - 1n
+
     }
 
-    addOne(cellRelativeToStartIndex) {
-        const cellIndex = cellRelativeToStartIndex + this.startIndex
-        let cell = this.cellsArr[cellIndex]
+    addOne(cellIndex) {
+        let cell = this.cellsArr[cellIndex + this.startIndex]
         cell.changed = true
 
-        if (cell.digit !== this.baseMinusOne) {
+        if (cell.digit !== this.#baseMinusOne) {
             if (cell.count === 1n) {
                 cell.changed = true
                 cell.digit++
                 return
             }
-            this.addCellAfter(cellIndex, {
+            this.addCellAfter(cellIndex + this.startIndex, {
                 changed: true,
                 count: cell.count - 1n,
                 digit: cell.digit,
@@ -163,12 +238,12 @@ class HugeInt {
 
         cell.digit = 0n
 
-        // if (cellIndex && this.cellsArr[cellIndex - 1].digit === 0n) {
-        //     this.cellsArr[cellIndex - 1].count += cell.count
-        //     this.cellsArr.splice(cellIndex, 1)
-        //     cellIndex--
-        // }
-        if (cellIndex === this.cellsArr.length - 1) {
+        if (cellIndex && this.cellsArr[cellIndex + this.startIndex - 1].digit === 0n) {
+            this.cellsArr[cellIndex + this.startIndex - 1].count += cell.count
+            this.cellsArr.splice(cellIndex + this.startIndex, 1)
+            cellIndex--
+        }
+        if (cellIndex + this.startIndex === this.cellsArr.length - 1) {
             this.cellsArr.push({
                 changed: true,
                 count: 1n,
@@ -177,17 +252,41 @@ class HugeInt {
             })
             return
         }
-        this.addOne(cellIndex + 1 - this.startIndex)
-        // if (cellIndex && (this.cellsArr[cellIndex - 1].digit === cell.digit)) {
-        //     console.log('sdf')
-        //     this.cellsArr[cellIndex - 1].count += cell.count
-        //     this.cellsArr.splice(cellIndex, 1)
-        // }
-        // if (cellIndex < (this.cellsLength - 1) && (this.cellsArr[cellIndex + 1].digit === cell.digit)) {
-        //     console.log('sdf')
-        //     this.cellsArr[cellIndex].count += this.cellsArr[cellIndex + 1].count
-        //     this.cellsArr.splice(cellIndex + 1, 1)
-        // }
+        this.addOne(cellIndex + 1)
+    }
+    addOneToSorted(cellIndex) {
+        let cell = this.cellsArr[cellIndex + this.startIndex]
+        cell.changed = true
+
+        if (cell.digit !== this.#baseMinusOne) {
+            if (cell.count === 1n) {
+                cell.changed = true
+                cell.digit++
+                return
+            }
+            this.addCellAfter(cellIndex + this.startIndex, {
+                changed: true,
+                count: cell.count - 1n,
+                digit: cell.digit,
+                result: 0n,
+            })
+            cell.count = 1n
+            cell.digit++
+            return
+        }
+
+        cell.digit = 0n
+
+        if (cellIndex + this.startIndex === this.cellsArr.length - 1) {
+            this.cellsArr.push({
+                changed: true,
+                count: 1n,
+                digit: 2n, // 1n
+                result: 0n,
+            })
+            return
+        }
+        this.addOneToSorted(cellIndex + 1)
     }
 
     subtractOne(cellRelativeToStartIndex) {
@@ -213,14 +312,14 @@ class HugeInt {
             }
         }
 
-        cell.digit = this.baseMinusOne
+        cell.digit = this.#baseMinusOne
         cell.changed = true
         // if (cellIndex && this.cellsArr[cellIndex - 1].digit === 0n) {
         //     this.cellsArr[cellIndex - 1].count += cell.count
         //     this.cellsArr.splice(cellIndex, 1)
         //     cellIndex--
         // }
-        if (cellIndex === this.cellsLength - 1) {
+        if (cellIndex === this.cellsArr.length - 1) {
             cell.digit = 0n
             // this.cellsArr.push({
             //     count: 1n,
@@ -242,7 +341,7 @@ class HugeInt {
     }
 
     isGTBase() {
-        return (!(this.cellsLength - this.startIndex === 1 && this.cellsArr[this.startIndex].count === 1n))
+        return (!(this.cellsArr.length - this.startIndex === 1 && this.cellsArr[this.startIndex].count === 1n))
     }
 
     includes(digit) {
@@ -313,7 +412,7 @@ class HugeInt {
     }
 
     multiplyBy(hugeInt) {
-        return new HugeInt(this.value * hugeInt.value, this.base)
+        return new HugeInt(this.value * hugeInt.value, this.#base)
     }
 
     multiplyByBasePower(count) {
@@ -437,6 +536,10 @@ class HugeInt {
         return false
     }
 
+    /**
+     * @method toString
+     * @return {string}
+     */
     toString() {
         let tmpStr = ''
         for (let cellIndex = this.startIndex; cellIndex < this.cellsArr.length; cellIndex++) {
@@ -446,6 +549,10 @@ class HugeInt {
         return tmpStr
     }
 
+    /**
+     * @method toLocaleString
+     * @return {string}
+     */
     toLocaleString() {
         const str = this.toString()
         const arr = []
@@ -456,6 +563,7 @@ class HugeInt {
             index += partLength
             partLength = 3
         } while (index !== str.length)
+
         return arr.join(',')
     }
 
@@ -464,120 +572,3 @@ class HugeInt {
     }
 }
 export default HugeInt //546
-
-//---------------------------------------------------------------------------------------------------
-
-export const MyClass = (() => {
-    /** Shared variables and functions among instances */
-    let sharedVariable1 = 'something'
-    let sharedVariable2 = 'otherThing'
-
-    /* DON'T USE 'this' OPERATOR AT ALL */
-
-    /**
-     * 'this' can be passed as an argument
-     * @param {Constructor}_this
-     * @param {*} anything
-     * @return {string}
-     */
-    const sharedFunction1 = (_this, anything) => `Hello there ${anything}`
-    /**
-     * Can access Constructor statics
-     * @param {*} anything
-     * @return {string}
-     */
-    const sharedFunction2 = (anything) => `${Constructor.something} ${anything}`
-
-    /**
-     *
-     * @return {Constructor}
-     *
-     */
-    const Constructor = (() => {
-        /** Variables and functions in instance closure */
-        let closureVariable1 = 'closure something'
-        let closureVariable2 = 'closure otherThing'
-
-        /* DON'T USE 'this' OPERATOR AT ALL */
-        /* BUT YOU CAN USE '_self' INSTEAD! */
-        let _self
-
-        /**
-         * 'this' can be passed as an argument
-         * @param {Constructor} _this
-         * @param {*} anything
-         * @return {string}
-         */
-        const closureFunction1 = (_this, anything) => sharedFunction1(_this, anything)
-        /**
-         * Can access Constructor statics
-         * @param {*} anything
-         * @return {string}
-         */
-        const closureFunction2 = (anything) => sharedFunction2(anything)
-        /**
-         *
-         * @typedef {Constructor}
-         *
-         */
-        class Constructor {
-            constructor(...args) {
-                _self = this
-                this.args = args
-            }
-
-            /**
-             * @static
-             * @name something
-             * @return {string}
-             */
-            static something() {
-                return sharedVariable1
-            }
-
-            /**
-             * @property
-             * @name otherThing
-             * @return {string}
-             */
-            get otherThing() {
-                return sharedVariable2
-            }
-
-            /**
-             * @property
-             * @name otherThing
-             * @param {string} value
-             */
-            set otherThing(value) {
-                sharedVariable2 = value
-            }
-
-            /**
-             *
-             * @method
-             * @return {string}
-             */
-            doSomething () {
-                return sharedFunction1(
-                    this,
-                    closureFunction1(this, closureVariable1))
-            }
-
-            /**
-             *
-             * @method
-             * @return {string}
-             */
-            doOtherThing () {
-                return sharedFunction2(closureFunction2(closureVariable2))
-            }
-        }
-        return Constructor
-    })('Create user-blind closure')
-
-    return (...args) => new Constructor(...args)
-})('Create user-blind closure for cross-instances')
-
-
-
