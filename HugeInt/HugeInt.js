@@ -221,7 +221,6 @@ class HugeInt {
 
         if (cell.digit !== this.#baseMinusOne) {
             if (cell.count === 1n) {
-                cell.changed = true
                 cell.digit++
                 return
             }
@@ -260,7 +259,6 @@ class HugeInt {
 
         if (cell.digit !== this.#baseMinusOne) {
             if (cell.count === 1n) {
-                cell.changed = true
                 cell.digit++
                 return
             }
@@ -296,7 +294,6 @@ class HugeInt {
         if (cell.digit !== 0n) {
             if (cell.count === 1n) {
                 cell.digit--
-                cell.changed = true
                 return
             } else {
                 this.addCellAfter(cellIndex, {
@@ -305,7 +302,6 @@ class HugeInt {
                     digit: cell.digit,
                     result: 0n,
                 })
-                cell.changed = true
                 cell.count = 1n
                 cell.digit--
                 return
@@ -313,7 +309,6 @@ class HugeInt {
         }
 
         cell.digit = this.#baseMinusOne
-        cell.changed = true
         // if (cellIndex && this.cellsArr[cellIndex - 1].digit === 0n) {
         //     this.cellsArr[cellIndex - 1].count += cell.count
         //     this.cellsArr.splice(cellIndex, 1)
