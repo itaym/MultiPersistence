@@ -1,11 +1,11 @@
 
 const onNotModuloBase = function () {
 
-    let firstCell = this.firstCell
+    let firstCell = this.cellsArr[this.startIndex]
 
     if (firstCell.digit === 0n) {
 
-        let secondCell = this.secondCell
+        let secondCell = this.cellsArr[this.startIndex + 1]
 
         secondCell.count += firstCell.count
 

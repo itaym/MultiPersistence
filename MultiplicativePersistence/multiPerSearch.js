@@ -56,7 +56,8 @@ export const multiPerSearch = async (
      */
     const createPermutations = baseAccommodate
         .supported.includes(process.selfEnv.base)
-        ? new ToPrimitive(currentNo, baseAccommodate) : 1n
+        ? new ToPrimitive(currentNo, baseAccommodate)
+        : new ToPrimitive(currentNo, function () { return 1n})
 
     /**
      *

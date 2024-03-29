@@ -57,7 +57,7 @@ export default function logMultiPersistence({
         startTime,
         startTimeLog,
     }) {
-        let lastNumberFound = countSteps[countSteps.length - 1]?.first || 0
+        let lastNumberFound = countSteps[countSteps.length - 1]?.first || 0n
         lastNumberFound = new HugeInt(lastNumberFound, base)
         currentNo = new HugeInt(currentNo, base)
         try {
