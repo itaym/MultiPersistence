@@ -55,5 +55,8 @@ const replacer = (key, value) => {
 
 export const setInitVars = async (initVars, base) => {
     const fileName = `./results/${base.toString().padStart(5, '0')}_${process.env.vars_file}`
+    try {
+        await fs.rename(fileName, fileName.replace('.json', '.bak'))
+    } catch {}
     await fs.writeFile(fileName, JSON.stringify(initVars, replacer, '\t'))
 }

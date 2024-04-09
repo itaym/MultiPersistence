@@ -2,7 +2,6 @@ import { getTimeString } from '../utils/getTimeString.js'
 import countPermutations from '../permutations/countPermutations.js'
 import HugeInt from '../HugeInt/index.js'
 import chalk from 'chalk'
-import sleep from '../utils/sleep.js'
 
 const colors = ['white', 'yellow']
 let currentColor = 1
@@ -95,7 +94,7 @@ export default function logMultiPersistence({
             foundInLength = lengths[currentNoLength + ''] ? lengths[currentNoLength + ''].found : 0
 
             let logStr = '-'.repeat(140) + '\n'
-            logStr += fromMiddleStringMaxLength(`Current number: ${currentNumberStr} (${currentNo.cellsArr[currentNo.cellsArr.length - 1].digit},${currentNo.cellsArr[currentNo.cellsArr.length - 2]?.digit},${currentNo.cellsArr[currentNo.cellsArr.length - 3]?.digit})`, 140).padEnd(140, '.') + '\n'
+            logStr += fromMiddleStringMaxLength(`Current number: ${currentNumberStr} (${currentNo.lastCell.digit},${currentNo.lastCell?.prev?.digit},${currentNo.lastCell?.prev?.prev?.digit})`, 140).padEnd(140, '.') + '\n'
             logStr += `Number found in ` + fromMiddleStringMaxLength(`${maxSteps} -> ${lastNumberFound}`, 53).padEnd(54, '-') +
                       `Current number length: ${currentNoLength.toLocaleString()} (${cellNo})`.padEnd(70, '-') + '\n'
             logStr += `Calc Iter.: ${calcIterations.toLocaleString()} (${percentDone}%)`.padEnd(70, '-') +

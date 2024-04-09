@@ -1,17 +1,20 @@
-import { digitsObj as baseDigits, digitsValue, toNumber, toBigInt } from '../Digits/index.js'
+import { digitsObj as baseDigits, digitsValue, toBigInt } from '../Digits/index.js'
 
 /**
  * @typedef DigitCell
  * @property {boolean} changed
  * @property {bigint} count
- * @property {toBigInt} digit
+ * @property {bigint} digit
+ * @property {DigitCell|null} next
+ * @property {DigitCell|null} prev
  * @property {bigint} result
  */
 
 /**
  * @class HugeInt
  */
-class HugeInt {
+
+export class HugeInt {
 
     /**
      *
@@ -21,16 +24,17 @@ class HugeInt {
     constructor(initValue = 0n, base = 10n) {
         this.#base = base
         this.#baseMinusOne = this.#base - 1n
-        this.cellsArr = []
-        this.startIndex = 0
 
         if (initValue === 0n) {
-            this.cellsArr.push({
+            this.firstCell = {
                 changed: true,
                 count: 1n,
                 digit: 0n,
+                next: null,
+                prev: null,
                 result: 0n,
-            })
+            }
+            this.lastCell = this.firstCell
         } else {
             const digit = initValue % base
             initValue /= base
@@ -38,24 +42,29 @@ class HugeInt {
                 changed: true,
                 count: 1n,
                 digit,
+                next: null,
+                prev: null,
                 result: 0n,
             }
+            this.firstCell = currentCell
             while (initValue !== 0n) {
                 const digit = initValue % base
                 initValue /= base
                 if (currentCell.digit === digit) {
                     currentCell.count++
                 } else {
-                    this.cellsArr.push(currentCell)
-                    currentCell = {
+                    currentCell.next = {
                         changed: true,
                         count: 1n,
                         digit,
+                        next: null,
+                        prev: currentCell,
                         result: 0n,
                     }
+                    currentCell = currentCell.next
                 }
             }
-            this.cellsArr.push(currentCell)
+            this.lastCell = currentCell
         }
     }
     /**
@@ -78,8 +87,7 @@ class HugeInt {
      * @property {DigitCell} beforeLastCell
      */
     get beforeLastCell() {
-        if ((this.cellsArr.length - 2) < this.startIndex) return undefined
-        return this.cellsArr[this.cellsArr.length - 2]
+        return this.lastCell.prev
     }
 
     /**
@@ -88,26 +96,26 @@ class HugeInt {
      * @property {number} cellsLength
      */
     get cellsLength() {
-        return this.cellsArr.length - this.startIndex
+        let count = 0
+        let cell = this.firstCell
+        while (cell) {
+            count++
+            cell = cell.next
+        }
+        return count
     }
 
     /**
      *
-     * @readonly
-     * @property {DigitCell} firstCell
+     * @type {DigitCell | null}
      */
-    get firstCell() {
-        return this.cellsArr[this.startIndex]
-    }
+    firstCell = null
 
     /**
      *
-     * @readonly
-     * @property {DigitCell} lastCell
+     * @type {DigitCell | null}
      */
-    get lastCell() {
-        return this.cellsArr[this.cellsArr.length - 1]
-    }
+    lastCell = null
 
     /**
      *
@@ -115,11 +123,13 @@ class HugeInt {
      * @property {bigint} length
      */
     get length() {
-        let length = 0n
-        for (let index = this.startIndex; index < this.cellsArr.length; index++) {
-            length += this.cellsArr[index].count
+        let count = 0n
+        let cell = this.firstCell
+        while (cell) {
+            count += cell.count
+            cell = cell.next
         }
-        return length
+        return count
     }
 
     /**
@@ -128,28 +138,27 @@ class HugeInt {
      * @property {DigitCell} secondCell
      */
     get secondCell() {
-        return this.cellsArr[this.startIndex + 1]
+        return this.firstCell.next
     }
 
     /**
      *
      * @readonly
-     * @property {DigitCell} value
+     * @property {bigint} value
      */
     get value() {
-        let value = 0n
-        let power = 0n
-        let base = this.#base
+        const o = this
+        let value = 0n;
+        let power = 0n;
+        let cell = this.firstCell;
 
-        for (let cellIndex = this.startIndex; cellIndex < this.cellsArr.length; cellIndex++) {
-            let cell = this.cellsArr[cellIndex]
-            const digit = cell.digit
-            for (let x = 0; x < cell.count; x++) {
-                value += digit * (base ** power)
-                power++
-            }
+        while (cell) {
+            value += cell.digit * (((o.#base ** cell.count) - 1n) / o.#baseMinusOne) * (o.#base ** power)
+            power += cell.count
+
+            cell = cell.next;
         }
-        return value
+        return value;
     }
 
     /**
@@ -160,34 +169,37 @@ class HugeInt {
 
     /**
      * @method addCellAfter
-     * @param {number} index
+     * @param {DigitCell} currentCell
      * @param {DigitCell} cell
-     * @return {DigitCell[]}
+     * @return {DigitCell}
      */
-    addCellAfter(index, cell) {
-        return this.cellsArr.splice(index + 1, 0, cell)
+    addCellAfter(currentCell, cell) {
+        currentCell.next && (currentCell.next.prev = cell)
+
+        cell.next = currentCell.next
+        currentCell.next = cell
+        cell.prev = currentCell
+
+        !cell.next && (this.lastCell = cell)
+
+        return cell
     }
 
     /**
      * @method addCellBefore
-     * @param {number} index
+     * @param {DigitCell} currentCell
      * @param {DigitCell} cell
-     * @return {DigitCell[]}
+     * @return {DigitCell}
      */
-    addCellBefore(index, cell) {
-        if (index === -1) {
-            this.cellsArr.unshift(cell)
-            return []
-        }
-        return this.cellsArr.splice(index, 0, cell)
-    }
+    addCellBefore(currentCell, cell) {
+        currentCell.prev && (currentCell.prev.next = cell)
+        cell.prev = currentCell.prev
+        currentCell.prev = cell
+        cell.next = currentCell
 
-    /**
-     * @method initStartIndex
-     */
-    initStartIndex() {
-        this.cellsArr = this.cellsArr.slice(this.startIndex)
-        this.startIndex = 0
+        !cell.prev && (this.firstCell = cell)
+
+        return cell
     }
 
     /**
@@ -200,23 +212,30 @@ class HugeInt {
 
         this.#base = base
         this.#baseMinusOne = this.#base - 1n
-        this.startIndex = 0
-        this.cellsArr = Array(digitsArr.length)
 
-         for (let index = digitsArr.length - 1, x = 0; index > -1; index--, x++) {
-            const digits = digitsArr[index]
-            this.cellsArr[x] = {
+        let currentCell = this.firstCell
+
+        for (let index = digitsArr.length - 1; index > -1; index--) {
+
+            currentCell.count = toBigInt[digitsArr[index].length]
+            currentCell.digit = digitsValue[digitsArr[index][0]]
+
+            currentCell.next = {
                 changed: true,
-                count: toBigInt[digits.length],
-                digit: digitsValue[digits[0]],
+                count: 0n,
+                digit: 0n,
+                next: null,
+                prev: currentCell,
                 result: 0n,
             }
+            currentCell = currentCell.next
         }
-
+        this.lastCell = currentCell.prev
+        this.lastCell.next = null
     }
 
-    addOne(cellIndex) {
-        let cell = this.cellsArr[cellIndex + this.startIndex]
+    addOne(cell) {
+        cell ??= this.firstCell
         cell.changed = true
 
         if (cell.digit !== this.#baseMinusOne) {
@@ -224,10 +243,12 @@ class HugeInt {
                 cell.digit++
                 return
             }
-            this.addCellAfter(cellIndex + this.startIndex, {
+            this.addCellAfter(cell, {
                 changed: true,
                 count: cell.count - 1n,
                 digit: cell.digit,
+                next: null,
+                prev: null,
                 result: 0n,
             })
             cell.count = 1n
@@ -237,24 +258,29 @@ class HugeInt {
 
         cell.digit = 0n
 
-        if (cellIndex && this.cellsArr[cellIndex + this.startIndex - 1].digit === 0n) {
-            this.cellsArr[cellIndex + this.startIndex - 1].count += cell.count
-            this.cellsArr.splice(cellIndex + this.startIndex, 1)
-            cellIndex--
+        if (cell.prev && cell.prev.digit === 0n) {
+            cell.count += cell.prev.count
+            this.removeCell(cell.prev)
         }
-        if (cellIndex + this.startIndex === this.cellsArr.length - 1) {
-            this.cellsArr.push({
+        if (cell === this.lastCell) {
+            this.addCellAfter(cell, {
                 changed: true,
                 count: 1n,
                 digit: 2n, // 1n
+                next: null,
+                prev: null,
                 result: 0n,
             })
             return
         }
-        this.addOne(cellIndex + 1)
+        this.addOne(cell.next)
     }
-    addOneToSorted(cellIndex) {
-        let cell = this.cellsArr[cellIndex + this.startIndex]
+
+    /**
+     *
+     * @param {DigitCell|null} cell
+     */
+    addOneToSorted(cell = this.firstCell) {
         cell.changed = true
 
         if (cell.digit !== this.#baseMinusOne) {
@@ -262,10 +288,14 @@ class HugeInt {
                 cell.digit++
                 return
             }
-            this.addCellAfter(cellIndex + this.startIndex, {
+
+            this.addCellAfter(
+                /** @type {DigitCell} */ cell, {
                 changed: true,
                 count: cell.count - 1n,
                 digit: cell.digit,
+                next: null,
+                prev: null,
                 result: 0n,
             })
             cell.count = 1n
@@ -275,31 +305,50 @@ class HugeInt {
 
         cell.digit = 0n
 
-        if (cellIndex + this.startIndex === this.cellsArr.length - 1) {
-            this.cellsArr.push({
+        if (!cell.next) {
+            this.addCellAfter(
+                /** @type {DigitCell} */ cell, {
                 changed: true,
                 count: 1n,
-                digit: 2n, // 1n
+                digit: 2n,
+                next: null,
+                prev: null,
                 result: 0n,
             })
             return
         }
-        this.addOneToSorted(cellIndex + 1)
+        this.addOneToSorted(cell.next)
     }
 
-    subtractOne(cellRelativeToStartIndex) {
-        const cellIndex = cellRelativeToStartIndex + this.startIndex
-        let cell = this.cellsArr[cellIndex]
+    removeCell(cell) {
+        if (cell.prev) {
+            cell.prev.next = cell.next
+        }
+        else {
+            this.firstCell = cell.next
+        }
+        if (cell.next) {
+            cell.next.prev = cell.prev
+        }
+        else {
+            this.lastCell = cell.prev
+        }
+
+    }
+    subtractOne(cell) {
+        cell ??= this.firstCell
 
         if (cell.digit !== 0n) {
             if (cell.count === 1n) {
                 cell.digit--
                 return
             } else {
-                this.addCellAfter(cellIndex, {
+                this.addCellAfter(cell, {
                     changed: true,
                     count: cell.count - 1n,
                     digit: cell.digit,
+                    next: null,
+                    prev: null,
                     result: 0n,
                 })
                 cell.count = 1n
@@ -309,241 +358,154 @@ class HugeInt {
         }
 
         cell.digit = this.#baseMinusOne
-        // if (cellIndex && this.cellsArr[cellIndex - 1].digit === 0n) {
-        //     this.cellsArr[cellIndex - 1].count += cell.count
-        //     this.cellsArr.splice(cellIndex, 1)
-        //     cellIndex--
-        // }
-        if (cellIndex === this.cellsArr.length - 1) {
+
+        if (cell === this.lastCell) {
+            cell.count = 1n
             cell.digit = 0n
-            // this.cellsArr.push({
-            //     count: 1n,
-            //     digit: 2n // 1n
-            // })
             return
         }
-        this.subtractOne(cellIndex + 1 - this.startIndex)
-        // if (cellIndex && (this.cellsArr[cellIndex - 1].digit === cell.digit)) {
-        //     console.log('sdf')
-        //     this.cellsArr[cellIndex - 1].count += cell.count
-        //     this.cellsArr.splice(cellIndex, 1)
-        // }
-        // if (cellIndex < (this.cellsLength - 1) && (this.cellsArr[cellIndex + 1].digit === cell.digit)) {
-        //     console.log('sdf')
-        //     this.cellsArr[cellIndex].count += this.cellsArr[cellIndex + 1].count
-        //     this.cellsArr.splice(cellIndex + 1, 1)
-        // }
+        this.subtractOne(cell.next)
     }
 
     isGTBase() {
-        return (!(this.cellsArr.length - this.startIndex === 1 && this.cellsArr[this.startIndex].count === 1n))
+        return this.firstCell.count > 1n || this.firstCell.next
     }
 
-    includes(digit) {
-        for (let cell of this.cellsArr) {
-            if (cell.digit === digit) return cell.count
+    digitCount(digit) {
+        let cell = this.firstCell
+        let count = 0n
+        while (cell) {
+            if (cell.digit === digit) count += cell.count
+            cell = cell.next
         }
-        return 0
+        return count
     }
-
-    includesCellOf(digit) {
-        for (let x = this.startIndex; x < this.cellsArr.length; x++)
-            if (this.cellsArr[x].digit === digit) return [this.cellsArr[x], x]
-        return [null, -1]
-    }
-
-
+    /**
+     *
+     * @return {DigitCell|null}
+     */
     getCellOf(digit) {
-        for (let cellIndex = this.startIndex; cellIndex < this.cellsArr.length; cellIndex++) {
-            if (this.cellsArr[cellIndex].digit === digit) return this.cellsArr[cellIndex]
+        let cell = this.firstCell
+        while (cell) {
+            if (cell.digit === digit) return cell
+            cell = cell.next
         }
         return null
     }
-
+    /**
+     *
+     * @return {boolean}
+     */
     isCellOf(digit) {
-        for (let cellIndex = this.startIndex; cellIndex < this.cellsArr.length; cellIndex++) {
-            if (this.cellsArr[cellIndex].digit === digit) return true
+        let cell = this.firstCell
+        while (cell) {
+            if (cell.digit === digit) return true
+            cell = cell.next
         }
         return false
     }
-
+    /**
+     *
+     * @return {boolean}
+     */
     isLTBase() {
-        return this.cellsArr.length === (1 + this.startIndex) && this.cellsArr[this.startIndex].count === 1n
+        return (!this.firstCell.next) && this.firstCell.count === 1n
     }
-
+    /**
+     *
+     * @return {bigint}
+     */
     moduloBase() {
-        return this.cellsArr[this.startIndex].digit
+        return this.firstCell.digit
     }
-
+    /**
+     *
+     * @return {boolean}
+     */
     hasEvenDigits() {
-        for (let cellIndex = this.startIndex; cellIndex < this.cellsArr.length; cellIndex++) {
-            if ((this.cellsArr[cellIndex].digit % 2n) === 0n) {
-                return true
-            }
+        let cell = this.firstCell
+        while (cell) {
+            if ((cell.digit % 2n) === 0n) return true
+            cell = cell.next
         }
         return false
     }
-
-    countTwoComponents() {
+    /**
+     *
+     * @param {DigitCell|null} cell
+     * @return {number}
+     */
+    countTwoComponents(cell) {
+        cell ??= this.firstCell
         let count = 0
-        for (let cellIndex = this.startIndex; cellIndex < this.cellsArr.length; cellIndex++) {
-            let log2 = Math.log2(toNumber[this.cellsArr[cellIndex].digit])
+        while (cell) {
+            let log2 = Math.log2(Number(cell.digit))
             if (log2 === Math.floor(log2)) {
-                count += log2 * toNumber[this.cellsArr[cellIndex].count]
+                count += log2 * Number(cell.count)
             }
+            cell = cell.next
         }
         return count
     }
-
     countTwoComponentsNoFirstCell() {
-        let count = 0
-        for (let cellIndex = this.startIndex + 1; cellIndex < this.cellsArr.length; cellIndex++) {
-            let log2 = Math.log2(toNumber[this.cellsArr[cellIndex].digit])
-            if (log2 === Math.floor(log2)) {
-                count += log2 * toNumber[this.cellsArr[cellIndex].count]
-            }
-        }
-        return count
+        return this.countTwoComponents(this.firstCell.next)
     }
-
-    multiplyBy(hugeInt) {
-        return new HugeInt(this.value * hugeInt.value, this.#base)
-    }
-
-    multiplyByBasePower(count) {
-        if (this.cellsArr[this.startIndex].digit === 0n) {
-            this.cellsArr[this.startIndex].count += count
-            this.cellsArr[this.startIndex].changed = true
-        } else if (this.startIndex !== 0) {
-            this.startIndex--
-            this.cellsArr[this.startIndex] = {
-                changed: true,
-                count,
-                digit: 0n,
-                result: 0n
-            }
-        } else {
-            this.cellsArr.unshift({
-                changed: true,
-                count,
-                digit: 0n,
-                result: 0n
-            })
-        }
-    }
-
-    combineCells = function (startIndex = this.startIndex, endIndex = this.cellsArr.length - 1) {
-        if (this.cellsArr.length === 1) return
-
-        for (let cellIndex = this.startIndex; cellIndex < endIndex; cellIndex++) {
-            const currentCell = this.cellsArr[cellIndex]
-            currentCell.changed = true
-            let nextCell = this.cellsArr[cellIndex + 1]
-
-            if (currentCell.count === 0n) currentCell.digit = nextCell.digit
-            let deleteCount = 0
-
-            while (nextCell && (nextCell.digit === currentCell.digit)) {
-                currentCell.count += nextCell.count
-                deleteCount++
-                nextCell = this.cellsArr[cellIndex + deleteCount + 1]
-            }
-
-            if (deleteCount !== 0) {
-                this.cellsArr.splice(cellIndex, deleteCount + 1, currentCell)
-            }
-        }
-    }
-
+    /**
+     *
+     * @param {DigitCell} cell
+     * @param {bigint} countToSplit
+     * @return {DigitCell}
+     */
     splitCellAfter(cell, countToSplit) {
-        let index = this.cellsArr.indexOf(cell)
-        if (index < this.startIndex) return
-
-        const newCell = {changed: true, count: cell.count - countToSplit, digit: cell.digit, result: 0n}
-        this.addCellAfter(index, newCell)
+        const newCell = {
+            changed: true,
+            count: cell.count - countToSplit,
+            digit: cell.digit,
+            next: null,
+            prev: null,
+            result: 0n
+        }
+        this.addCellAfter(cell, newCell)
         cell.count = countToSplit
-        cell.changed = true
-    }
-
-    splitCellBefore(cell, countToSplit) {
-        let index = this.cellsArr.indexOf(cell)
-        if (index < this.startIndex) return
-
-        const newCell = {changed: true, count: countToSplit, digit: cell.digit, result: 0n}
-        this.addCellBefore(index, newCell)
-        cell.count = cell.count - countToSplit
         cell.changed = true
         return newCell
     }
-
-    cellPosition(cell) {
-        let position = 0n
-        for (let currentCell of this.cellsArr) {
-            if (currentCell === cell) break
-            position += currentCell.count
+    /**
+     *
+     * @param {DigitCell} cell
+     * @param {bigint} countToSplit
+     * @return {DigitCell}
+     */
+    splitCellBefore(cell, countToSplit) {
+        const newCell = {
+            changed: true,
+            count: countToSplit,
+            digit: cell.digit,
+            next: null,
+            prev: null,
+            result: 0n
         }
-        return position
+        this.addCellBefore(cell, newCell)
+        cell.count -= countToSplit
+        cell.changed = true
+        return newCell
     }
-
-    cellIndex(cell) {
-        for (const [index, currentCell] of this.cellsArr.entries()) {
-            if (currentCell === cell) return index
-        }
-        return -1
-    }
-
-    getCellByIndex(index) {
-        return this.cellsArr[index]
-    }
-
-    sort() {
-        const groups = this.cellsArr.group(number => number.digit)
-        // this.cellsArr.sort((a, b) =>
-        //     Number(a.digit - b.digit)
-        // )
-        const tmpArr = Object.values(groups).flat()
-        const newArr = []
-        tmpArr.sort((a, b) => Number(b.digit - a.digit))
-        let currentNumber = {changed: true, count: 0n, digit: 0n, result: 0n}
-
-        for (let number of tmpArr) {
-            if (number.digit === currentNumber.digit) {
-                currentNumber.count += number.count
-            } else {
-                if (currentNumber.count !== 0n) {
-                    newArr.push(currentNumber)
-                }
-                currentNumber = {...number}
-            }
-        }
-        if (currentNumber.count !== 0) {
-            newArr.push(currentNumber)
-        }
-        this.cellsArr = newArr
-    }
-
-    contains(digit) {
-        for (let cell of this.cellsArr) {
-            if (baseDigits.get(cell.digit) === digit) {
-                return true
-            }
-        }
-        return false
-    }
-
     /**
      * @method toString
      * @return {string}
      */
     toString() {
         let tmpStr = ''
-        for (let cellIndex = this.startIndex; cellIndex < this.cellsArr.length; cellIndex++) {
-            let cell = this.cellsArr[cellIndex]
-            tmpStr = baseDigits.get(cell.digit).repeat(Number(cell.count)) + tmpStr
-        }
+        let cell = this.lastCell
+
+        do {
+            tmpStr += baseDigits.get(cell.digit).repeat(Number(cell.count))
+
+            cell = cell.prev
+        } while (cell)
+
         return tmpStr
     }
-
     /**
      * @method toLocaleString
      * @return {string}
@@ -561,9 +523,18 @@ class HugeInt {
 
         return arr.join(',')
     }
-
-    [Symbol.iterator]() {
-        return this.cellsArr[Symbol.iterator]()
+    /**
+     *
+     * @return {Iterator}
+     */
+    *[Symbol.iterator] () {
+        let cell = this.firstCell
+        while (cell) {
+            yield cell
+            cell = cell.next
+        }
+        return null
     }
 }
-export default HugeInt //546
+
+export default HugeInt

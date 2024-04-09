@@ -5,7 +5,7 @@ import onModuloBase from './onNotModuloBase.js'
 import postMessages from '../utils/postMessage.js'
 import prepareMessage from '../utils/prepareMessage.js'
 import waitShowLog from '../utils/waitShowLog.js'
-import { multiPer, multiPerNoBaseCheck } from './index.js'
+import { multiPer, multiPerNBC } from './index.js'
 
 
 
@@ -27,6 +27,7 @@ export const multiPerSearch = async (
         last_number,
         steps:stepsObj,
     },
+    log_interval,
     startSessionTime,
     startTime,
     worker,
@@ -45,19 +46,19 @@ export const multiPerSearch = async (
     let notToBreak = notFoundLimit > notFound
     let startTimeLog = startSessionTime
     let steps = 2
-
+    let multiPerNBB = multiPerNBC.bind(null, currentNo, Number(base))
     let multiPerFn = multiPer.bind(null, currentNo, Number(base))
     let prepareBindMessage = prepareMessage.bind(currentNo)
     let on_ModuloBase = onModuloBase.bind(currentNo)
 
     /**
      *
-     * @type {ToPrimitive|bigint}
+     * @type {ToPrimitive}
      */
     const createPermutations = baseAccommodate
         .supported.includes(process.selfEnv.base)
         ? new ToPrimitive(currentNo, baseAccommodate)
-        : new ToPrimitive(currentNo, function () { return 1n})
+        : new ToPrimitive(currentNo, function () { return 0n})
 
     /**
      *
@@ -65,7 +66,7 @@ export const multiPerSearch = async (
      */
     const createMessage = () => prepareBindMessage(startTime, calcIterations, steps)
 
-    currentNo.addOneToSorted(0)
+    currentNo.addOneToSorted()
 
     while (notToBreak) {
 
@@ -101,12 +102,12 @@ export const multiPerSearch = async (
         if (countIterations > logAfter) {
             endTime = Date.now()
             const currentNoValue = currentNo.value
-            if (currentNoValue > base) {
-                multiPerFn = multiPerNoBaseCheck.bind(null, currentNo, Number(base))
+            if (multiPerFn !== multiPerNBB) {
+                multiPerFn = multiPerNBB
             }
             iterationsPerLog = countIterations - iterationsPerLog
             const timeIteration = (endTime - startTimeLog) / iterationsPerLog
-            logAfter = Math.floor(2_000 / timeIteration) + countIterations
+            logAfter = Math.floor(log_interval / timeIteration) + countIterations
             if (logAfter === Infinity) logAfter = countIterations + 100_000
 
             await waitShowLog()
@@ -127,7 +128,7 @@ export const multiPerSearch = async (
             iterationsPerLog = countIterations
             startTimeLog = Date.now()
         }
-        currentNo.addOneToSorted(0)
+        currentNo.addOneToSorted()
     }
 
     endTime = Date.now()

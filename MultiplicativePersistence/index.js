@@ -1,2 +1,2 @@
 export { multiPerSearch } from './multiPerSearch.js'
-export { multiPer, multiPerNoBaseCheck } from './multiplicativePersistence.js'
+export { multiPer, multiPerNBC } from './multiplicativePersistence.js'

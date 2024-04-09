@@ -25,7 +25,8 @@ const worker = new Worker('./worker.js', {
 
 let initVars = await getInitVars()
 
-let goalNumber = new HugeInt(selfEnv.goal_number, selfEnv.base)
+const goalNumber = new HugeInt(selfEnv.goal_number, selfEnv.base)
+const log_interval = selfEnv.log_interval
 const startSessionTime = Date.now()
 const startTime = startSessionTime - initVars.up_time
 postMessages( worker, 'init', {
@@ -43,6 +44,6 @@ while (process.env.isWorkerReady !== 'true') {
 }
 
 // noinspection JSCheckFunctionSignatures
-await multiPerSearch(initVars, startSessionTime, startTime, worker)
+await multiPerSearch(initVars, log_interval, startSessionTime, startTime, worker)
 worker.terminate()
 console.log('---------- FINISH ----------')

@@ -39,10 +39,15 @@ let onFound = (vars) => {
         const countStep = countSteps[steps]
 
         const lengthsArr = []
-        for (let x = 0; x < currentNo.cellsArr.length; x++) {
-            let count= currentNo.cellsArr[x].count
-            if (count !== 1n) lengthsArr.push(count)
+        let cell = currentNo.firstCell
+        while (cell) {
+            if (cell.count !== 1n) lengthsArr.push(cell.count)
+            cell = cell.next
         }
+        // for (let x = 0; x < currentNo.cellsArr.length; x++) {
+        //     let count= currentNo.cellsArr[x].count
+        //     if (count !== 1n) lengthsArr.push(count)
+        // }
         if (lengthsArr.length === 0) lengthsArr.push(1n)
 
         const combinations = factorial(tbi[length]) / calcCellsArrFactorial(lengthsArr)
@@ -122,7 +127,7 @@ parentPort.on('message', async (messageObj) => {
 
             VARS.last_number = currentNo
             VARS.up_time = endTime - startTime
-            delete messageObj.messages
+            delete messageObj.data.messages
 
             process.env.log = log(
                 {...messageObj.data,

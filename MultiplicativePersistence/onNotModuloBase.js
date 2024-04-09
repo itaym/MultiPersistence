@@ -1,20 +1,18 @@
-
+/**
+ *
+ */
 const onNotModuloBase = function () {
 
-    let firstCell = this.cellsArr[this.startIndex]
+    let firstCell = this.firstCell
 
     if (firstCell.digit === 0n) {
 
-        let secondCell = this.cellsArr[this.startIndex + 1]
+        let secondCell = this.firstCell.next
 
         secondCell.count += firstCell.count
 
-        this.startIndex++
-
-        if (this.startIndex> 1_000) {
-            this.initStartIndex()
-        }
+        secondCell.prev = null
+        this.firstCell = secondCell
     }
 }
-
 export default onNotModuloBase

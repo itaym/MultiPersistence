@@ -1,14 +1,13 @@
 import { digitsValue } from '../Digits/index.js'
 
 const arrayWithZero = [0n]
-
 /**
  *
  * @param currentNo { bigint }
  * @param base { number }
  * @return { bigint[]|*[] }
  */
-function bigIntCreateDigitsArray(currentNo, base) {
+function BIStrArr(currentNo, base) {
     let currentNoStr = currentNo.toString(base)
     if (currentNoStr.includes('0')) return arrayWithZero
 
@@ -28,39 +27,37 @@ function reduce(arr) {
     return result
 }
 
-function reduceHugeInt(hugeInt) {
-    let lastResult = 1n
-    const arr = hugeInt.cellsArr
-    let startIndex = hugeInt.startIndex + 1
+function reduceHI(hugeInt) {
+    let cell = hugeInt.firstCell.next, lastResult
 
-    while ((startIndex < arr.length) && arr[startIndex].changed) {
-        startIndex++
-    }
-    if (startIndex < arr.length) {
-        lastResult =  arr[startIndex].result
-    }
-    startIndex--
-    for (; startIndex >= hugeInt.startIndex; startIndex--) {
-        lastResult *= arr[startIndex].digit ** arr[startIndex].count
-        arr[startIndex].changed = false
-        arr[startIndex].result = lastResult
-    }
+    while (cell && cell.changed) cell = cell.next
+
+    cell ?
+        (lastResult = cell.result, cell = cell.prev) :
+        (lastResult = 1n, cell = hugeInt.lastCell)
+
+    do {
+        lastResult *= cell.digit ** cell.count
+        cell.changed = false
+        cell.result = lastResult
+        cell = cell.prev
+    } while (cell)
+
     return lastResult
 }
 
 export const multiPer = function (currentNo, base) {
     if (currentNo.isLTBase()) return 0
 
-    return multiPerNoBaseCheck(currentNo, base)
+    return multiPerNBC(currentNo, base)
 }
-export const multiPerNoBaseCheck = function (currentNo, base) {
+export const multiPerNBC = function (currentNo, base) {
 
-    return 1 + multiPer2(reduceHugeInt(currentNo), base)
+    return 1 + multiPer2(reduceHI(currentNo), base)
 }
 
 const multiPer2 = function (currentNo, base) {
     if (currentNo < base) return 0
 
-    const digits = bigIntCreateDigitsArray(currentNo, base)
-    return 1 + multiPer2(reduce(digits), base)
+    return 1 + multiPer2(reduce(BIStrArr(currentNo, base)), base)
 }
