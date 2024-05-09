@@ -35,8 +35,8 @@ if (maxBase > 64) {
     }
 }
 
-export const  toBigInt = new Array(1_000)
-for (let int = 0; int < 1_000; int++) {
+export const  toBigInt = new Array(2_000)
+for (let int = 0; int < 2_000; int++) {
     toBigInt[int] = BigInt(int)
 }
-export const toNumber = new Array(1_000).fill(0).map((_, index) => index)
+export const toNumber = new Array(2_000).fill(0).map((_, index) => index)

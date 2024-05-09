@@ -7,14 +7,14 @@ import prepareMessage from '../utils/prepareMessage.js'
 import waitShowLog from '../utils/waitShowLog.js'
 import { multiPer, multiPerNBC } from './index.js'
 
-
-
 /**
  *
  * @param base
  * @param iterations
  * @param last_number
  * @param stepsObj
+ * @param up_time
+ * @param log_interval
  * @param startSessionTime
  * @param startTime
  * @param worker { Worker }
@@ -26,6 +26,7 @@ export const multiPerSearch = async (
         iterations,
         last_number,
         steps:stepsObj,
+        up_time,
     },
     log_interval,
     startSessionTime,
@@ -38,8 +39,7 @@ export const multiPerSearch = async (
     let currentNo = new HugeInt(last_number, base)
     let endTime
     let iterationsPerLog = countIterations
-    let logAfter = iterations.count + 1000
-    let maxSteps = stepsObj.length - 1
+    let logAfter = (countIterations + countIterations / up_time * log_interval) || 250_000
     let messages = []
     let notFound = iterations.found_nothing
     let notFoundLimit = iterations.found_nothing_break_at
@@ -51,19 +51,11 @@ export const multiPerSearch = async (
     let prepareBindMessage = prepareMessage.bind(currentNo)
     let on_ModuloBase = onModuloBase.bind(currentNo)
 
-    /**
-     *
-     * @type {ToPrimitive}
-     */
     const createPermutations = baseAccommodate
         .supported.includes(process.selfEnv.base)
         ? new ToPrimitive(currentNo, baseAccommodate)
-        : new ToPrimitive(currentNo, function () { return 0n})
+        : 1n
 
-    /**
-     *
-     * @return { FoundMessage }
-     */
     const createMessage = () => prepareBindMessage(startTime, calcIterations, steps)
 
     currentNo.addOneToSorted()
@@ -82,11 +74,6 @@ export const multiPerSearch = async (
             notFound = 0
 
             messages.push(createMessage())
-
-            if (steps > maxSteps) {
-                maxSteps = steps
-                logAfter = countIterations - 1
-            }
 
             if (messages.length >= 100) {
                 if (postMessages(worker, 'stack', {
@@ -119,7 +106,6 @@ export const multiPerSearch = async (
                 endTime,
                 notFoundLimit,
                 iterationsPerLog,
-                maxSteps,
                 messages,
                 notFound,
                 startTimeLog,
@@ -144,7 +130,6 @@ export const multiPerSearch = async (
         notFoundLimit,
         iterationsPerLog,
         length: currentNo.length,
-        maxSteps,
         messages,
         notFound,
         startTimeLog,

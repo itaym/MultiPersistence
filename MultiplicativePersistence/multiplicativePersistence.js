@@ -45,6 +45,22 @@ function reduceHI(hugeInt) {
 
     return lastResult
 }
+function reduceHIx(hugeInt) {
+    let cell = hugeInt.lastCell, lastResult = 1n
+
+    do {
+        if (cell.changed) {
+            cell.changed = false
+            lastResult *= cell.digit ** cell.count
+            cell.result = lastResult
+        }
+        lastResult = cell.result
+
+        cell = cell.prev
+    } while (cell)
+
+    return lastResult
+}
 
 export const multiPer = function (currentNo, base) {
     if (currentNo.isLTBase()) return 0

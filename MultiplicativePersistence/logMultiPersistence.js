@@ -50,13 +50,13 @@ export default function logMultiPersistence({
         iterationsPerLog,
         lengths,
         messagesCount,
-        maxSteps,
         notFound,
         startSessionTime,
         startTime,
         startTimeLog,
     }) {
         let lastNumberFound = countSteps[countSteps.length - 1]?.first || 0n
+        let maxSteps = countSteps[countSteps.length - 1]?.step
         lastNumberFound = new HugeInt(lastNumberFound, base)
         currentNo = new HugeInt(currentNo, base)
         try {

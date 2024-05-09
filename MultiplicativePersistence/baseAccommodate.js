@@ -1291,7 +1291,7 @@ const functionToExport = () => {
             fn = emptyFunction
     }
     fn.supported = [
-        6n, 8n, 9n, 10n, 12n, 15n, 16n, 20n, 24n, 32n, 87n
+        6n, 8n, 9n, 10n, 12n, 15n, 16n, 20n, 32n, 87n
     ]
     return fn
 }
