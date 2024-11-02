@@ -1,6 +1,5 @@
-import fs, { promises as fsPromises } from 'fs'
+import fs from 'fs'
 import path from 'path'
-const count = {}
 
 const replacer = (key, value) => {
     const name = value?.constructor?.name
@@ -9,8 +8,7 @@ const replacer = (key, value) => {
     }
     return value
 }
-const reviver = (filename) => {
-    if (filename.includes('powerBy.json')) return reviverForPowerBy
+const reviver = () => {
     let toggle = 0
     return (key, value) => {
         toggle++
@@ -18,14 +16,6 @@ const reviver = (filename) => {
             toggle = -1
             return BigInt(value)
         }
-        return value
-    }
-}
-const reviverForPowerBy = (key, value) => {
-    try {
-        return BigInt(value)
-    }
-    catch {
         return value
     }
 }
@@ -39,7 +29,7 @@ function saveMapToFile(filename, map) {
 function loadMapFromFileSync(filename) {
     try {
         const data = fs.readFileSync(filename, 'utf8')
-        const entries = JSON.parse(data, reviver(filename)).sort((a , b) => {
+        const entries = JSON.parse(data, reviver()).sort((a , b) => {
             if (a[0] > b[0]) return 1
             if (a[0] < b[0]) return -1
             return 0
@@ -69,44 +59,5 @@ export default function memorize(fn, name) {
         if (!(setCounter % saveToFile))
             saveMapToFile(fileName, cache)
         return data
-    }
-}
-
-export const  memorizeForPowerBy = (name) => {
-    const fileName = `${path.normalize(path.resolve('./caching'))}/${name}.json`
-    const cache = loadMapFromFileSync(fileName)
-    let setCounter = 0
-
-    return function (a, b) {
-        if (b === 1n) return a
-        const key = (a << 16n) | b
-
-        let data = cache.get(key)
-        if (data) return data
-        data = a ** b
-        cache.set(key, data)
-        setCounter++
-        if (!(setCounter % 100))
-            saveMapToFile(fileName, cache)
-        return data
-    }
-}
-
-export const memorizeSortedKey = (fn, name) => {
-    const cache = new Map()
-
-    return function (args = [1n]) {
-        const key = args.sort().join()
-
-        let data = cache.get(key)
-        if (data) return data
-        data = fn(...args)
-        cache.set(key, data)
-        return data
-        // return cache.get(key) || (() => {
-        //     const data = fn(...args)
-        //     cache.set(key, data)
-        //     return data
-        // })()
     }
 }

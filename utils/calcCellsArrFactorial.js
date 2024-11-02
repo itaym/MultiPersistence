@@ -1,7 +1,11 @@
 import factorial from './factorial.js'
-import memorize from './memorize.js'
 
-const calcCellsArrFactorial =(numbersArr) => {
+/**
+ *
+ * @param {bigint[]} numbersArr
+ * @returns {bigint}
+ */
+const calcCellsArrFactorial = (numbersArr) => {
     if (!numbersArr.length) return 1n
     let result = factorial(numbersArr.pop())
     return result * calcCellsArrFactorial(numbersArr)

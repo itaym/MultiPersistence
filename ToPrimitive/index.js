@@ -1,3 +1,6 @@
+/**
+ * @class ToPrimitive
+ */
 class ToPrimitive {
     constructor(obj, fn) {
         this.obj = obj

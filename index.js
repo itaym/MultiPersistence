@@ -8,7 +8,7 @@ import { Worker, SHARE_ENV } from 'worker_threads'
 import { getInitVars } from './Config/getInitVars.js'
 import { multiPerSearch } from './MultiplicativePersistence/index.js'
 import postMessages from './utils/postMessage.js'
-import gaySchluffen from './utils/sleep.js'
+import gaySchluffen from './utils/gaySchluffen.js'
 
 const { env, normalizedEnv } = process
 

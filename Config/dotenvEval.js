@@ -16,18 +16,12 @@ import { argv } from 'node:process';
  * @param parsed
  */
 const dotenvEval = ({ parsed }) => {
-    let env = process.env
-    /**
-     *
-     * @type {NormalizedEnv}
-     */
-    let defaultEnv = {}
 
     /**
      *
      * @type {NormalizedEnv}
      */
-    let normalizedEnv = process.normalizedEnv || defaultEnv
+    let normalizedEnv = process.normalizedEnv || /** @type {NormalizedEnv} */ {}
     process.normalizedEnv = normalizedEnv
 
     for (let [key, value] of Object.entries(parsed)) {

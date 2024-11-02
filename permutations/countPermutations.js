@@ -1,7 +1,5 @@
 import fs, { promises as fsPromises } from 'fs'
 import memorize from '../utils/memorize.js'
-import Cache from '../utils/Cache.js'
-import sleep from '../utils/sleep.js'
 
 let data, permutationsJson
 

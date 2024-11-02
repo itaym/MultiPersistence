@@ -1,5 +1,5 @@
 import measureTime from '../utils/measureTime.js'
-import { getTimeStringMilli } from '../utils/getTimeString.js'
+import { getTimeString } from '../utils/getTimeString.js'
 
 let run, counter = 1
 
@@ -7,7 +7,7 @@ const serializeStats = stats => ({
     count: stats.count.toLocaleString(),
     perSecond: Math.round(stats.perSecond).toLocaleString(),
     percent: (stats.perSecond / stats.perSecond2 * 100 - 100).toFixed(4).padStart(8, ' ') + '%',
-    totalDuration: getTimeStringMilli(stats.totalDuration),
+    totalDuration: getTimeString(stats.totalDuration, false),
 })
 const showStats = (fn1, fn2, arg1, arg2, multiplyBy) => {
     const fn1Stats = fn1.stats(multiplyBy)
