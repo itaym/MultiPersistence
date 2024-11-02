@@ -72,8 +72,22 @@ export class HugeIntClass {
      * @section @@PRIVATE FIELDS
      * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      */
+
+    /**
+     * @type {bigint}
+     */
     #base
+
+    /**
+     * @type {bigint}
+     */
     #baseMinusOne
+
+    /**
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@PUBLIC FIELDS
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     */
 
     /**
      *
@@ -136,6 +150,89 @@ export class HugeIntClass {
 
     /**
      *
+     * @param {bigint} digit
+     * @returns {bigint}
+     */
+    digitCount(digit) {
+        let cell = this.firstCell
+        let count = 0n
+        while (cell) {
+            if (cell.digit === digit) count += cell.count
+            cell = cell.next
+        }
+        return count
+    }
+
+    /**
+     *
+     * @param {string} str
+     * @param {bigint} base
+     */
+    fromString(str, base) {
+        const digitsArr = str.match(/((.)\2*)/g) || [str]
+
+        this.#base = base
+        this.#baseMinusOne = this.#base - 1n
+
+        let currentCell = this.firstCell
+
+        for (let index = digitsArr.length - 1; index > -1; index--) {
+
+            currentCell.count = toBigInt[digitsArr[index].length]
+            currentCell.digit = digitsValue[digitsArr[index][0]]
+
+            currentCell.next = {
+                changed: true,
+                count: 0n,
+                digit: 0n,
+                next: null,
+                prev: currentCell,
+                result: 0n,
+            }
+            currentCell = currentCell.next
+        }
+        this.lastCell = currentCell.prev
+        this.lastCell.next = null
+    }
+
+    /**
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@METHODS Base related
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     */
+
+    /**
+     *
+     * @returns {boolean}
+     */
+    isGTBase() {
+        return this.firstCell.count > 1n || !!this.firstCell.next
+    }
+
+    /**
+     *
+     * @return {boolean}
+     */
+    isLTBase() {
+        return (!this.firstCell.next) && this.firstCell.count === 1n
+    }
+
+    /**
+     *
+     * @return {bigint}
+     */
+    moduloBase() {
+        return this.firstCell.digit
+    }
+
+    /**
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@METHODS Cells operations
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     */
+
+    /**
+     *
      * @param {DigitCell} currentCell
      * @param {DigitCell} cell
      * @return {DigitCell}
@@ -171,35 +268,99 @@ export class HugeIntClass {
 
     /**
      *
-     * @param {string} str
-     * @param {bigint} base
+     * @param {bigint} digit
+     * @returns {DigitCell|null}
      */
-    fromString(str, base) {
-        const digitsArr = str.match(/((.)\2*)/g) || [str]
-
-        this.#base = base
-        this.#baseMinusOne = this.#base - 1n
-
-        let currentCell = this.firstCell
-
-        for (let index = digitsArr.length - 1; index > -1; index--) {
-
-            currentCell.count = toBigInt[digitsArr[index].length]
-            currentCell.digit = digitsValue[digitsArr[index][0]]
-
-            currentCell.next = {
-                changed: true,
-                count: 0n,
-                digit: 0n,
-                next: null,
-                prev: currentCell,
-                result: 0n,
-            }
-            currentCell = currentCell.next
+    getCellOf(digit) {
+        let cell = this.firstCell
+        while (cell) {
+            if (cell.digit === digit) return cell
+            cell = cell.next
         }
-        this.lastCell = currentCell.prev
-        this.lastCell.next = null
+        return null
     }
+
+    /**
+     *
+     * @param {bigint} digit
+     * @return {boolean}
+     */
+    isCellOf(digit) {
+        let cell = this.firstCell
+        while (cell) {
+            if (cell.digit === digit) return true
+            cell = cell.next
+        }
+        return false
+    }
+
+    /**
+     *
+     * @param {DigitCell} cell
+     */
+    removeCell(cell) {
+        if (cell.prev) {
+            cell.prev.next = cell.next
+        }
+        else {
+            this.firstCell = cell.next
+        }
+        if (cell.next) {
+            cell.next.prev = cell.prev
+        }
+        else {
+            this.lastCell = cell.prev
+        }
+
+    }
+
+    /**
+     *
+     * @param {DigitCell} cell
+     * @param {bigint} countToSplit
+     * @return {DigitCell}
+     */
+    splitCellAfter(cell, countToSplit) {
+        const newCell = {
+            changed: true,
+            count: cell.count - countToSplit,
+            digit: cell.digit,
+            next: null,
+            prev: null,
+            result: 0n
+        }
+        this.addCellAfter(cell, newCell)
+        cell.count = countToSplit
+        cell.changed = true
+        return newCell
+    }
+
+    /**
+     *
+     * @param {DigitCell} cell
+     * @param {bigint} countToSplit
+     * @return {DigitCell}
+     */
+    splitCellBefore(cell, countToSplit) {
+        const newCell = {
+            changed: true,
+            count: countToSplit,
+            digit: cell.digit,
+            next: null,
+            prev: null,
+            result: 0n
+        }
+        this.addCellBefore(cell, newCell)
+        cell.count -= countToSplit
+        cell.changed = true
+        return newCell
+    }
+
+    /**
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@METHODS Arithmetic
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     */
 
     /**
      *
@@ -251,26 +412,6 @@ export class HugeIntClass {
      *
      * @param {DigitCell} cell
      */
-    removeCell(cell) {
-        if (cell.prev) {
-            cell.prev.next = cell.next
-        }
-        else {
-            this.firstCell = cell.next
-        }
-        if (cell.next) {
-            cell.next.prev = cell.prev
-        }
-        else {
-            this.lastCell = cell.prev
-        }
-
-    }
-
-    /**
-     *
-     * @param {DigitCell} cell
-     */
     subtractOne(cell) {
         cell ??= this.firstCell
 
@@ -304,113 +445,10 @@ export class HugeIntClass {
     }
 
     /**
-     *
-     * @returns {boolean}
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@METHODS Prototype override
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      */
-    isGTBase() {
-        return this.firstCell.count > 1n || !!this.firstCell.next
-    }
-
-    /**
-     *
-     * @param {bigint} digit
-     * @returns {bigint}
-     */
-    digitCount(digit) {
-        let cell = this.firstCell
-        let count = 0n
-        while (cell) {
-            if (cell.digit === digit) count += cell.count
-            cell = cell.next
-        }
-        return count
-    }
-
-    /**
-     *
-     * @param {bigint} digit
-     * @returns {DigitCell|null}
-     */
-    getCellOf(digit) {
-        let cell = this.firstCell
-        while (cell) {
-            if (cell.digit === digit) return cell
-            cell = cell.next
-        }
-        return null
-    }
-
-    /**
-     *
-     * @param {bigint} digit
-     * @return {boolean}
-     */
-    isCellOf(digit) {
-        let cell = this.firstCell
-        while (cell) {
-            if (cell.digit === digit) return true
-            cell = cell.next
-        }
-        return false
-    }
-
-    /**
-     *
-     * @return {boolean}
-     */
-    isLTBase() {
-        return (!this.firstCell.next) && this.firstCell.count === 1n
-    }
-
-    /**
-     *
-     * @return {bigint}
-     */
-    moduloBase() {
-        return this.firstCell.digit
-    }
-
-    /**
-     *
-     * @param {DigitCell} cell
-     * @param {bigint} countToSplit
-     * @return {DigitCell}
-     */
-    splitCellAfter(cell, countToSplit) {
-        const newCell = {
-            changed: true,
-            count: cell.count - countToSplit,
-            digit: cell.digit,
-            next: null,
-            prev: null,
-            result: 0n
-        }
-        this.addCellAfter(cell, newCell)
-        cell.count = countToSplit
-        cell.changed = true
-        return newCell
-    }
-
-    /**
-     *
-     * @param {DigitCell} cell
-     * @param {bigint} countToSplit
-     * @return {DigitCell}
-     */
-    splitCellBefore(cell, countToSplit) {
-        const newCell = {
-            changed: true,
-            count: countToSplit,
-            digit: cell.digit,
-            next: null,
-            prev: null,
-            result: 0n
-        }
-        this.addCellBefore(cell, newCell)
-        cell.count -= countToSplit
-        cell.changed = true
-        return newCell
-    }
 
     /**
      *
