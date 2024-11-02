@@ -3,17 +3,19 @@ import countPermutations from '../permutations/countPermutations.js'
 import HugeInt from '../HugeInt/index.js'
 import chalk from 'chalk'
 
-const colors = ['white', 'yellow']
-let currentColor = 1
+
 
 const getColor = () => {
-    currentColor = 1 - currentColor
-    return colors[currentColor]
+    const colors = ['white', 'yellow']
+    let currentColor = 1
+    return () => {
+        currentColor = 1 - currentColor
+        return colors[currentColor]
+    }
 }
 
 const sanitize = (str) => {
     for (let x = 0; x < 32; x++) {
-        //if (x === 10) continue
         str = str.replaceAll(String.fromCharCode(x), 'X')
     }
     for (let x = 150; x < 167; x++) {
@@ -21,11 +23,10 @@ const sanitize = (str) => {
     }
     return str
 }
-
 export const fromMiddleStringMaxLength= (str, max = Number.MAX_SAFE_INTEGER) => {
     if (str.length > max) {
-        const str1 = str.substr(0, Math.floor(max / 2) - 3 + (max % 2 ? 1 : 0))
-        const str2 = str.substr(str.length -Math.floor(max / 2))
+        const str1 = str.substring(0, Math.floor(max / 2) - 3 + (max % 2 ? 1 : 0))
+        const str2 = str.substring(str.length -Math.floor(max / 2))
         return str1 + '...' + str2
     }
     return str
@@ -108,8 +109,8 @@ export default function logMultiPersistence({
             logStr += fromMiddleStringMaxLength(`Session: ${getTimeString(sessionMilliseconds)} (${sessionMilliseconds})`, 70).padEnd(70, '-') +
                       fromMiddleStringMaxLength(`Base: ${process.env.base} found: ${messagesCount.toLocaleString()} / ${foundInLength.toLocaleString()} / ${totalFound.toLocaleString()}`, 70).padEnd(70, '-')+ '\n'
 
-            currentColor = 1
-            countLog.forEach(logString => logStr += chalk[getColor()](logString) + '\n')
+            const getAColor = getColor()
+            countLog.forEach(logString => logStr += chalk[getAColor()](logString) + '\n')
             logStr = logStr.substring(0, logStr.length - 1)
             return logStr
             //console.log(logStr)

@@ -1,15 +1,42 @@
 import { argv } from 'node:process';
 
+/**
+ * @typedef NormalizedEnv
+ * @property {bigint} base
+ * @property {bigint} goal_power_of10
+ * @property {bigint} goal_number
+ * @property {bigint} last_number
+ * @property {number} log_interval
+ * @property {string} vars_file
+ * @property {boolean} debug
+ */
+
+/**
+ *
+ * @param parsed
+ */
 const dotenvEval = ({ parsed }) => {
     let env = process.env
-    let selfEnv = process.selfEnv || {}
-    process.selfEnv = selfEnv
+    /**
+     *
+     * @type {NormalizedEnv}
+     */
+    let defaultEnv = {}
+
+    /**
+     *
+     * @type {NormalizedEnv}
+     */
+    let normalizedEnv = process.normalizedEnv || defaultEnv
+    process.normalizedEnv = normalizedEnv
 
     for (let [key, value] of Object.entries(parsed)) {
-        try {   selfEnv[key.toLowerCase()] = eval(value + '') }
-        catch { selfEnv[key.toLowerCase()] = value            }
+        try {   normalizedEnv[key.toLowerCase()] = eval(value + '') }
+        catch { normalizedEnv[key.toLowerCase()] = value            }
     }
-    selfEnv.goal_number = BigInt(selfEnv.base) ** BigInt(selfEnv['goal_power_of10'])
+    normalizedEnv.base = BigInt(normalizedEnv.base)
+    normalizedEnv.goal_power_of10 = BigInt(normalizedEnv.goal_power_of10)
+    normalizedEnv.goal_number = normalizedEnv.base ** normalizedEnv.goal_power_of10
 
     argv.forEach((val) => {
         const argArr = val.split('=')
@@ -17,21 +44,13 @@ const dotenvEval = ({ parsed }) => {
             const base = BigInt(argArr[1])
             try {
                 if (base > 1n || base < 65537n) {
-                    selfEnv.base = base
-                    env.base = base + ''
+                    normalizedEnv.base = base
                 }
             }
             catch {}
         }
         if (argArr[0] === 'debug') {
-            const debug = argArr[1] === 'true'
-            try {
-                if (debug !== undefined) {
-                    selfEnv.debug = debug
-                    env.debug = !!debug + ''
-                }
-            }
-            catch {}
+            normalizedEnv.debug = argArr[1] === 'true'
         }
     })
 }

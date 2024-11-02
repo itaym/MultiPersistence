@@ -10,12 +10,11 @@ import { multiPerSearch } from './MultiplicativePersistence/index.js'
 import postMessages from './utils/postMessage.js'
 import gaySchluffen from './utils/sleep.js'
 
-const { env, selfEnv } = process
+const { env, normalizedEnv } = process
 
 env.isWorkerReady = 'false'
 env.log = ''
 
-// noinspection JSCheckFunctionSignatures
 const worker = new Worker('./worker.js', {
     'env': SHARE_ENV,
     resourceLimits: {
@@ -25,25 +24,25 @@ const worker = new Worker('./worker.js', {
 
 let initVars = await getInitVars()
 
-const goalNumber = new HugeInt(selfEnv.goal_number, selfEnv.base)
-const log_interval = selfEnv.log_interval
+const goalNumber = new HugeInt(normalizedEnv.goal_number, normalizedEnv.base)
+const log_interval = normalizedEnv.log_interval
 const startSessionTime = Date.now()
 const startTime = startSessionTime - initVars.up_time
+
 postMessages( worker, 'init', {
     VARS: {
         ...initVars,
     },
-    base:  selfEnv.base,
+    base:  normalizedEnv.base,
     goalNumber: goalNumber.value,
     startSessionTime,
     startTime,
 })
 while (process.env.isWorkerReady !== 'true') {
-    console.log(`\n${process.env.log}`)
     await gaySchluffen(100)
 }
 
 // noinspection JSCheckFunctionSignatures
 await multiPerSearch(initVars, log_interval, startSessionTime, startTime, worker)
-worker.terminate()
+await worker.terminate()
 console.log('---------- FINISH ----------')

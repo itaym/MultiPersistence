@@ -52,13 +52,13 @@ export const multiPerSearch = async (
     let on_ModuloBase = onModuloBase.bind(currentNo)
 
     const createPermutations = baseAccommodate
-        .supported.includes(process.selfEnv.base)
+        .supported.includes(process.normalizedEnv.base)
         ? new ToPrimitive(currentNo, baseAccommodate)
         : 1n
 
     const createMessage = () => prepareBindMessage(startTime, calcIterations, steps)
 
-    currentNo.addOneToSorted()
+    currentNo.addOne()
 
     while (notToBreak) {
 
@@ -114,13 +114,13 @@ export const multiPerSearch = async (
             iterationsPerLog = countIterations
             startTimeLog = Date.now()
         }
-        currentNo.addOneToSorted()
+        currentNo.addOne()
     }
 
     endTime = Date.now()
     await waitShowLog()
 
-    currentNo.subtractOne(0)
+    currentNo.subtractOne()
 
     postMessages(worker, 'found', {
         calcIterations,
@@ -135,5 +135,4 @@ export const multiPerSearch = async (
         startTimeLog,
     })
     await waitShowLog()
-
 }

@@ -1,3 +1,4 @@
+import './Config/config.js'
 import HugeInt from './HugeInt/index.js'
 import calcCellsArrFactorial from './utils/calcCellsArrFactorial.js'
 import factorial from './utils/factorial.js'
@@ -44,10 +45,7 @@ let onFound = (vars) => {
             if (cell.count !== 1n) lengthsArr.push(cell.count)
             cell = cell.next
         }
-        // for (let x = 0; x < currentNo.cellsArr.length; x++) {
-        //     let count= currentNo.cellsArr[x].count
-        //     if (count !== 1n) lengthsArr.push(count)
-        // }
+
         if (lengthsArr.length === 0) lengthsArr.push(1n)
 
         const combinations = factorial(tbi[length]) / calcCellsArrFactorial(lengthsArr)
@@ -79,21 +77,22 @@ let onFound = (vars) => {
 }
 
 parentPort.on('message', async (messageObj) => {
-    switch (messageObj.type) {
+    const { data, type } = messageObj
+    const { normalizedEnv } = process
+
+    switch (type) {
         case 'init':
-            base = messageObj.data.base * 1n
-            VARS = messageObj.data.VARS
-            startSessionTime = messageObj.data.startSessionTime * 1
-            startTime = messageObj.data.startTime * 1
-            const goalNumber = new HugeInt(messageObj.data.goalNumber, base)
+            base = data.base
+            VARS = data.VARS
+            startSessionTime = data.startSessionTime
+            startTime = data.startTime
+            const goalNumber = new HugeInt(data.goalNumber, base)
             log = logMultiPersistence({ goalNumber, base})
             onFound = onFound(VARS)
             break
         case 'stack':
-            stackMessages.push(messageObj.data.messages)
-            delete messageObj.messages
+            stackMessages.push(data.messages)
             delete messageObj.data
-            messageObj = null
             break;
         case 'found':
             const {
@@ -104,18 +103,18 @@ parentPort.on('message', async (messageObj) => {
                 notFoundLimit,
                 messages,
                 notFound,
-            } = messageObj.data
+            } = data
             let noOfMessages = 0
             stackMessages.push(messages)
             for (let stackIndex = 0; stackIndex < stackMessages.length; stackIndex++) {
                 for (let messageIndex = 0; messageIndex < stackMessages[stackIndex].length; messageIndex++) {
                     let message = stackMessages[stackIndex][messageIndex]
-                    noOfMessages++
                     const currentNo = new HugeInt(0n, base)
                     currentNo.fromString(message.currentNoStr, base)
 
                     onFound(message, currentNo,  message.currentNoStr.length, startTime, endTime)
                 }
+                noOfMessages += stackMessages[stackIndex].length
             }
             stackMessages = []
             VARS.iterations = {
@@ -127,10 +126,10 @@ parentPort.on('message', async (messageObj) => {
 
             VARS.last_number = currentNo
             VARS.up_time = endTime - startTime
-            delete messageObj.data.messages
+            delete data.messages
 
             process.env.log = log(
-                {...messageObj.data,
+                {...data,
                     countSteps: VARS.steps,
                     messagesCount: noOfMessages,
                     lengths: VARS.number_lengths,
@@ -138,10 +137,7 @@ parentPort.on('message', async (messageObj) => {
                     startTime,
                 })
 
-            delete messageObj.data
-            messageObj = null
-
-            if (process.env.debug === 'false') {
+            if (!normalizedEnv.debug) {
                 await setInitVars(VARS, base)
             }
             break
