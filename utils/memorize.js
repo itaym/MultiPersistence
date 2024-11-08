@@ -42,9 +42,10 @@ function loadMapFromFileSync(filename) {
         return new Map()
     }
 }
-let saveToFile = 100
+
 export default function memorize(fn, name) {
-    if (name === '_getPermutations') saveToFile = 10_000
+    let saveToFile = process.normalizedEnv.memorize_save_bach
+    // if (name === '_getPermutations') saveToFile = 10_000
     const fileName = `${path.normalize(path.resolve('./caching'))}/${name}.json`
     const cache = loadMapFromFileSync(fileName)
     let setCounter = 0

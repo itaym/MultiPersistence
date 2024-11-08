@@ -7,6 +7,7 @@ import { argv } from 'node:process';
  * @property {bigint} goal_number
  * @property {bigint} last_number
  * @property {number} log_interval
+ * @property {number} memorize_save_bach
  * @property {string} vars_file
  * @property {boolean} debug
  */
@@ -31,6 +32,7 @@ const dotenvEval = ({ parsed }) => {
     normalizedEnv.base = BigInt(normalizedEnv.base)
     normalizedEnv.goal_power_of10 = BigInt(normalizedEnv.goal_power_of10)
     normalizedEnv.goal_number = normalizedEnv.base ** normalizedEnv.goal_power_of10
+    normalizedEnv.memorize_save_bach = normalizedEnv.memorize_save_bach || 100
 
     argv.forEach((val) => {
         const argArr = val.split('=')

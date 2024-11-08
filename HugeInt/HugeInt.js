@@ -1,9 +1,54 @@
 import HugeIntClass from "./HugeIntClass.js";
 
 /**
+ *
+ * @param {DigitCell} cell
+ * @param {bigint} baseMinusOne
+ * @private
+ */
+const _addOne = (cell, baseMinusOne) => {
+    cell.changed = true
+
+    if (cell.digit !== baseMinusOne) {
+        if (cell.count === 1n) {
+            cell.digit++
+            return
+        }
+
+        this.addCellAfter(
+            cell, {
+                changed: true,
+                count: cell.count - 1n,
+                digit: cell.digit,
+                next: null,
+                prev: null,
+                result: 0n,
+            })
+        cell.count = 1n
+        cell.digit++
+        return
+    }
+
+    cell.digit = 0n
+
+    if (!cell.next) {
+        this.addCellAfter(
+            cell, {
+                changed: true,
+                count: 1n,
+                digit: 2n,
+                next: null,
+                prev: null,
+                result: 0n,
+            })
+        return
+    }
+    _addOne(cell.next, baseMinusOne)
+}
+
+/**
  * @class HugeInt
  */
-
 export class HugeInt extends HugeIntClass {
 
     /**
@@ -42,9 +87,10 @@ export class HugeInt extends HugeIntClass {
 
     /**
      *
-     * @param {DigitCell|null} cell
+     * @param {DigitCell} [cell]
      */
-    addOne(cell = this.firstCell) {
+    addOne(cell) {
+        cell ??= this.firstCell
         cell.changed = true
 
         if (cell.digit !== this.#baseMinusOne) {
@@ -82,6 +128,21 @@ export class HugeInt extends HugeIntClass {
             return
         }
         this.addOne(cell.next)
+    }
+
+    /**
+     *
+     */
+    onNotModuloBase() {
+        if (!this.firstCell.digit) {
+
+            const secondCell = this.firstCell.next
+
+            secondCell.count += this.firstCell.count
+            secondCell.prev = null
+
+            this.firstCell = secondCell
+        }
     }
 
     /**

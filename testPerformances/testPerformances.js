@@ -1,4 +1,4 @@
-import measureTime from '../utils/measureTime.js'
+import measureTime from './measureTime.js'
 import { getTimeString } from '../utils/getTimeString.js'
 
 let run, counter = 1

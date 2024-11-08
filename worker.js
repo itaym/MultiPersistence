@@ -6,24 +6,55 @@ import logMultiPersistence from './MultiplicativePersistence/logMultiPersistence
 import { parentPort } from 'worker_threads'
 import { setInitVars } from './Config/getInitVars.js'
 
-let log
-let VARS
 let base
+let initVars
+let log
+let onFound
 let startSessionTime
 let startTime
+/** @type {FoundMessage[]} */
 let stackMessages = []
 
-let onFound = (vars) => {
-    const  tbi = new Array(1_000)
-    for (let int = 0; int < 1_000; int++) {
-        tbi[int] = BigInt(int)
+/**
+ * @typedef {function} onFoundCallback
+ * @param {FoundMessage} foundMessage
+ * @param {HugeInt} currentNo
+ * @param {number} length
+ * @param {number} startTime
+ * @param {number} endTime
+ */
+
+/**
+ *
+ * @param {HugeInt} currentNo
+ * @return {bigint[]}
+ */
+const createLengthsArray = (currentNo) => {
+    const array = []
+    let cell = currentNo.firstCell
+    while (cell) {
+        if (cell.count !== 1n) array.push(cell.count)
+        cell = cell.next
     }
-    const {steps: countSteps, number_lengths} = vars
+
+    if (array.length === 0) array.push(1n)
+    return array
+}
+
+/**
+ *
+ * @param {InitVars} initVars
+ * @returns {onFoundCallback}
+ */
+const onFoundCreator = (initVars) => {
+    const {steps: countSteps, number_lengths} = initVars
+
     return ({
             atRunTime,
             calcIterations,
             steps,
         }, currentNo, length, startTime, endTime) => {
+
         const currentNoValue = currentNo.value
 
         if (!countSteps[steps]) {
@@ -38,17 +69,9 @@ let onFound = (vars) => {
             }
         }
         const countStep = countSteps[steps]
+        const lengthsArr = createLengthsArray(currentNo)
+        const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(lengthsArr)
 
-        const lengthsArr = []
-        let cell = currentNo.firstCell
-        while (cell) {
-            if (cell.count !== 1n) lengthsArr.push(cell.count)
-            cell = cell.next
-        }
-
-        if (lengthsArr.length === 0) lengthsArr.push(1n)
-
-        const combinations = factorial(tbi[length]) / calcCellsArrFactorial(lengthsArr)
         countStep.combinations += combinations
         countStep.count++
         countStep.last = currentNoValue
@@ -76,19 +99,38 @@ let onFound = (vars) => {
     }
 }
 
-parentPort.on('message', async (messageObj) => {
-    const { data, type } = messageObj
-    const { normalizedEnv } = process
+/**
+ *
+ * @typedef InitData
+ * @property {string} type
+ * @property data
+ */
+
+/**
+ *
+ * @typedef MessageObj
+ * @property {string} type
+ * @property data
+ */
+
+/**
+ *
+ * @param messageObj
+ * @returns {Promise<void>}
+ */
+const onMessage =  async (messageObj) => {
+    const {data, type} = messageObj
+    const {normalizedEnv} = process
 
     switch (type) {
         case 'init':
             base = data.base
-            VARS = data.VARS
+            initVars = data.initVars
             startSessionTime = data.startSessionTime
             startTime = data.startTime
             const goalNumber = new HugeInt(data.goalNumber, base)
-            log = logMultiPersistence({ goalNumber, base})
-            onFound = onFound(VARS)
+            log = logMultiPersistence({goalNumber, base})
+            onFound = onFoundCreator(initVars)
             break
         case 'stack':
             stackMessages.push(data.messages)
@@ -112,35 +154,38 @@ parentPort.on('message', async (messageObj) => {
                     const currentNo = new HugeInt(0n, base)
                     currentNo.fromString(message.currentNoStr, base)
 
-                    onFound(message, currentNo,  message.currentNoStr.length, startTime, endTime)
+                    onFound(message, currentNo, message.currentNoStr.length, startTime, endTime)
                 }
                 noOfMessages += stackMessages[stackIndex].length
             }
             stackMessages = []
-            VARS.iterations = {
+            initVars.iterations = {
                 calculated: calcIterations,
                 count: countIterations,
                 found_nothing: notFound,
                 found_nothing_break_at: notFoundLimit,
             }
 
-            VARS.last_number = currentNo
-            VARS.up_time = endTime - startTime
+            initVars.last_number = currentNo
+            initVars.up_time = endTime - startTime
             delete data.messages
 
             process.env.log = log(
-                {...data,
-                    countSteps: VARS.steps,
+                {
+                    ...data,
+                    countSteps: initVars.steps,
                     messagesCount: noOfMessages,
-                    lengths: VARS.number_lengths,
+                    lengths: initVars.number_lengths,
                     startSessionTime,
                     startTime,
                 })
 
             if (!normalizedEnv.debug) {
-                await setInitVars(VARS, base)
+                await setInitVars(initVars, base)
             }
             break
     }
     process.env.isWorkerReady = 'true'
-})
+}
+
+parentPort.on('message', onMessage)

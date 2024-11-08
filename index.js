@@ -30,7 +30,7 @@ const startSessionTime = Date.now()
 const startTime = startSessionTime - initVars.up_time
 
 postMessages( worker, 'init', {
-    VARS: {
+    initVars: {
         ...initVars,
     },
     base:  normalizedEnv.base,
@@ -38,11 +38,11 @@ postMessages( worker, 'init', {
     startSessionTime,
     startTime,
 })
+
 while (process.env.isWorkerReady !== 'true') {
     await gaySchluffen(100)
 }
 
-// noinspection JSCheckFunctionSignatures
 await multiPerSearch(initVars, log_interval, startSessionTime, startTime, worker)
 await worker.terminate()
 console.log('---------- FINISH ----------')

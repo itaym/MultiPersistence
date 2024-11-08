@@ -70,15 +70,15 @@ export const getInitVars = async () => {
     const { vars_file } = normalizedEnv
     let fileName = `./results/${normalizedEnv.base.toString().padStart(5, '0')}_${vars_file}`
 
-    const defaultVars = {
+    let defaultVars = {
         base: normalizedEnv.base,
         iterations: {
             calculated: 0n,
             count: 0,
             found_nothing: 0,
-            found_nothing_break_at: 10_000,
+            found_nothing_break_at: 1_000,
         },
-        last_number: normalizedEnv.last_number,
+        last_number: normalizedEnv.debug ? normalizedEnv.last_number: 0n,
         number_lengths: {},
         up_time: 0,
         steps: [],
@@ -86,14 +86,12 @@ export const getInitVars = async () => {
     if (normalizedEnv.debug) return defaultVars
     try {
         let data = await fs.readFile(fileName, 'utf-8')
-        data = JSON.parse(data, reviver)
-        return data
+        defaultVars = JSON.parse(data, reviver)
     } catch  {
         fileName = fileName.replace('json', 'bak')
         try {
             let data = await fs.readFile(fileName, 'utf-8')
-            data = JSON.parse(data, reviver)
-            return data
+            defaultVars = JSON.parse(data, reviver)
         } catch  {}
     }
     return defaultVars

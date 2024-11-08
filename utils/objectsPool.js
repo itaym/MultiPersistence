@@ -5,7 +5,7 @@ let numOfPools
 let currentPool = -1
 /**
  *
- * @typedef {Array} PoolArray
+ * @typedef {{}[]} PoolArray
  * @property {number} __index
  */
 
@@ -16,7 +16,7 @@ let currentPool = -1
  * @return {PoolArray}
  */
 const _createPool = (poolSize, index) => {
-    const pool = new Array(poolSize).fill(0).map((_, index) => ({ [symbolIndex]: index }))
+    const pool = /** @type PoolArray */ new Array(poolSize).fill(0).map((_, index) => ({ [symbolIndex]: index }))
     pool[symbolIndex] = index
     return pool
 }

@@ -18,24 +18,22 @@ const emptyFunction = () => 0n
 const base00006 = (() => {
 
     const fn3 = (currentNo, cell3) => {
-        const base = 6n
         const cell2 = currentNo.getCellOf(2n)
         let permutationsSaved = 0n
 
         if (cell2) {
-            permutationsSaved = getPermutations(3n, cell3.count, base)
+            permutationsSaved = getPermutations(3n, cell3.count, 6n)
             cell3.digit++
         }
         return permutationsSaved
     }
 
     const fn4 = (currentNo, cell4) => {
-        const base = 6n
         const cell3 = currentNo.getCellOf(3n)
         let permutationsSaved = 0n
 
         if (cell3) {
-            permutationsSaved = getPermutations(4n, cell4.count, base)
+            permutationsSaved = getPermutations(4n, cell4.count, 6n)
             cell4.digit++
         }
         return permutationsSaved
@@ -125,6 +123,14 @@ const base00009 = (() => {
         return 0n
     }
     const fn6 = (currentNo, cell6) => {
+        const cell3 = currentNo.getCellOf(3n)
+
+        if (cell3) {
+            permutationsSaved = getPermutations(6n, cell6.count, 9n)
+            cell6.digit++
+            return permutationsSaved
+        }
+
         if (cell6.count > 1n) {
             permutationsSaved = getPermutations(6n, cell6.count - 1n, 9n)
             splitAfterCell(currentNo, cell6, 1n)
@@ -537,7 +543,7 @@ const base00016 = (() => {
     }
 
     return (currentNo) => {
-        const checkCell = currentNo.cellsArr[currentNo.startIndex]
+        const checkCell = currentNo.firstCell
         switch (checkCell.digit) {
             case 15n: return 0n
             case 14n: return fn14(currentNo, checkCell)
@@ -1253,7 +1259,7 @@ const base00087 = (() => {
 const functionToExport = () => {
     HugeInt.prototype.cTCNFC = HugeInt.prototype.countTwoComponentsNoFirstCell
     let fn
-    switch (process.selfEnv.base) {
+    switch (process.normalizedEnv.base) {
         case 6n:
             fn = base00006
             break

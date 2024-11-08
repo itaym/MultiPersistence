@@ -235,7 +235,6 @@ export class HugeIntClass {
      *
      * @param {DigitCell} currentCell
      * @param {DigitCell} cell
-     * @return {DigitCell}
      */
     addCellAfter(currentCell, cell) {
         currentCell.next && (currentCell.next.prev = cell)
@@ -245,15 +244,12 @@ export class HugeIntClass {
         cell.prev = currentCell
 
         !cell.next && (this.lastCell = cell)
-
-        return cell
     }
 
     /**
      *
      * @param {DigitCell} currentCell
      * @param {DigitCell} cell
-     * @return {DigitCell}
      */
     addCellBefore(currentCell, cell) {
         currentCell.prev && (currentCell.prev.next = cell)
@@ -262,8 +258,6 @@ export class HugeIntClass {
         cell.next = currentCell
 
         !cell.prev && (this.firstCell = cell)
-
-        return cell
     }
 
     /**
@@ -410,7 +404,7 @@ export class HugeIntClass {
 
     /**
      *
-     * @param {DigitCell} cell
+     * @param {DigitCell} [cell]
      */
     subtractOne(cell) {
         cell ??= this.firstCell

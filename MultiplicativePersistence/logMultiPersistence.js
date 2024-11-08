@@ -85,7 +85,7 @@ export default function logMultiPersistence({
                 if (cs?.count) {
                     totalFound += cs.count
                     countLog.push((index + '').padStart(2, '0').padEnd(5, ' =>') +
-                        `${(cs.count.toLocaleString() + '').padStart(18, ' ')}, ${fromMiddleStringMaxLength(cs.combinations.toLocaleString(), 44).padStart(45, ' ')}, ${fromMiddleStringMaxLength(cs.iteration.toLocaleString(),18).padStart(18, ' ')}. ${fromMiddleStringMaxLength(getTimeString(endTime - cs.atRunTime - startTime) + ' (' + (calcIterations - cs.iteration).toLocaleString() + ')', 48)}`)
+                        `${(cs.count.toLocaleString() + '').padStart(18, ' ')}, ${fromMiddleStringMaxLength(cs.combinations.toLocaleString(), 44).padStart(45, ' ')}, ${fromMiddleStringMaxLength(cs.iteration.toLocaleString(),18).padStart(18, ' ')}. ${fromMiddleStringMaxLength(getTimeString(endTime - cs.atRunTime - startTime), 48)}`)
                 }
             }
             if (previousLength !== currentNoLength) {
@@ -103,11 +103,11 @@ export default function logMultiPersistence({
             logStr += `Avg Calc Iter./sec: ${iterationsPerSecond.toLocaleString()} (x ${(Number(calcIterations) / countIterations).toFixed(8)})`.padEnd(70, '-') +
                       `Avg Real Iter./sec: ${countIterationsPerSecond.toLocaleString()}`.padEnd(70, '-') + '\n'
             logStr += `Log Iterations/sec: ${iterationsPerSecondLog.toLocaleString()}`.padEnd(70, '-') +
-                      fromMiddleStringMaxLength(`NFTG left: ${getTimeString(notFoundTimeLeft)} ${notFound.toLocaleString()}/${notFoundLimit.toLocaleString()}`, 70).padEnd(70, '-') + '\n'
-            logStr += fromMiddleStringMaxLength(`Up Time: ${getTimeString(numOfMilliseconds)} (${numOfMilliseconds})`, 70).padEnd(70, '-') +
+                      fromMiddleStringMaxLength(`Not Found: ${getTimeString(notFoundTimeLeft)} ${notFound.toLocaleString()}/${notFoundLimit.toLocaleString()}`, 70).padEnd(70, '-') + '\n'
+            logStr += fromMiddleStringMaxLength(`Up Time: ${getTimeString(numOfMilliseconds)}`, 70).padEnd(70, '-') +
                       fromMiddleStringMaxLength(`Time left: ${getTimeString(timeLeft)}`, 70).padEnd(70, '-') + '\n'
-            logStr += fromMiddleStringMaxLength(`Session: ${getTimeString(sessionMilliseconds)} (${sessionMilliseconds})`, 70).padEnd(70, '-') +
-                      fromMiddleStringMaxLength(`Base: ${process.env.base} found: ${messagesCount.toLocaleString()} / ${foundInLength.toLocaleString()} / ${totalFound.toLocaleString()}`, 70).padEnd(70, '-')+ '\n'
+            logStr += fromMiddleStringMaxLength(`Session: ${getTimeString(sessionMilliseconds)}`, 70).padEnd(70, '-') +
+                      fromMiddleStringMaxLength(`Base: ${process.normalizedEnv.base} found: ${messagesCount.toLocaleString()} / ${foundInLength.toLocaleString()} / ${totalFound.toLocaleString()}`, 70).padEnd(70, '-')+ '\n'
 
             const getAColor = getColor()
             countLog.forEach(logString => logStr += chalk[getAColor()](logString) + '\n')
