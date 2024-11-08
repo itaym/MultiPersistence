@@ -1,6 +1,6 @@
 import HugeInt from '../HugeInt/index.js'
 import ToPrimitive from '../ToPrimitive/index.js'
-import baseAccommodate from './BaseAccommodate'
+import baseAccommodate from './BaseAccommodate/index.js'
 import postMessages from '../utils/postMessage.js'
 import prepareMessage from '../utils/prepareMessage.js'
 import waitShowLog from '../utils/waitShowLog.js'

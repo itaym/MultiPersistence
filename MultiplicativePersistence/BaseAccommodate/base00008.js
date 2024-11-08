@@ -1,4 +1,4 @@
-import { getPermutations, splitAfterCell } from "./baseAccommodate.js";
+import { getPermutations, splitAfterCell } from "./utils.js";
 
 export const base00008 = (() => {
     const fn2 = (currentNo, cell2) => {

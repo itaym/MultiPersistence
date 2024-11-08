@@ -1,4 +1,4 @@
-import { emptyFunction, getPermutations } from "./baseAccommodate.js";
+import { emptyFunction, getPermutations } from "./utils.js";
 
 export const base00006 = (() => {
 

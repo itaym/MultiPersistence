@@ -1,4 +1,4 @@
-import {getPermutations, splitAfterCell} from "./baseAccommodate.js";
+import { getPermutations, splitAfterCell } from "./utils.js";
 
 export const base00012 = (() => {
     const base = 12n

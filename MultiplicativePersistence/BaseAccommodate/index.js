@@ -1,6 +1,6 @@
-import {emptyFunction, getPermutations, splitAfterCell} from "./baseAccommodate.js";
+import {emptyFunction, getPermutations, splitAfterCell} from "./utils.js";
 
-export { default } from './BaseAccommodate';
+export { default } from './BaseAccommodate.js';
 
 
 const base00020 = (() => {
