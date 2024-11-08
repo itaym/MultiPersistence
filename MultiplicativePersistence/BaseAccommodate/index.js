@@ -1,568 +1,8 @@
-import countPer from '../permutations/countPermutations.js'
-import memorize from '../utils/memorize.js'
-import HugeInt from '../HugeInt/index.js'
+import {emptyFunction, getPermutations, splitAfterCell} from "./baseAccommodate.js";
 
-const splitAfterCell = (hugeInt, cell, countToLeave) => {
-    const newCell = hugeInt.splitCellBefore(cell ,cell.count - countToLeave)
-    newCell.digit++
-}
+export { default } from './BaseAccommodate';
 
-const getPermutations = memorize((digit, countChange, base) => {
-    if (countChange === 1n) return 1n
-    return countPer(countChange - 1n, base - digit) -
-        countPer(countChange - 2n, base - digit)
-}, 'getPermutations')
 
-const emptyFunction = () => 0n
-
-const base00006 = (() => {
-
-    const fn3 = (currentNo, cell3) => {
-        const cell2 = currentNo.getCellOf(2n)
-        let permutationsSaved = 0n
-
-        if (cell2) {
-            permutationsSaved = getPermutations(3n, cell3.count, 6n)
-            cell3.digit++
-        }
-        return permutationsSaved
-    }
-
-    const fn4 = (currentNo, cell4) => {
-        const cell3 = currentNo.getCellOf(3n)
-        let permutationsSaved = 0n
-
-        if (cell3) {
-            permutationsSaved = getPermutations(4n, cell4.count, 6n)
-            cell4.digit++
-        }
-        return permutationsSaved
-    }
-
-    const checkingFns = {
-        1n: emptyFunction,
-        2n: emptyFunction,
-        3n: fn3,
-        4n: fn4,
-        5n: emptyFunction,
-    }
-    return (currentNo) => {
-        const checkCell = currentNo.firstCell
-        return checkingFns[checkCell.digit](currentNo, checkCell)
-    }
-})()
-const base00008 = (() => {
-    const fn2 = (currentNo, cell2) => {
-        const base = 8n
-        let permutationsSaved = 0n
-        
-        if (cell2.count > 2n) {
-            permutationsSaved = getPermutations(2n, cell2.count - 2n, base)
-            splitAfterCell(currentNo, cell2, 2n)
-        }
-        return permutationsSaved
-    }
-    const fn4 = (currentNo, cell4) => {
-        const base = 8n
-        const cell2 = currentNo.getCellOf(2n)
-        let permutationsSaved = 0n
-
-        if (cell2) {
-            permutationsSaved = getPermutations(4n, cell4.count, base)
-            cell4.digit++
-        }
-        else if (cell4.count > 1n) {
-            permutationsSaved = getPermutations(4n, cell4.count - 1n, base)
-            splitAfterCell(currentNo, cell4, 1n)
-        }
-        return permutationsSaved
-    }
-    const fn6 = (currentNo, cell6) => {
-        const base = 8n
-        const cell2 = currentNo.getCellOf(2n)
-        const cell4 = currentNo.getCellOf(4n)
-        let permutationsSaved = 0n
-
-        if (cell4 || cell2?.count > 1n) {
-            permutationsSaved = getPermutations(6n, cell6.count, base)
-            cell6.digit++
-        }
-        else if (cell6.count > 2n) {
-            permutationsSaved = getPermutations(6n, cell6.count - 2n, base)
-            splitAfterCell(currentNo, cell6, 2n)
-            
-        }
-        return permutationsSaved
-    }
-
-    const checkingFns = {
-        2n: fn2,
-        4n: fn4,
-        6n: fn6,
-    }
-    return (currentNo) => {
-        const checkCell = currentNo.firstCell
-        
-        let permutationsSaved = 0n
-
-        if (!(checkCell.digit % 2n)) {
-            permutationsSaved = checkingFns[checkCell.digit](currentNo, checkCell)
-        }
-        return permutationsSaved
-    }
-})()
-const base00009 = (() => {
-    let permutationsSaved
-
-    const fn3 = (currentNo, cell3) => {
-        if (cell3.count > 1n) {
-            permutationsSaved = getPermutations(3n, cell3.count - 1n, 9n)
-            splitAfterCell(currentNo, cell3, 1n)
-            return permutationsSaved
-        }
-        return 0n
-    }
-    const fn6 = (currentNo, cell6) => {
-        const cell3 = currentNo.getCellOf(3n)
-
-        if (cell3) {
-            permutationsSaved = getPermutations(6n, cell6.count, 9n)
-            cell6.digit++
-            return permutationsSaved
-        }
-
-        if (cell6.count > 1n) {
-            permutationsSaved = getPermutations(6n, cell6.count - 1n, 9n)
-            splitAfterCell(currentNo, cell6, 1n)
-            return permutationsSaved
-        }
-        return 0n
-    }
-    return (currentNo) => {
-        const checkCell = currentNo.firstCell
-        switch (checkCell.digit) {
-            case 8n:
-            case 7n:
-                return 0n
-            case 6n:
-                return fn6(currentNo, checkCell)
-            case 3n:
-                return fn3(currentNo, checkCell)
-            default:
-                return 0n
-        }
-    }
-})()
-const base00010 = (() => {
-    let permutationsSaved
-
-    const fn5 = (currentNo, cell5) => {
-        if (currentNo.hasEvenDigits()) {
-            permutationsSaved = getPermutations(5n, cell5.count, 10n)
-            cell5.digit++
-            return permutationsSaved
-        }
-        return 0n
-    }
-    const fnEven = (currentNo, checkCell) => {
-        if (currentNo.isCellOf(5n)) {
-            permutationsSaved = getPermutations(checkCell.digit, checkCell.count, 10n)
-            checkCell.digit++
-            return permutationsSaved
-        }
-        return 0n
-    }
-    return (currentNo) => {
-        const checkCell = currentNo.firstCell
-        switch (checkCell.digit) {
-            case 9n: return 0n
-            case 8n: return fnEven(currentNo, checkCell)
-            case 7n: return 0n
-            case 6n: return fnEven(currentNo, checkCell)
-            case 5n: return fn5(currentNo, checkCell)
-            default: return 0n
-        }
-    }
-})()
-const base00012 = (() => {
-    const base = 12n
-
-    const fn3 = (currentNo, cell3) => {
-        let permutationsSaved = 0n
-
-        const countTwoComponents = currentNo.cTCNFC()
-
-        if (countTwoComponents > 1) {
-            permutationsSaved = getPermutations(cell3.digit, cell3.count, base)
-            cell3.digit++
-        }
-        return permutationsSaved
-    }
-    const fn4 = (currentNo, cell4) => {
-        let permutationsSaved = 0n
-
-        if (currentNo.isCellOf(3n)) {
-            permutationsSaved = getPermutations(4n, cell4.count, base)
-            cell4.digit++
-        }
-        return permutationsSaved
-    }
-    const fn6 = (currentNo, cell6) => {
-        let permutationsSaved = 0n
-
-        const twoComponents = currentNo.cTCNFC()
-
-        if (twoComponents) {
-            permutationsSaved = getPermutations(cell6.digit, cell6.count, base)
-            cell6.digit++
-            return permutationsSaved
-        }
-        if (cell6.count > 1n) {
-            permutationsSaved = getPermutations(cell6.digit, cell6.count - 1n, base)
-            splitAfterCell(currentNo, cell6, 1n)
-        }
-        return permutationsSaved
-    }
-    const fn8 = (currentNo, cell8) => {
-        let permutationsSaved = 0n
-
-        if (currentNo.isCellOf(3n)) {
-            permutationsSaved = getPermutations(cell8.digit, cell8.count, base)
-            cell8.digit++
-            return permutationsSaved
-        }
-        if (currentNo.isCellOf(6n)) {
-            permutationsSaved = getPermutations(cell8.digit, cell8.count, base)
-            cell8.digit++
-            return permutationsSaved
-        }
-        return permutationsSaved
-    }
-    const fn9 = (currentNo, cell9) => {
-        let permutationsSaved = 0n
-
-        const countTwoComponents = currentNo.cTCNFC()
-
-        if (countTwoComponents > 1n) {
-            permutationsSaved = getPermutations(cell9.digit, cell9.count, base)
-            cell9.digit++
-            return permutationsSaved
-        }
-
-        const cell6 = currentNo.getCellOf(6n)
-        if (cell6?.count > 1n) {
-            permutationsSaved = getPermutations(cell9.digit, cell9.count, base)
-            cell9.digit++
-            return permutationsSaved
-        }
-        return permutationsSaved
-    }
-    const fn10 = (currentNo, cellA) => {
-        let permutationsSaved = 0n
-
-        const countTwoComponents = currentNo.cTCNFC()
-
-        if (countTwoComponents) {
-            if (currentNo.isCellOf(9n)) {
-                permutationsSaved = getPermutations(cellA.digit, cellA.count, base)
-                cellA.digit++
-                return permutationsSaved
-            }
-            if (currentNo.isCellOf(3n)) {
-                permutationsSaved = getPermutations(cellA.digit, cellA.count, base)
-                cellA.digit++
-                return permutationsSaved
-            }
-        }
-        if (currentNo.isCellOf(6n)) {
-            permutationsSaved = getPermutations(cellA.digit, cellA.count, base)
-            cellA.digit++
-            return permutationsSaved
-        }
-
-        return permutationsSaved
-    }
-
-    /**
-     * @param currentNo {HugeInt}
-     */
-    return (currentNo) => {
-        const checkCell = currentNo.firstCell
-        switch (checkCell.digit) {
-            case 11n: return 0n
-            case 10n: return fn10(currentNo, checkCell)
-            case 9n: return fn9(currentNo, checkCell)
-            case 8n: return fn8(currentNo, checkCell)
-            case 7n: return 0n
-            case 6n: return fn6(currentNo, checkCell)
-            case 5n: return 0n
-            case 4n: return fn4(currentNo, checkCell)
-            case 3n: return fn3(currentNo, checkCell)
-            default: return 0n
-        }
-    }
-})()
-const base00015 = (() => {
-    const base = 15n
-
-    const fn5 = (currentNo, cell5) => {
-        let permutationsSaved = 0n
-
-        if (currentNo.isCellOf(3n)) {
-            permutationsSaved = getPermutations(5n, cell5.count, base)
-            cell5.digit++
-            cell5.change = true
-        }
-        return permutationsSaved
-    }
-    const fn6 = (currentNo, cell6) => {
-        let permutationsSaved = 0n
-
-        if (currentNo.isCellOf(5n)) {
-            permutationsSaved = getPermutations(6n, cell6.count, base)
-            cell6.digit++
-            cell6.change = true
-        }
-        return permutationsSaved
-    }
-    const fn9 = (currentNo, cell9) => {
-        let permutationsSaved = 0n
-
-        if (currentNo.isCellOf(5n)) {
-            permutationsSaved = getPermutations(9n, cell9.count, base)
-            cell9.digit++
-            cell9.change = true
-        }
-        return permutationsSaved
-    }
-    const fn12 = (currentNo, cell12) => {
-        let permutationsSaved = 0n
-
-        if (currentNo.isCellOf(5n)) {
-            permutationsSaved = getPermutations(12n, cell12.count, base)
-            cell12.digit++
-            cell12.change = true
-        }
-        return permutationsSaved
-    }
-    return (currentNo) => {
-        const checkCell = currentNo.firstCell
-        switch (checkCell.digit) {
-            case 14n: return 0n
-            case 13n: return 0n
-            case 12n: return fn12(currentNo, checkCell)
-            case 11n: return 0n
-            case 10n: return 0n
-            case 9n: return fn9(currentNo, checkCell)
-            case 8n: return 0n
-            case 7n: return 0n
-            case 6n: return fn6(currentNo, checkCell)
-            case 5n: return fn5(currentNo, checkCell)
-            default: return 0n
-        }
-    }
-
-})()
-const base00016 = (() => {
-    const base = 16n
-
-    const fn2 = (currentNo, cell2) => {
-        let permutationsSaved = 0n
-        
-        if (cell2.count > 3n) {
-            permutationsSaved = getPermutations(2n, cell2.count - 3n, base)
-            splitAfterCell(currentNo, cell2, 3n)
-        }
-        return permutationsSaved
-    }
-    const fn4 = (currentNo, cell4) => {
-        let permutationsSaved = 0n
-
-        const cell2 = currentNo.getCellOf(2n)
-
-        if (cell2?.count > 1n) {
-            permutationsSaved = getPermutations(4n, cell4.count, base)
-            cell4.digit++
-        }
-        else if (cell4.count > 1n) {
-            permutationsSaved = getPermutations(4n, cell4.count - 1n, base)
-            splitAfterCell(currentNo, cell4, 1n)
-        }
-        return permutationsSaved
-    }
-    const fn6 = (currentNo, cell6) => {
-        let permutationsSaved = 0n
-
-        const twoComponents = currentNo.cTCNFC()
-
-        if (twoComponents > 2) {
-            permutationsSaved = getPermutations(6n, cell6.count, base)
-            cell6.digit++
-        }
-        else if (twoComponents && cell6.count > 2n) {
-            permutationsSaved += getPermutations(6n, cell6.count - 2n, base)
-            splitAfterCell(currentNo, cell6, 2n)
-        }
-        else if (cell6.count > 3n) {
-            permutationsSaved += getPermutations(6n, cell6.count - 3n, base)
-            splitAfterCell(currentNo, cell6, 3n)
-        }
-        return permutationsSaved
-    }
-    const fn8 = (currentNo, cell8) => {
-        let permutationsSaved = 0n
-
-        const twoComponents = currentNo.cTCNFC()
-
-        if (twoComponents !== 0) {
-            permutationsSaved = getPermutations(8n, cell8.count, base)
-            cell8.digit++
-        }
-        else if (cell8.count > 1n) {
-            permutationsSaved = getPermutations(8n, cell8.count - 1n, base)
-            splitAfterCell(currentNo, cell8, 1n)
-        }
-        return permutationsSaved
-    }
-    const fn10 = (currentNo, cellA) => {
-        let permutationsSaved = 0n
-
-        const twoComponents = currentNo.cTCNFC()
-
-        if (twoComponents > 2) {
-            permutationsSaved = getPermutations(cellA.digit, cellA.count, base)
-            cellA.digit++
-        }
-        else {
-            const cell6 = currentNo.getCellOf(6n)
-            if (twoComponents > 1 && cell6) {
-                permutationsSaved = getPermutations(cellA.digit, cellA.count, base)
-                cellA.digit++
-            }
-            else if (twoComponents > 0 && cell6?.count > 1n) {
-                permutationsSaved = getPermutations(cellA.digit, cellA.count, base)
-                cellA.digit++
-            }
-            else if (cell6?.count > 3n) {
-                permutationsSaved = getPermutations(cellA.digit, cellA.count, base)
-                cellA.digit++
-            }
-            else if (cellA.count > 3n) {
-                permutationsSaved = getPermutations(cellA.digit, cellA.count - 3n, base)
-                splitAfterCell(currentNo, cellA, 3n)
-            }
-        }
-
-        return permutationsSaved
-    }
-    const fn12 = (currentNo, cellC) => {
-        let permutationsSaved = 0n
-
-        const twoComponents = currentNo.cTCNFC()
-
-        if (twoComponents > 1) {
-            permutationsSaved = getPermutations(cellC.digit, cellC.count, base)
-            cellC.digit++
-        }
-        else {
-            const cell6 = currentNo.getCellOf(6n)
-            if (twoComponents === 1 && cell6) {
-                permutationsSaved = getPermutations(cellC.digit, cellC.count, base)
-                cellC.digit++
-            }
-            else if (cell6?.count > 1n) {
-                permutationsSaved = getPermutations(cellC.digit, cellC.count, base)
-                cellC.digit++
-            }
-            else {
-                const cellA = currentNo.getCellOf(10n)
-                if (twoComponents && cellA) {
-                    permutationsSaved = getPermutations(cellC.digit, cellC.count, base)
-                    cellC.digit++
-                }
-                else if (cellA?.count > 3n) {
-                    permutationsSaved = getPermutations(cellC.digit, cellC.count, base)
-                    cellC.digit++
-                }
-                else if (cellC.count > 1n) {
-                    permutationsSaved = getPermutations(cellC.digit, cellC.count - 1n, base)
-                    splitAfterCell(currentNo, cellC, 1n)
-                }
-            }
-        }
-        return permutationsSaved
-    }
-
-    const fn14 = (currentNo, cellE) => {
-        let permutationsSaved = 0n
-
-        const twoComponents = currentNo.cTCNFC()
-
-        if (twoComponents > 2) {
-            permutationsSaved = getPermutations(cellE.digit, cellE.count, base)
-            cellE.digit++
-        }
-        else {
-            const cell6 = currentNo.getCellOf(6n)
-            if (twoComponents === 2 && cell6) {
-                permutationsSaved = getPermutations(cellE.digit, cellE.count, base)
-                cellE.digit++
-            }
-            else if (twoComponents === 1 && cell6?.count > 1n) {
-                permutationsSaved = getPermutations(cellE.digit, cellE.count, base)
-                cellE.digit++
-            }
-            else if (cell6?.count > 2n) {
-                permutationsSaved = getPermutations(cellE.digit, cellE.count, base)
-                cellE.digit++
-            }
-            else {
-                const cellA = currentNo.getCellOf(10n)
-                if (twoComponents > 1 && cellA) {
-                    permutationsSaved = getPermutations(cellE.digit, cellE.count, base)
-                    cellE.digit++
-                }
-                else if (cellA?.count > 2n) {
-                    permutationsSaved = getPermutations(cellE.digit, cellE.count, base)
-                    cellE.digit++
-                }
-                else {
-                    const cellC = currentNo.getCellOf(12n)
-                    if (twoComponents && cellC) {
-                        permutationsSaved = getPermutations(cellE.digit, cellE.count, base)
-                        cellE.digit++
-                    }
-                    else if (cellE.count > 3n) {
-                        permutationsSaved = getPermutations(cellE.digit, cellE.count - 2n, base)
-                        splitAfterCell(currentNo, cellE, 2n)
-                    }
-                }
-            }
-        }
-        return permutationsSaved
-    }
-
-    return (currentNo) => {
-        const checkCell = currentNo.firstCell
-        switch (checkCell.digit) {
-            case 15n: return 0n
-            case 14n: return fn14(currentNo, checkCell)
-            case 13n: return 0n
-            case 12n: return fn12(currentNo, checkCell)
-            case 11n: return 0n
-            case 10n: return fn10(currentNo, checkCell)
-            case 9n: return 0n
-            case 8n: return fn8(currentNo, checkCell)
-            case 7n: return 0n
-            case 6n: return fn6(currentNo, checkCell)
-            case 5n: return 0n
-            case 4n: return fn4(currentNo, checkCell)
-            case 3n: return 0n
-            case 2n: return fn2(currentNo, checkCell)
-            default: return 0n
-        }
-    }
-})()
 const base00020 = (() => {
     const base = 20n
 
@@ -584,7 +24,7 @@ const base00020 = (() => {
             if (currentNo.isCellOf(2n) || currentNo.isCellOf(4n)) {
                 permutationsSaved = getPermutations(6n, cell6.count, base)
                 cell6.digit++
-               // cell6.change = true
+                // cell6.change = true
                 return permutationsSaved
             }
             if (cell6.count > 1n) {
@@ -804,7 +244,7 @@ const base00032 = (() => {
     const base = 32n
     const fn2 = (currentNo, cell2) => {
         let permutationsSaved = 0n
-        
+
         if (cell2.count > 4n) {
             permutationsSaved = getPermutations(cell2.digit, cell2.count - 4n, base)
             splitAfterCell(currentNo, cell2, 4n)
@@ -823,7 +263,7 @@ const base00032 = (() => {
         else if (cell4.count > 2n) {
             permutationsSaved = getPermutations(cell4.digit, cell4.count - 2n, base)
             splitAfterCell(currentNo, cell4, 2n)
-            
+
         }
         return permutationsSaved
     }
@@ -907,7 +347,7 @@ const base00032 = (() => {
     }
     const fn14 = (currentNo, cellE) => {
         let permutationsSaved = 0n
-        
+
         const cell2 = currentNo.getCellOf(2n)
         const cell4 = currentNo.getCellOf(4n)
         const cell6 = currentNo.getCellOf(6n)
@@ -1077,7 +517,7 @@ const base00032 = (() => {
     }
     const fn26 = (currentNo, cellQ) => {
         let permutationsSaved = 0n
-        
+
         const cell2 = currentNo.getCellOf(2n)
         const cell4 = currentNo.getCellOf(4n)
         const cell6 = currentNo.getCellOf(6n)
@@ -1105,7 +545,7 @@ const base00032 = (() => {
         ) {
             permutationsSaved = getPermutations(cellQ.digit, cellQ.count, base)
             cellQ.digit++
-            
+
         }
         else if (cellQ.count > 3n) {
             permutationsSaved = getPermutations(cellQ.digit, cellQ.count - 3n, base)
@@ -1115,7 +555,7 @@ const base00032 = (() => {
     }
     const fn28 = (currentNo, cellS) => {
         let permutationsSaved = 0n
-        
+
         const cell2 = currentNo.getCellOf(2n)
         const cell4 = currentNo.getCellOf(4n)
         const cell6 = currentNo.getCellOf(6n)
@@ -1249,57 +689,9 @@ const base00087 = (() => {
                 if (indexOfCell3Division === 0) {
                     permutationsSaved = getPermutations(cell3Division.digit, cell3Division.count, base)
                     cell3Division.digit++
-                 }
+                }
             }
         }
         return permutationsSaved
     }
 })()
-
-const functionToExport = () => {
-    HugeInt.prototype.cTCNFC = HugeInt.prototype.countTwoComponentsNoFirstCell
-    let fn
-    switch (process.normalizedEnv.base) {
-        case 6n:
-            fn = base00006
-            break
-        case 8n:
-            fn = base00008
-            break
-        case 9n:
-            fn = base00009
-            break
-        case 10n:
-            fn = base00010
-            break
-        case 12n:
-            fn = base00012
-            break
-        case 15n:
-            fn = base00015
-            break
-        case 16n:
-            fn = base00016
-            break
-        case 20n:
-            fn = base00020
-            break
-        case 24n:
-            fn = base00024
-            break
-        case 32n:
-            fn = base00032
-            break
-        case 87n:
-            fn = base00087
-            break
-        default:
-            fn = emptyFunction
-    }
-    fn.supported = [
-        6n, 8n, 9n, 10n, 12n, 15n, 16n, 20n, 32n, 87n
-    ]
-    return fn
-}
-
-export default functionToExport()
