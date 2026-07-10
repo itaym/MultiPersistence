@@ -26,9 +26,10 @@ const worker = new Worker('./worker.js', {
 let initVars = await getInitVars()
 
 const goalNumber = new HugeInt(selfEnv.goal_number, selfEnv.base)
-const log_interval = selfEnv.log_interval
+const log_interval = selfEnv['log_interval']
 const startSessionTime = Date.now()
 const startTime = startSessionTime - initVars.up_time
+
 postMessages( worker, 'init', {
     VARS: {
         ...initVars,
@@ -38,6 +39,7 @@ postMessages( worker, 'init', {
     startSessionTime,
     startTime,
 })
+
 while (process.env.isWorkerReady !== 'true') {
     console.log(`\n${process.env.log}`)
     await gaySchluffen(100)
@@ -45,5 +47,5 @@ while (process.env.isWorkerReady !== 'true') {
 
 // noinspection JSCheckFunctionSignatures
 await multiPerSearch(initVars, log_interval, startSessionTime, startTime, worker)
-worker.terminate()
+worker.terminate().then()
 console.log('---------- FINISH ----------')

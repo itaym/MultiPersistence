@@ -1,7 +1,5 @@
 import fs, { promises as fsPromises } from 'fs'
 import memorize from '../utils/memorize.js'
-import Cache from '../utils/Cache.js'
-import sleep from '../utils/sleep.js'
 
 let data, permutationsJson
 
@@ -25,7 +23,6 @@ const _getPermutations = (() => {
             checkBase = baseLast + 1n
             result = getPCache.get(`${length},${baseLast}`)
         }
-        //process.env.log = JSON.stringify({ getPCache: getPCache.size, length: Number(length), checkBase: Number(checkBase), base: Number(base) })
 
         for (let runBase = checkBase; runBase <= base; runBase++) {
             result += _getPermutations(runBase, length - 1n)
@@ -52,7 +49,6 @@ const getPermutations = (() => {
 
         if (baseLast > length)
             baseLast = length
-        //baseLast = BigInt(Math.min(Number(baseLast), Number(length)))
 
         if (baseLast > -1n) {
             checkLength = baseLast + 1n
@@ -62,10 +58,9 @@ const getPermutations = (() => {
         for (let runLength = checkLength; runLength <= length; runLength++) {
             result += _getPermutations(base, runLength)
             cache.set(`${base},${runLength}`, result)
-            //process.env.log = JSON.stringify({cache: cache.size})
+
             if (runLength > theLastOne) {
                 cacheLast.set(base, runLength)
-                //console.log({cacheLast: cacheLast.size})
             }
         }
         return result

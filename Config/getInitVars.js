@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs'
+import HugeInt from "../HugeInt/index.js";
 
 const reviver = (key, value) => {
     switch (key) {
@@ -38,7 +39,13 @@ export const getInitVars = async () => {
         let data = await fs.readFile(fileName, 'utf-8')
         data = JSON.parse(data, reviver)
         return data
-    } catch {}
+    } catch {
+        try {
+            let data = await fs.readFile(fileName.replace('json', 'bak'), 'utf-8')
+            data = JSON.parse(data, reviver)
+            return data
+        } catch {}
+    }
     return defaultVars
 }
 

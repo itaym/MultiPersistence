@@ -232,6 +232,8 @@ export class HugeInt {
         }
         this.lastCell = currentCell.prev
         this.lastCell.next = null
+
+        return this
     }
 
     addOne(cell) {
@@ -380,30 +382,34 @@ export class HugeInt {
         }
         return count
     }
+
     /**
      *
      * @return {DigitCell|null}
      */
     getCellOf(digit) {
         let cell = this.firstCell
-        while (cell) {
+        do {
             if (cell.digit === digit) return cell
             cell = cell.next
-        }
+        } while (cell)
         return null
     }
+
     /**
      *
+     * @param {bigint} digit
      * @return {boolean}
      */
     isCellOf(digit) {
         let cell = this.firstCell
-        while (cell) {
+        do {
             if (cell.digit === digit) return true
             cell = cell.next
-        }
+        } while (cell)
         return false
     }
+
     /**
      *
      * @return {boolean}
@@ -411,6 +417,7 @@ export class HugeInt {
     isLTBase() {
         return (!this.firstCell.next) && this.firstCell.count === 1n
     }
+
     /**
      *
      * @return {bigint}
@@ -418,6 +425,7 @@ export class HugeInt {
     moduloBase() {
         return this.firstCell.digit
     }
+
     /**
      *
      * @return {boolean}
@@ -430,6 +438,7 @@ export class HugeInt {
         }
         return false
     }
+
     /**
      *
      * @param {DigitCell|null} cell
@@ -447,9 +456,15 @@ export class HugeInt {
         }
         return count
     }
+
+    /**
+     *
+     * @return {number}
+     */
     countTwoComponentsNoFirstCell() {
         return this.countTwoComponents(this.firstCell.next)
     }
+
     /**
      *
      * @param {DigitCell} cell
@@ -470,6 +485,7 @@ export class HugeInt {
         cell.changed = true
         return newCell
     }
+
     /**
      *
      * @param {DigitCell} cell
@@ -490,6 +506,7 @@ export class HugeInt {
         cell.changed = true
         return newCell
     }
+
     /**
      * @method toString
      * @return {string}
@@ -506,6 +523,7 @@ export class HugeInt {
 
         return tmpStr
     }
+
     /**
      * @method toLocaleString
      * @return {string}
@@ -523,6 +541,7 @@ export class HugeInt {
 
         return arr.join(',')
     }
+
     /**
      *
      * @return {Iterator}

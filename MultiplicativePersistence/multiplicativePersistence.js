@@ -19,6 +19,11 @@ function BIStrArr(currentNo, base) {
     return result
 }
 
+/**
+ *
+ * @param arr { number[] | bigint[] }
+ * @return {*}
+ */
 function reduce(arr) {
     let result = arr[0]
     for (let x = 1; x < arr.length; x++) {
@@ -27,6 +32,11 @@ function reduce(arr) {
     return result
 }
 
+/**
+ *
+ * @param hugeInt { HugeInt }
+ * @return {bigint}
+ */
 function reduceHI(hugeInt) {
     let cell = hugeInt.firstCell.next, lastResult
 
@@ -45,33 +55,36 @@ function reduceHI(hugeInt) {
 
     return lastResult
 }
-function reduceHIx(hugeInt) {
-    let cell = hugeInt.lastCell, lastResult = 1n
 
-    do {
-        if (cell.changed) {
-            cell.changed = false
-            lastResult *= cell.digit ** cell.count
-            cell.result = lastResult
-        }
-        lastResult = cell.result
-
-        cell = cell.prev
-    } while (cell)
-
-    return lastResult
-}
-
+/**
+ *
+ * @param currentNo { HugeInt }
+ * @param base { number }
+ * @return { number }
+ */
 export const multiPer = function (currentNo, base) {
     if (currentNo.isLTBase()) return 0
 
     return multiPerNBC(currentNo, base)
 }
+
+/**
+ *
+ * @param currentNo { HugeInt }
+ * @param base { number }
+ * @return {number}
+ */
 export const multiPerNBC = function (currentNo, base) {
 
     return 1 + multiPer2(reduceHI(currentNo), base)
 }
 
+/**
+ *
+ * @param currentNo { bigint }
+ * @param base { number }
+ * @return {number}
+ */
 const multiPer2 = function (currentNo, base) {
     if (currentNo < base) return 0
 

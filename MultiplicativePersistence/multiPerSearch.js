@@ -83,7 +83,7 @@ export const multiPerSearch = async (
         }
         else {
             notFound++
-            notToBreak = notFoundLimit > notFound
+            notToBreak = (notFoundLimit > notFound) && (currentNo.length < process.selfEnv.goal_power_of10)
         }
 
         if (countIterations > logAfter) {
@@ -120,7 +120,7 @@ export const multiPerSearch = async (
     endTime = Date.now()
     await waitShowLog()
 
-    currentNo.subtractOne(0)
+    currentNo.subtractOne()
 
     postMessages(worker, 'found', {
         calcIterations,
