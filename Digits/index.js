@@ -1,4 +1,4 @@
-const maxBase = 65536 // process.selfEnv.base || 65536
+const maxBase = 65536 // process.normalizedEnv.base || 65536
 
 export const digitsObj = new Map([
     [0n, '0'], [1n, '1'], [2n, '2'], [3n, '3'], [4n, '4'], [5n, '5'], [6n, '6'], [7n, '7'],
@@ -32,6 +32,7 @@ if (maxBase > 64) {
 
         digitsObj.set(x + 64n - offset, char)
         digitsValue[char] = x + 64n - offset
+        // console.log(x, `>${char}<`)
     }
 }
 
@@ -39,4 +40,3 @@ export const  toBigInt = new Array(2_000)
 for (let int = 0; int < 2_000; int++) {
     toBigInt[int] = BigInt(int)
 }
-export const toNumber = new Array(2_000).fill(0).map((_, index) => index)

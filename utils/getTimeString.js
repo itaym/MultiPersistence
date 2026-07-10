@@ -18,9 +18,36 @@ const TIME_UNITS_NAMES = [
     'Milli'
 ]
 
-export function getTimeStringMilli(numOfMilliseconds) {
+/**
+ *
+ * @param {bigint} unitCount
+ * @param {number} i
+ * @returns {string}
+ */
+const getUnitString = function(unitCount, i) {
+    let unitString = unitCount.toString()
+    if (unitString.length > 15) {
+        unitString = `${unitString.charAt(0)}.${unitString.substring(1, 14)}E${unitString.length - 1}`
+    }
+    else {
+        unitString = unitCount.toLocaleString()
+    }
+    return `${unitString} ${TIME_UNITS_NAMES[i]}${unitCount > 1 ? 's' : ''}`
+}
+
+/**
+ *
+ * @param {bigint|number} numOfMilliseconds
+ * @param {boolean} [excludeMilliseconds]
+ * @returns {string}
+ */
+export function getTimeString(numOfMilliseconds, excludeMilliseconds = true) {
     if (numOfMilliseconds?.constructor?.name !== 'BigInt') numOfMilliseconds = Math.floor(numOfMilliseconds)
     let numOfMillis = BigInt(numOfMilliseconds)
+
+    if (excludeMilliseconds) {
+        numOfMillis = numOfMillis / 1000n * 1000n
+    }
 
     let timeStrings = []
 
@@ -30,48 +57,15 @@ export function getTimeStringMilli(numOfMilliseconds) {
 
         if (unitCount >= 1) {
             numOfMillis -= unitCount * unit
-            let unitString = unitCount.toString()
-            if (unitString.length > 15) {
-                unitString = `${unitString.charAt(0)}.${unitString.substring(1, 14)}E${unitString.length - 1}`
-            }
-            else {
-                unitString = unitCount.toLocaleString()
-            }
-
-            timeStrings.push(`${unitString} ${TIME_UNITS_NAMES[i]}${unitCount > 1 ? 's' : ''}`)
+            timeStrings.push(getUnitString(unitCount, i))
+        }
+        else if (i > 4) {
+            numOfMillis -= unitCount * unit
+            timeStrings.push(getUnitString(unitCount, i))
         }
     }
-
-    timeStrings.push(`${numOfMillis} ${TIME_UNITS_NAMES[TIME_UNITS_NAMES.length - 1]}${numOfMillis > 1 ? 's' : ''}`)
+   if (numOfMillis > 0n && !excludeMilliseconds)
+       timeStrings.push(getUnitString(numOfMillis, 6))
 
     return timeStrings.join(' ,')
-}
-
-export function getTimeString(numOfMilliseconds) {
-    if (numOfMilliseconds?.constructor?.name !== 'BigInt') numOfMilliseconds = Math.floor(numOfMilliseconds)
-    let numOfSeconds = BigInt(numOfMilliseconds) / 1000n
-
-    let timeStrings = []
-
-    for (let i = 0; i < TIME_UNITS.length - 1; i++) {
-        const unit = TIME_UNITS[i]
-        const unitCount = numOfSeconds / unit
-
-        if (unitCount >= 1) {
-            numOfSeconds -= unitCount * unit
-            let unitString = unitCount.toString()
-            if (unitString.length > 15) {
-                unitString = `${unitString.charAt(0)}.${unitString.substring(1, 14)}E${unitString.length - 1}`
-            }
-            else {
-                unitString = unitCount.toLocaleString()
-            }
-
-            timeStrings.push(`${unitString} ${TIME_UNITS_NAMES[i]}${unitCount > 1 ? 's' : ''}`)
-        }
-    }
-
-    timeStrings.push(`${numOfSeconds} ${TIME_UNITS_NAMES[TIME_UNITS_NAMES.length - 2]}${numOfSeconds > 1 ? 's' : ''}`)
-
-    return timeStrings.join(',')
 }

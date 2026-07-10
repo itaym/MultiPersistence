@@ -1,7 +1,6 @@
 import HugeInt from '../HugeInt/index.js'
 import ToPrimitive from '../ToPrimitive/index.js'
-import baseAccommodate from './baseAccommodate.js'
-import onModuloBase from './onNotModuloBase.js'
+import baseAccommodate from './BaseAccommodate/index.js'
 import postMessages from '../utils/postMessage.js'
 import prepareMessage from '../utils/prepareMessage.js'
 import waitShowLog from '../utils/waitShowLog.js'
@@ -12,7 +11,6 @@ import { multiPer, multiPerNBC } from './index.js'
  * @param base
  * @param iterations
  * @param last_number
- * @param stepsObj
  * @param up_time
  * @param log_interval
  * @param startSessionTime
@@ -25,7 +23,6 @@ export const multiPerSearch = async (
         base,
         iterations,
         last_number,
-        steps:stepsObj,
         up_time,
     },
     log_interval,
@@ -49,20 +46,19 @@ export const multiPerSearch = async (
     let multiPerNBB = multiPerNBC.bind(null, currentNo, Number(base))
     let multiPerFn = multiPer.bind(null, currentNo, Number(base))
     let prepareBindMessage = prepareMessage.bind(currentNo)
-    let on_ModuloBase = onModuloBase.bind(currentNo)
 
     const createPermutations = baseAccommodate
-        .supported.includes(process.selfEnv.base)
+        .supported.includes(process.normalizedEnv.base)
         ? new ToPrimitive(currentNo, baseAccommodate)
         : 1n
 
     const createMessage = () => prepareBindMessage(startTime, calcIterations, steps)
 
-    currentNo.addOneToSorted()
+    currentNo.addOne()
 
     while (notToBreak) {
 
-        on_ModuloBase()
+        currentNo.onNotModuloBase()
 
         calcIterations += createPermutations
         countIterations++
@@ -114,7 +110,7 @@ export const multiPerSearch = async (
             iterationsPerLog = countIterations
             startTimeLog = Date.now()
         }
-        currentNo.addOneToSorted()
+        currentNo.addOne()
     }
 
     endTime = Date.now()
@@ -135,5 +131,4 @@ export const multiPerSearch = async (
         startTimeLog,
     })
     await waitShowLog()
-
 }

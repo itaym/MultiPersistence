@@ -1,6 +1,14 @@
 import { digitsObj as baseDigits } from '../Digits/index.js'
-
+/**
+ * @typedef {Object<string>[]} NumberLengths
+ * @property {LengthProps} [key]
+ */
 if (!Array.prototype.group) {
+    /**
+     *
+     * @param callback
+     * @returns {Object<string>[]}
+     */
     Array.prototype.group = function(callback) {
         const result = {}
         this.forEach((item, index, array) => {
@@ -14,12 +22,17 @@ if (!Array.prototype.group) {
 
 function toString(constructor) {
     const nativeToString = constructor.prototype.toString
+    /**
+     *
+     * @param {bigint} radix
+     * @returns {string}
+     */
     constructor.prototype.toString = function (radix = 10n) {
         if (radix <= 36) {
             return nativeToString.call(this, Number(radix))
         } else {
             let initBigInt
-            initBigInt = BigInt(this)
+            initBigInt = BigInt(/** @type {*} */ this)
             if (initBigInt === 0n) {
                 return '0'
             } else {
@@ -27,7 +40,6 @@ function toString(constructor) {
                 let result = []
                 while (initBigInt !== 0n) {
                     const digit = initBigInt % bigIntBase
-                    //if (digit === 0) return '0'
                     result.push(baseDigits.get(digit))
                     initBigInt /= bigIntBase
                 }
@@ -36,21 +48,5 @@ function toString(constructor) {
         }
     }
 }
-// toString(String)
-toString(BigInt)
-// toString(Object)
 
-function toStrNoZero (radix = 10n) {
-    let initBigInt
-    initBigInt = this
-    const bigIntBase = radix
-    let result = []
-    while (initBigInt !== 0n) {
-        const digit = initBigInt % bigIntBase
-        if (digit === 0n) return '0'
-        result.push(baseDigits.get(digit))
-        initBigInt /= bigIntBase
-    }
-    return result.reverse().join('')
-}
-BigInt.prototype.toStrNoZero = toStrNoZero
+toString(BigInt)

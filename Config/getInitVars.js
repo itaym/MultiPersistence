@@ -1,6 +1,52 @@
 import { promises as fs } from 'fs'
 import HugeInt from "../HugeInt/index.js";
 
+/**
+ * @typedef {object} Iterations
+ * @property {bigint} calculated
+ * @property {number} count
+ * @property {number} found_nothing
+ * @property {number} found_nothing_break_at
+ */
+
+/**
+ * @typedef {object} TypeStep
+ * @property {number} [atRunTime]
+ * @property {bigint} combinations
+ * @property {number} count
+ * @property {bigint} first
+ * @property {number} [iteration]
+ * @property {bigint} last
+ * @property {number} [step]
+ */
+
+/**
+ * @typedef {object} LengthProps
+ * @property {number} found
+ * @property {number} time
+ * @property {TypeStep} steps
+ */
+
+/**
+ * @typedef {Object<string, number>} NumberLengths
+ * @property {LengthProps} [key]
+ */
+
+/**
+ * @typedef {object} InitVars
+ * @property {bigint} base
+ * @property {Iterations} iterations
+ * @property {bigint} last_number
+ * @property {object} number_lengths
+ * @property {TypeStep[]} steps
+ */
+
+/**
+ *
+ * @param key {string}
+ * @param value {*}
+ * @returns {bigint|*}
+ */
 const reviver = (key, value) => {
     switch (key) {
         case 'base':
@@ -15,6 +61,10 @@ const reviver = (key, value) => {
     return value
 }
 
+/**
+ *
+ * @returns {Promise<InitVars>}
+ */
 export const getInitVars = async () => {
 
     const { env, selfEnv } = process
@@ -49,6 +99,12 @@ export const getInitVars = async () => {
     return defaultVars
 }
 
+/**
+ *
+ * @param key {string}
+ * @param value {*}
+ * @returns {bigint|*}
+ */
 const replacer = (key, value) => {
     const name = value?.constructor?.name
     if (name === 'BigInt') {
@@ -60,6 +116,12 @@ const replacer = (key, value) => {
     return value
 }
 
+/**
+ *
+ * @param {InitVars} initVars
+ * @param {bigint} base
+ * @returns {Promise<void>}
+ */
 export const setInitVars = async (initVars, base) => {
     const fileName = `./results/${base.toString().padStart(5, '0')}_${process.env.vars_file}`
     try {

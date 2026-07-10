@@ -3,11 +3,22 @@ import memorize from '../utils/memorize.js'
 
 let data, permutationsJson
 
+/**
+ *
+ * @type {function} _getPermutations
+ * @param {bigint} base
+ * @param {bigint} length
+ * @return {Object<*>}
+ */
 const _getPermutations = (() => {
 
     const getPCache = new Map()
     const getPCacheLast = new Map()
 
+    /**
+     * @param {bigint} base
+     * @param {bigint} length
+     */
     return (base, length) => {
         if (length === 1n) return base
 
