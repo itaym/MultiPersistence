@@ -1,50 +1,95 @@
 import { promises as fs } from 'fs'
 import HugeInt from "../HugeInt/index.js";
-
 /**
+ * Iteration statistics stored in the results file.
+ *
  * @typedef {object} Iterations
  * @property {bigint} calculated
+ *     Total number of calculated iterations.
+ *
  * @property {number} count
+ *     Total number of real iterations performed.
+ *
  * @property {number} found_nothing
+ *     Number of consecutive iterations that found no results.
+ *
  * @property {number} found_nothing_break_at
+ *     Threshold at which the search should stop due to no findings.
  */
 
 /**
+ * A single persistence step entry.
+ *
  * @typedef {object} TypeStep
  * @property {number} [atRunTime]
+ *     Milliseconds elapsed when this step was recorded.
+ *
  * @property {bigint} combinations
+ *     Number of combinations evaluated at this step.
+ *
  * @property {number} count
+ *     Number of results found at this step.
+ *
  * @property {bigint} first
+ *     First number found at this step.
+ *
  * @property {number} [iteration]
+ *     Iteration index when this step was recorded.
+ *
  * @property {bigint} last
+ *     Last number found at this step.
+ *
  * @property {number} [step]
+ *     Persistence step index.
  */
 
 /**
+ * Properties stored per number length.
+ *
  * @typedef {object} LengthProps
  * @property {number} found
+ *     How many results were found for this length.
+ *
  * @property {number} time
+ *     Total time spent searching this length.
+ *
  * @property {TypeStep} steps
+ *     Step information for this length.
  */
 
 /**
- * @typedef {Object<string, number>} NumberLengths
- * @property {LengthProps} [key]
+ * Mapping of number lengths to their statistics.
+ *
+ * @typedef {Object<string, LengthProps>} NumberLengths
  */
 
 /**
+ * Structure of the initialization variables loaded from disk.
+ *
  * @typedef {object} InitVars
  * @property {bigint} base
+ *     The numeric base used for HugeInt operations.
+ *
  * @property {Iterations} iterations
+ *     Iteration statistics.
+ *
  * @property {bigint} last_number
- * @property {object} number_lengths
+ *     The last number processed before saving.
+ *
+ * @property {NumberLengths} number_lengths
+ *     Statistics grouped by number length.
+ *
  * @property {TypeStep[]} steps
+ *     Array of persistence step entries.
  */
 
 /**
+ * JSON reviver used when loading saved state.
  *
- * @param key {string}
- * @param value {*}
+ * Converts specific fields into BigInt values.
+ *
+ * @param {string} key
+ * @param {*} value
  * @returns {bigint|*}
  */
 const reviver = (key, value) => {
@@ -62,14 +107,18 @@ const reviver = (key, value) => {
 }
 
 /**
+ * Load initialization variables from the results file.
+ *
+ * If `debug=true`, returns default values without reading from disk.
+ * If the main JSON file is missing, attempts to load a `.bak` backup.
  *
  * @returns {Promise<InitVars>}
  */
 export const getInitVars = async () => {
 
-    const { env, selfEnv } = process
+    const { env, normalizedEnv } = process
     const { vars_file } = env
-    const fileName = `./results/${selfEnv.base.toString().padStart(5, '0')}_${vars_file}`
+    const fileName = `./results/${normalizedEnv.base.toString().padStart(5, '0')}_${vars_file}`
 
     const defaultVars = {
         base: BigInt(env.base.replace('n', '')),
@@ -84,7 +133,9 @@ export const getInitVars = async () => {
         up_time: 0,
         steps: [],
     }
+
     if (env.debug === 'true') return defaultVars
+
     try {
         let data = await fs.readFile(fileName, 'utf-8')
         data = JSON.parse(data, reviver)
@@ -96,14 +147,18 @@ export const getInitVars = async () => {
             return data
         } catch {}
     }
+
     return defaultVars
 }
 
 /**
+ * JSON replacer used when saving state.
  *
- * @param key {string}
- * @param value {*}
- * @returns {bigint|*}
+ * Converts BigInt and HugeInt values into strings so they can be serialized.
+ *
+ * @param {string} key
+ * @param {*} value
+ * @returns {string|*}
  */
 const replacer = (key, value) => {
     const name = value?.constructor?.name
@@ -117,9 +172,19 @@ const replacer = (key, value) => {
 }
 
 /**
+ * Save initialization variables to disk.
+ *
+ * Writes to:
+ *   ./results/<base>_<vars_file>
+ *
+ * Before writing, attempts to rename the existing file to `.bak`.
  *
  * @param {InitVars} initVars
+ *     The initialization variables to save.
+ *
  * @param {bigint} base
+ *     The numeric base used to determine the filename.
+ *
  * @returns {Promise<void>}
  */
 export const setInitVars = async (initVars, base) => {

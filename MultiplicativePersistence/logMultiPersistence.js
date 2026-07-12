@@ -4,7 +4,15 @@ import HugeInt from '../HugeInt/index.js'
 import chalk from 'chalk'
 
 
-
+/**
+ * Create a color‑toggling function for alternating log line colors.
+ *
+ * Returns a closure that cycles between two Chalk color names (`white`, `yellow`)
+ * each time it is called. Used to visually separate log rows.
+ *
+ * @returns {function(): string}
+ *     A function that returns the next color name.
+ */
 const getColor = () => {
     const colors = ['white', 'yellow']
     let currentColor = 1
@@ -14,6 +22,20 @@ const getColor = () => {
     }
 }
 
+/**
+ * Replace control and problematic Unicode characters in a string.
+ *
+ * Control characters (0–31) are replaced with 'X'.
+ * Characters in the range 150–166 are replaced with 'Y'.
+ *
+ * This prevents terminal corruption when logging HugeInt values.
+ *
+ * @param {string} str
+ *     The input string to sanitize.
+ *
+ * @returns {string}
+ *     A safe string containing only printable characters.
+ */
 const sanitize = (str) => {
     for (let x = 0; x < 32; x++) {
         str = str.replaceAll(String.fromCharCode(x), 'X')
@@ -23,6 +45,23 @@ const sanitize = (str) => {
     }
     return str
 }
+
+/**
+ * Truncate a long string by preserving both ends and inserting "..." in the middle.
+ *
+ * Example:
+ *   fromMiddleStringMaxLength("ABCDEFGHIJK", 6)
+ *   → "AB...JK"
+ *
+ * @param {string} str
+ *     The string to truncate.
+ *
+ * @param {number} [max=Number.MAX_SAFE_INTEGER]
+ *     Maximum allowed length before truncation.
+ *
+ * @returns {string}
+ *     The truncated or original string.
+ */
 export const fromMiddleStringMaxLength= (str, max = Number.MAX_SAFE_INTEGER) => {
     if (str.length > max) {
         const str1 = str.substring(0, Math.floor(max / 2) - 3 + (max % 2 ? 1 : 0))
@@ -31,6 +70,47 @@ export const fromMiddleStringMaxLength= (str, max = Number.MAX_SAFE_INTEGER) => 
     }
     return str
 }
+
+/**
+ * Create a logging function for multiplicative‑persistence search sessions.
+ *
+ * This function returns a closure that formats detailed runtime statistics into
+ * a multi‑line log string. It is called repeatedly during the search to display:
+ *
+ *   - Current HugeInt being evaluated
+ *   - Steps and combinations found at each persistence depth
+ *   - Iteration counts (calculated vs real)
+ *   - Iterations per second
+ *   - Estimated time remaining
+ *   - Session uptime
+ *   - Base, lengths, and found counts
+ *
+ * Inputs:
+ *   - goalNumber: HugeInt string representation of the target number
+ *   - base: numeric base used for HugeInt digit operations
+ *
+ * The returned logger receives a state object containing:
+ *   - calcIterations: BigInt — number of calculated iterations
+ *   - countIterations: number — number of real iterations
+ *   - countSteps: array — persistence results per step
+ *   - currentNo: BigInt or HugeInt — current number being evaluated
+ *   - lengths: object — statistics per number length
+ *   - messagesCount: number — total found messages
+ *   - notFound: number — count of unsuccessful searches
+ *   - notFoundLimit: number — threshold for stopping
+ *   - startTime, endTime, startSessionTime, startTimeLog: timestamps
+ *   - iterationsPerLog: number — iterations since last log
+ *
+ * @param {Object} params
+ * @param {string} params.goalNumber
+ *     String representation of the target HugeInt.
+ *
+ * @param {bigint} params.base
+ *     Numeric base used for HugeInt operations.
+ *
+ * @returns {function(Object): string}
+ *     A function that formats and returns a multi‑line log string.
+ */
 export default function logMultiPersistence({
     goalNumber,
     base

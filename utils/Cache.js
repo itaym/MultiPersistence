@@ -1,4 +1,33 @@
-
+/**
+ * A lightweight cache built on top of `Map`, with optional decay policies.
+ *
+ * The cache supports two policy fields:
+ *
+ *   - `maxSize`   — maximum number of entries allowed (default: unlimited)
+ *   - `expireIn`  — expiration time in milliseconds (default: unlimited)
+ *
+ * Although the decay logic is currently commented out, the class structure
+ * allows future extension for automatic eviction based on size or age.
+ *
+ * Additional fields:
+ *   - `name` — optional identifier for debugging
+ *   - `x`, `y` — internal counters used for instrumentation
+ *
+ * @class
+ * @extends Map
+ *
+ * @param {Object} [decayPolicy={}]
+ *     Optional decay configuration.
+ *
+ * @param {number} [decayPolicy.maxSize=Number.MAX_SAFE_INTEGER]
+ *     Maximum number of entries allowed before eviction.
+ *
+ * @param {number} [decayPolicy.expireIn=Number.MAX_SAFE_INTEGER]
+ *     Time in milliseconds after which an entry should expire.
+ *
+ * @param {string} [name]
+ *     Optional cache name for debugging or logging.
+ */
 export default class Cache extends Map {
     constructor(decayPolicy = {}, name) {
         super()

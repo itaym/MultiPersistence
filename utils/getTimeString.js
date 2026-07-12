@@ -19,10 +19,23 @@ const TIME_UNITS_NAMES = [
 ]
 
 /**
+ * Format a single time‑unit count into a readable string.
+ *
+ * Converts a BigInt unit count into either:
+ *   - a locale string (if ≤ 15 digits), or
+ *   - scientific notation (if > 15 digits)
+ *
+ * Example:
+ *   getUnitString(3n, 2) → "3 Days"
  *
  * @param {bigint} unitCount
+ *     Number of units (e.g., years, days, hours).
+ *
  * @param {number} i
+ *     Index into `TIME_UNITS_NAMES` determining the unit label.
+ *
  * @returns {string}
+ *     Human‑readable representation of the unit count.
  */
 const getUnitString = function(unitCount, i) {
     let unitString = unitCount.toString()
@@ -36,10 +49,35 @@ const getUnitString = function(unitCount, i) {
 }
 
 /**
+ * Convert a duration in milliseconds into a human‑readable time string.
+ *
+ * The function supports both `number` and `bigint` inputs. Internally, the
+ * value is converted to BigInt for consistent high‑precision arithmetic.
+ *
+ * Units included:
+ *   - Year
+ *   - Month
+ *   - Day
+ *   - Hour
+ *   - Minute
+ *   - Second
+ *   - Millisecond (optional)
+ *
+ * If `excludeMilliseconds` is true (default), the value is rounded down to the
+ * nearest full second before formatting.
+ *
+ * Example:
+ *   getTimeString(123456789n)
+ *   → "1 Day ,10 Hours ,17 Minutes ,36 Seconds"
  *
  * @param {bigint|number} numOfMilliseconds
- * @param {boolean} [excludeMilliseconds]
+ *     Duration in milliseconds.
+ *
+ * @param {boolean} [excludeMilliseconds=true]
+ *     Whether to omit the final millisecond component.
+ *
  * @returns {string}
+ *     A comma‑separated human‑readable time string.
  */
 export function getTimeString(numOfMilliseconds, excludeMilliseconds = true) {
     if (numOfMilliseconds?.constructor?.name !== 'BigInt') numOfMilliseconds = Math.floor(numOfMilliseconds)

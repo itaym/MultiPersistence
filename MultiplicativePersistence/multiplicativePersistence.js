@@ -2,10 +2,30 @@ import { digitsValue } from '../Digits/index.js'
 
 const arrayWithZero = [0n]
 /**
+ * Converts a bigint into an array of digit values in the given base.
  *
- * @param currentNo { bigint }
- * @param base { number }
- * @return { bigint[]|*[] }
+ * Behavior:
+ *  - Converts the bigint to a base-N string using `currentNo.toString(base)`.
+ *  - If the resulting string contains the character '0', returns the shared
+ *    sentinel array `[0n]` to indicate that the number contains a zero digit.
+ *    This allows the caller to short‑circuit multiplicative persistence logic.
+ *  - Otherwise splits the string into characters and maps each character to its
+ *    numeric digit value using `digitsValue`.
+ *
+ * Performance notes:
+ *  - String conversion is significantly cheaper than converting a bigint into
+ *    HugeInt or performing repeated division.
+ *  - Returning `[0n]` is a fast zero‑detection mechanism and avoids allocating
+ *    a full digit array.
+ *
+ * @param {bigint} currentNo
+ *     The number to convert into digit values.
+ *
+ * @param {number} base
+ *     Numerical base used for conversion.
+ *
+ * @returns {bigint[]}
+ *     Array of digit values, or `[0n]` if the number contains zero.
  */
 function BIStrArr(currentNo, base) {
     let currentNoStr = currentNo.toString(base)
@@ -20,9 +40,21 @@ function BIStrArr(currentNo, base) {
 }
 
 /**
+ * Multiplies all elements of a digit array together.
  *
- * @param arr { number[] | bigint[] }
- * @return {*}
+ * Behavior:
+ *  - Starts with the first element.
+ *  - Sequentially multiplies each subsequent element.
+ *
+ * Performance notes:
+ *  - No early exit is performed; callers should ensure that zero detection
+ *    happens earlier if needed.
+ *
+ * @param {Array<bigint|number>} arr
+ *     Array of digit values to multiply.
+ *
+ * @returns {bigint|number}
+ *     The product of all digits in the array.
  */
 function reduce(arr) {
     let result = arr[0]
@@ -33,9 +65,30 @@ function reduce(arr) {
 }
 
 /**
+ * Computes the multiplicative product of all digits in a HugeInt.
  *
- * @param hugeInt { HugeInt }
- * @return {bigint}
+ * Behavior:
+ *  - Traverses the HugeInt's digit-cell structure from most-significant to
+ *    least-significant digit.
+ *  - Uses the `changed` flag and cached `result` field to avoid recomputing
+ *    products for cells that have not changed since the last reduction.
+ *  - For each changed cell, multiplies:
+ *        digit ** count
+ *    and updates both `changed` and `result`.
+ *
+ * Purpose:
+ *  - This is the optimized multiplication engine for HugeInt-based persistence.
+ *  - It avoids repeated full-digit parsing and leverages structural caching.
+ *
+ * Performance notes:
+ *  - Complexity is proportional to the number of changed cells, not total cells.
+ *  - This makes it significantly faster than recomputing the full product.
+ *
+ * @param {HugeInt} hugeInt
+ *     The HugeInt instance whose digit product is computed.
+ *
+ * @returns {bigint}
+ *     The product of all digits in the HugeInt.
  */
 function reduceHI(hugeInt) {
     let cell = hugeInt.firstCell.next, lastResult
@@ -57,10 +110,23 @@ function reduceHI(hugeInt) {
 }
 
 /**
+ * Computes the multiplicative persistence of a HugeInt.
  *
- * @param currentNo { HugeInt }
- * @param base { number }
- * @return { number }
+ * Behavior:
+ *  - If the number is a single digit (`isLTBase()`), returns 0.
+ *  - Otherwise delegates to `multiPerNBC`, which performs the actual reduction.
+ *
+ * Purpose:
+ *  - Entry point for persistence calculation on HugeInt values.
+ *
+ * @param {HugeInt} currentNo
+ *     The number whose persistence is being computed.
+ *
+ * @param {number} base
+ *     Numerical base used for digit interpretation.
+ *
+ * @returns {number}
+ *     Number of multiplicative steps required to reach a single digit.
  */
 export const multiPer = function (currentNo, base) {
     if (currentNo.isLTBase()) return 0
@@ -69,10 +135,25 @@ export const multiPer = function (currentNo, base) {
 }
 
 /**
+ * Computes multiplicative persistence for a HugeInt without performing
+ * the single-digit base-case check.
  *
- * @param currentNo { HugeInt }
- * @param base { number }
- * @return {number}
+ * Behavior:
+ *  - Computes the product of digits using `reduceHI`.
+ *  - Passes the resulting bigint to `multiPer2` for recursive reduction.
+ *  - Adds 1 to account for the multiplication step performed here.
+ *
+ * Purpose:
+ *  - Internal engine for persistence on HugeInt values.
+ *
+ * @param {HugeInt} currentNo
+ *     The HugeInt to reduce.
+ *
+ * @param {number} base
+ *     Numerical base used for digit interpretation.
+ *
+ * @returns {number}
+ *     Persistence count excluding the initial base-case check.
  */
 export const multiPerNBC = function (currentNo, base) {
 
@@ -80,10 +161,32 @@ export const multiPerNBC = function (currentNo, base) {
 }
 
 /**
+ * Recursively computes multiplicative persistence for bigint values.
  *
- * @param currentNo { bigint }
- * @param base { number }
- * @return {number}
+ * Behavior:
+ *  - If the number is a single digit (< base), returns 0.
+ *  - Otherwise:
+ *      - Converts the bigint into digit values using `BIStrArr`.
+ *      - Multiplies the digits using `reduce`.
+ *      - Recursively calls itself on the resulting bigint.
+ *      - Adds 1 to account for the multiplication step.
+ *
+ * Purpose:
+ *  - Core recursive engine for persistence on plain bigint values.
+ *  - Used after HugeInt has been reduced to a bigint.
+ *
+ * Performance notes:
+ *  - Depth of recursion corresponds to persistence value.
+ *  - Each step performs digit parsing and multiplication.
+ *
+ * @param {bigint} currentNo
+ *     The bigint to reduce.
+ *
+ * @param {number} base
+ *     Numerical base used for digit interpretation.
+ *
+ * @returns {number}
+ *     Number of multiplicative steps required to reach a single digit.
  */
 const multiPer2 = function (currentNo, base) {
     if (currentNo < base) return 0

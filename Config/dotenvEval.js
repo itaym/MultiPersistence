@@ -1,53 +1,96 @@
 import { argv } from 'node:process';
 
 /**
- * @typedef NormalizedEnv
+ * Normalized environment configuration produced by `dotenvEval`.
+ *
+ * @typedef {Object} NormalizedEnv
  * @property {bigint} base
+ *     Numeric base used for HugeInt operations.
+ *
  * @property {bigint} goal_power_of10
+ *     Exponent used to compute `goal_number = base ** goal_power_of10`.
+ *
  * @property {bigint} goal_number
+ *     The computed target number for the persistence search.
+ *
  * @property {bigint} last_number
+ *     Optional last processed number (if provided in env).
+ *
  * @property {number} log_interval
+ *     Milliseconds between log prints.
+ *
  * @property {number} memorize_save_bach
+ *     Batch size for memoization persistence.
+ *
  * @property {string} vars_file
+ *     Path to the `.env` file used.
+ *
  * @property {boolean} debug
+ *     Whether debug mode is enabled.
  */
 
 /**
+ * Evaluate and normalize environment variables from a parsed `.env` file.
  *
- * @param parsed
+ * This function:
+ *   1. Reads key/value pairs from `parsed`
+ *   2. Attempts to `eval()` each value (trusted input only)
+ *   3. Falls back to raw string if evaluation fails
+ *   4. Stores normalized values in `process.normalizedEnv`
+ *   5. Computes `goal_number = base ** goal_power_of10`
+ *   6. Applies command‑line overrides for:
+ *        - `base=...`
+ *        - `debug=true|false`
+ *
+ * **Security note:**
+ * The `eval()` call is safe here because the `.env` file is trusted and not
+ * user‑controlled. This module must never be used on untrusted input.
+ *
+ * @param {{ parsed: Object<string,string> }} parsed
+ *     The object produced by `dotenv` containing raw environment variables.
  */
 const dotenvEval = ({ parsed }) => {
-
-    /**
-     *
-     * @type {NormalizedEnv}
-     */
-    let normalizedEnv = process.normalizedEnv || /** @type {NormalizedEnv} */ {}
+    let env = process.env
+    let normalizedEnv = process.normalizedEnv || {}
     process.normalizedEnv = normalizedEnv
 
     for (let [key, value] of Object.entries(parsed)) {
-        try {   normalizedEnv[key.toLowerCase()] = eval(value + '') }
-        catch { normalizedEnv[key.toLowerCase()] = value            }
+        try {
+            normalizedEnv[key.toLowerCase()] = eval(value + '')
+        }
+        catch {
+            normalizedEnv[key.toLowerCase()] = value
+        }
     }
-    normalizedEnv.base = BigInt(normalizedEnv.base)
-    normalizedEnv.goal_power_of10 = BigInt(normalizedEnv.goal_power_of10)
-    normalizedEnv.goal_number = normalizedEnv.base ** normalizedEnv.goal_power_of10
-    normalizedEnv.memorize_save_bach = normalizedEnv.memorize_save_bach || 100
+
+    normalizedEnv.goal_number =
+        BigInt(normalizedEnv.base) ** BigInt(normalizedEnv['goal_power_of10'])
 
     argv.forEach((val) => {
         const argArr = val.split('=')
-         if (argArr[0] === 'base') {
+
+        if (argArr[0] === 'base') {
             const base = BigInt(argArr[1])
             try {
                 if (base > 1n || base < 65537n) {
                     normalizedEnv.base = base
+                    env.base = base + ''
                 }
             }
             catch {}
         }
+
         if (argArr[0] === 'debug') {
-            normalizedEnv.debug = argArr[1] === 'true'
+            const debug = argArr[1] === 'true'
+            try {
+                if (debug !== undefined) {
+                    normalizedEnv.debug = debug
+                    env.debug = !!debug + ''
+                }
+            }
+            catch {}
         }
     })
 }
+
 export default dotenvEval

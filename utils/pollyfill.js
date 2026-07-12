@@ -1,38 +1,52 @@
 import { digitsObj as baseDigits } from '../Digits/index.js'
+
 /**
- * @typedef {Object<string>[]} NumberLengths
- * @property {LengthProps} [key]
+ * Polyfill for `Array.prototype.group`.
+ *
+ * Groups array items by a key returned from the callback function.
+ * The callback receives `(item, index, array)` and must return a group key.
+ *
+ * @param {function(*, number, Array): string|number} callback
+ * @returns {Object<string, Array<*>>}
  */
-if (!Array.prototype.group) {
-    /**
-     *
-     * @param callback
-     * @returns {Object<string>[]}
-     */
-    Array.prototype.group = function(callback) {
-        const result = {}
-        this.forEach((item, index, array) => {
-            const group = callback(item, index, array)
-            if (!result[group]) result[group] = []
-            result[group].push(item)
-        })
-        return result
-    }
+function group(callback) {
+    const result = {}
+    this.forEach((item, index, array) => {
+        const group = callback(item, index, array)
+        if (!result[group]) result[group] = []
+        result[group].push(item)
+    })
+    return result
 }
 
+/**
+ * Extends the `.prototype.toString` method of a built‑in type (such as BigInt)
+ * to support arbitrary radices greater than 36.
+ *
+ * The provided `constructor` is not required to be a classical function
+ * constructor — it only needs to expose a `.prototype.toString` method that
+ * can be overridden.
+ *
+ * Behavior:
+ *   - If radix ≤ 36 → delegate to the native `.toString`.
+ *   - If radix > 36 → convert using the custom digit map from `Digits/index.js`.
+ *
+ * This enables BigInt (and potentially other types) to render values in
+ * arbitrary bases using user‑defined digit symbols.
+ *
+ * @param {{ prototype: { toString: function } }} constructor
+ *     Any object whose `.prototype.toString` method should be extended.
+ *
+ * @returns {void}
+ */
 function toString(constructor) {
     const nativeToString = constructor.prototype.toString
-    /**
-     *
-     * @param {bigint} radix
-     * @returns {string}
-     */
+
     constructor.prototype.toString = function (radix = 10n) {
         if (radix <= 36) {
             return nativeToString.call(this, Number(radix))
         } else {
-            let initBigInt
-            initBigInt = BigInt(/** @type {*} */ this)
+            let initBigInt = BigInt(this)
             if (initBigInt === 0n) {
                 return '0'
             } else {
@@ -49,4 +63,14 @@ function toString(constructor) {
     }
 }
 
-toString(BigInt)
+/**
+ * Initialize polyfills for the runtime environment.
+ *
+ * @returns {void}
+ */
+export const initPollyFill = () => {
+    if (!Array.prototype.group) {
+        Array.prototype.group = group
+    }
+    toString(BigInt)
+}
