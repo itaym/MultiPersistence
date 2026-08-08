@@ -103,7 +103,7 @@ const functionToExport = () => {
     /**
      * List of all bases for which accommodation modules exist.
      *
-     * @type {Array<bigint>}
+     * @type {Array<BigInt>}
      */
     fn.supported = [
         6n, 8n, 9n, 10n, 12n, 14n, 15n, 16n,

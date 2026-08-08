@@ -16,7 +16,7 @@
  * @param {Object} obj
  *     The object to wrap and pass into the bound function.
  *
- * @param {function(Object): bigint} fn
+ * @param {function(Object): BigInt} fn
  *     A function that receives `obj` and returns a BigInt. It is bound to `obj`
  *     during construction.
  *
