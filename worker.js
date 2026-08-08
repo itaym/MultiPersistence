@@ -94,7 +94,7 @@ let stackMessages = []
  * Creates an array of digit-counts for factorial combination calculations.
  *
  * @param {HugeInt} currentNo
- * @returns {bigint[]} Array of digit counts.
+ * @returns {BigInt[]} Array of digit counts.
  */
 const createLengthsArray = (currentNo) => {
     const array = []

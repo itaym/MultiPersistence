@@ -7,10 +7,10 @@ import { digitsObj as baseDigits, digitsValue, toBigInt } from '../Digits/index.
  * @property {boolean} changed
  *     Indicates whether the cell was modified since the last persistence calculation.
  *
- * @property {bigint} count
+ * @property {BigInt} count
  *     Number of consecutive occurrences of this digit.
  *
- * @property {bigint} digit
+ * @property {BigInt} digit
  *     The digit value (0 ≤ digit < base).
  *
  * @property {DigitCell|null} next
@@ -19,7 +19,7 @@ import { digitsObj as baseDigits, digitsValue, toBigInt } from '../Digits/index.
  * @property {DigitCell|null} prev
  *     Pointer to the previous cell (less significant digit).
  *
- * @property {bigint} result
+ * @property {BigInt} result
  *     Cached result used by multiplicative persistence algorithms.
  */
 
@@ -48,7 +48,7 @@ import { digitsObj as baseDigits, digitsValue, toBigInt } from '../Digits/index.
 export class HugeInt {
 
     /**
-     * Constructs a HugeInt from an initial bigint value.
+     * Constructs a HugeInt from an initial BigInt value.
      *
      * Behavior:
      *  - If initValue === 0n, creates a single cell containing digit 0.
@@ -61,10 +61,10 @@ export class HugeInt {
      *  - adjacent cells never share the same digit
      *
      * @constructor
-     * @param {bigint} [initValue=0n]
+     * @param {BigInt} [initValue=0n]
      *     Initial numeric value to represent.
      *
-     * @param {bigint} [base=10n]
+     * @param {BigInt} [base=10n]
      *     Numerical base used for digit decomposition.
      *
      * @returns {HugeInt}
@@ -123,13 +123,13 @@ export class HugeInt {
      */
     /**
      * @private
-     * @type {bigint}
+     * @type {BigInt}
      * Base used for digit decomposition and arithmetic.
      */
     #base
     /**
      * @private
-     * @type {bigint}
+     * @type {BigInt}
      * Cached value of (base - 1n), used for geometric series calculations.
      */
     #baseMinusOne
@@ -140,6 +140,9 @@ export class HugeInt {
      * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      */
 
+    get base() {
+        return this.#base
+    }
     /**
      * Returns the digit-cell immediately preceding the last (most significant) cell.
      *
@@ -221,7 +224,7 @@ export class HugeInt {
      *  - Logging and statistics
      *
      * @readonly
-     * @property {bigint}
+     * @property {BigInt}
      */
     get length() {
         let count = 0n
@@ -259,7 +262,7 @@ export class HugeInt {
      *      digit * ((base^count - 1) / (base - 1)) * (base^power)
      *
      * Complexity:
-     *  - O(n) in number of cells, but involves bigint exponentiation.
+     *  - O(n) in number of cells, but involves BigInt exponentiation.
      *  - This is intentionally expensive and should NOT be used inside tight loops.
      *
      * Use cases:
@@ -271,7 +274,7 @@ export class HugeInt {
      *  - None. Pure computation.
      *
      * @readonly
-     * @property {bigint}
+     * @property {BigInt}
      */
     get value() {
         const o = this
@@ -400,7 +403,7 @@ export class HugeInt {
      * @param {string} str
      *     String representation of the number in the given base.
      *
-     * @param {bigint} base
+     * @param {BigInt} base
      *     Numerical base used to interpret the digits.
      *
      * @returns {HugeInt}
@@ -431,6 +434,104 @@ export class HugeInt {
         }
         this.lastCell = currentCell.prev
         this.lastCell.next = null
+
+        return this
+    }
+    static maxBigInt = (...args) => args.reduce((a, b) => (a > b ? a : b));
+    static minBigInt = (...args) => args.reduce((a, b) => (a < b ? a : b));
+
+    /**
+     * A single digit-cell in the HugeInt linked list.
+     *
+     * @typedef {Object} DigitCell
+     * @property {boolean} changed
+     *     Indicates whether the cell was modified since the last persistence calculation.
+     *
+     * @property {BigInt} count
+     *     Number of consecutive occurrences of this digit.
+     *
+     * @property {BigInt} digit
+     *     The digit value (0 ≤ digit < base).
+     *
+     * @property {DigitCell|null} next
+     *     Pointer to the next cell (more significant digit).
+     *
+     * @property {DigitCell|null} prev
+     *     Pointer to the previous cell (less significant digit).
+     *
+     * @property {BigInt} result
+     *     Cached result used by multiplicative persistence algorithms.
+     */
+    add(hugeInt) {
+
+        if (this.#base !== hugeInt.base) {
+            throw new Error('Base is incompatible.');
+        }
+        const newCell = {
+            changed: false,
+            count: 0n,
+            digit: -1n,
+            next: null,
+            prev: null,
+            result: 0n,
+        }
+        const firstLength = HugeInt.maxBigInt(this.length, hugeInt.length)
+        const firstHugeInt = this.length >= hugeInt.length ? this : hugeInt
+        const secondHugeInt = this.length >= hugeInt.length ? hugeInt : this
+        const base = this.#base
+
+        let carry = 0n
+
+        let firstCell = firstHugeInt.firstCell
+        let secondCell = secondHugeInt.firstCell
+        let firstIndex = 0n
+        let secondIndex = 0n
+        let aNewCell = { ...newCell }
+        const aNewFirstCell = aNewCell
+
+        for (let index = 0; index < firstLength; index++) {
+
+            firstIndex++
+            secondIndex++
+
+            let secondDigit = secondCell ? secondCell.digit : 0n
+            let sum = firstCell.digit + secondDigit + carry
+            let digit = sum % base
+            carry = sum / base
+
+            if (aNewCell.digit === -1n) {
+                aNewCell.count = 1n
+                aNewCell.digit = digit
+            }
+            else if (aNewCell.digit === digit) {
+                aNewCell.count++
+            }
+            else {
+                aNewCell.next = { ...newCell }
+                aNewCell.next.prev = aNewCell
+                aNewCell = aNewCell.next
+                aNewCell.count = 1n
+                aNewCell.digit = digit
+            }
+
+            if (firstIndex === firstCell.count) {
+                firstIndex = 0n
+                firstCell = firstCell.next
+            }
+            if (secondCell && secondIndex === secondCell.count) {
+                secondIndex = 0n
+                secondCell = secondCell.next
+            }
+        }
+        if (carry > 0n) {
+            aNewCell.next = { ...newCell }
+            aNewCell.next.prev = aNewCell
+            aNewCell = aNewCell.next
+            aNewCell.count = 1n
+            aNewCell.digit = carry
+        }
+        this.firstCell = aNewFirstCell
+        this.lastCell = aNewCell
 
         return this
     }
@@ -718,10 +819,10 @@ export class HugeInt {
      *  - Digit distribution analysis.
      *
      * @method digitCount
-     * @param {bigint} digit
+     * @param {BigInt} digit
      *     The digit to count.
      *
-     * @returns {bigint}
+     * @returns {BigInt}
      *     Total occurrences of the digit.
      */
     digitCount(digit) {
@@ -749,7 +850,7 @@ export class HugeInt {
      *  - Optimizations that require direct access to a digit group.
      *
      * @method getCellOf
-     * @param {bigint} digit
+     * @param {BigInt} digit
      *     The digit to search for.
      *
      * @returns {DigitCell|null}
@@ -779,7 +880,7 @@ export class HugeInt {
      *  - Persistence heuristics (e.g., checking for zeros or even digits).
      *
      * @method isCellOf
-     * @param {bigint} digit
+     * @param {BigInt} digit
      *     The digit to search for.
      *
      * @returns {boolean}
@@ -831,7 +932,7 @@ export class HugeInt {
      *  - Quick digit checks.
      *
      * @method moduloBase
-     * @returns {bigint}
+     * @returns {BigInt}
      *     The least-significant digit.
      */
     moduloBase() {
@@ -959,7 +1060,7 @@ export class HugeInt {
      * @param {DigitCell} cell
      *     The cell to split.
      *
-     * @param {bigint} countToSplit
+     * @param {BigInt} countToSplit
      *     Number of digits to keep in the original cell.
      *
      * @returns {DigitCell}
@@ -1016,7 +1117,7 @@ export class HugeInt {
      * @param {DigitCell} cell
      *     The cell to split.
      *
-     * @param {bigint} countToSplit
+     * @param {BigInt} countToSplit
      *     Number of digits to extract into the new cell.
      *
      * @returns {DigitCell}

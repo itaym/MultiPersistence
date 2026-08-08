@@ -9,7 +9,7 @@ const maxBase = 65536
 /**
  * Mapping from digit values (BigInt) to their string representations.
  *
- * @type {Map<bigint, string>}
+ * @type {Map<BigInt, string>}
  */
 export const digitsObj = new Map([
     [0n, '0'], [1n, '1'], [2n, '2'], [3n, '3'], [4n, '4'], [5n, '5'], [6n, '6'], [7n, '7'],
@@ -26,7 +26,7 @@ export const digitsObj = new Map([
 /**
  * Reverse mapping from digit characters to their BigInt values.
  *
- * @type {Object<string, bigint>}
+ * @type {Object<string, BigInt>}
  */
 export const digitsValue = {
     '0': 0n, '1': 1n, '2': 2n, '3': 3n, '4': 4n, '5': 5n, '6': 6n, '7': 7n,
@@ -64,7 +64,7 @@ if (maxBase > 64) {
 /**
  * Precomputed BigInt values for integers 0 through 1999.
  *
- * @type {bigint[]}
+ * @type {BigInt[]}
  */
 const _toBigInt = new Array(2_000)
 for (let int = 0; int < 2_000; int++) {
@@ -75,6 +75,6 @@ for (let int = 0; int < 2_000; int++) {
 /**
  * Exported BigInt lookup table.
  *
- * @type {bigint[]}
+ * @type {BigInt[]}
  */
 export const toBigInt = _toBigInt

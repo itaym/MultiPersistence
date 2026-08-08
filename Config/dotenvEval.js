@@ -1,19 +1,20 @@
 import { argv } from 'node:process';
-
+// noinspection ES6UnusedImports
+import HugeInt from "../HugeInt/index.js";
 /**
  * Normalized environment configuration produced by `dotenvEval`.
  *
  * @typedef {Object} NormalizedEnv
- * @property {bigint} base
+ * @property {BigInt} base
  *     Numeric base used for HugeInt operations.
  *
- * @property {bigint} goal_power_of10
+ * @property {BigInt} goal_power_of10
  *     Exponent used to compute `goal_number = base ** goal_power_of10`.
  *
- * @property {bigint} goal_number
+ * @property {BigInt} goal_number
  *     The computed target number for the persistence search.
  *
- * @property {bigint} last_number
+ * @property {BigInt} last_number
  *     Optional last processed number (if provided in env).
  *
  * @property {number} log_interval

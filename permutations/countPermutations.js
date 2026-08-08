@@ -24,13 +24,13 @@ let permutationsJson
  *  - `getPCacheLast` stores the highest base already computed for each length.
  *
  * @typedef {function} _getPermutations
- * @param {bigint} base
+ * @param {BigInt} base
  *     Maximum digit value allowed in permutations.
  *
- * @param {bigint} length
+ * @param {BigInt} length
  *     Length of the permutation sequence.
  *
- * @returns {bigint}
+ * @returns {BigInt}
  *     Number of permutations for the given base and length.
  */
 const _getPermutations = (() => {
@@ -39,8 +39,8 @@ const _getPermutations = (() => {
     const getPCacheLast = new Map()
 
     /**
-     * @param {bigint} base
-     * @param {bigint} length
+     * @param {BigInt} base
+     * @param {BigInt} length
      */
     return (base, length) => {
         if (length === 1n) return base
@@ -81,13 +81,13 @@ const _getPermutations = (() => {
  *  - Only computes new lengths beyond the cached ones.
  *  - Memoized using `memorize()` to persist results to disk.
  *
- * @param {bigint} base
+ * @param {BigInt} base
  *     Maximum digit value allowed in permutations.
  *
- * @param {bigint} length
+ * @param {BigInt} length
  *     Maximum permutation length to include in the sum.
  *
- * @returns {bigint}
+ * @returns {BigInt}
  *     Total number of permutations for lengths 1…length.
  */
 const getPermutations = (() => {
@@ -139,13 +139,13 @@ const getPermutations = (() => {
  *  - Results are memoized and periodically saved to:
  *        ./caching/countPermutations.json
  *
- * @param {bigint} _length
+ * @param {BigInt} _length
  *     Length of the permutation sequence.
  *
- * @param {bigint} base
+ * @param {BigInt} base
  *     Maximum digit value allowed in permutations.
  *
- * @returns {bigint}
+ * @returns {BigInt}
  *     Number of permutations for the given length and base.
  */
 const countPermutations = memorize((_length, base) => {
@@ -160,13 +160,13 @@ const countPermutations = memorize((_length, base) => {
 
 
     ;(() => {
-        const s = JSON.stringify(permutationsJson, (key, value) => {
-            const name = value?.constructor?.name
-            if (name === 'BigInt') {
-                return value.toString()
-            }
-            return value
-        }, '\t')
+        // const s = JSON.stringify(permutationsJson, (key, value) => {
+        //     const name = value?.constructor?.name
+        //     if (name === 'BigInt') {
+        //         return value.toString()
+        //     }
+        //     return value
+        // }, '\t')
         // const fileHandler = fs.openSync('permutations/permutations.json', 'rs+')
         // fs.writeSync(fileHandler, s)
         // fs.closeSync(fileHandler)

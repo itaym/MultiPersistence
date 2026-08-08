@@ -50,7 +50,7 @@ import { getPermutations } from "./utils.js";
  * @param {HugeInt} currentNo
  *     The HugeInt instance whose first digit is examined and possibly mutated.
  *
- * @returns {bigint}
+ * @returns {BigInt}
  *     Number of permutations skipped due to accommodation rules,
  *     or `0n` if no rule applies.
  */

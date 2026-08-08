@@ -105,7 +105,7 @@ export const fromMiddleStringMaxLength= (str, max = Number.MAX_SAFE_INTEGER) => 
  * @param {string} params.goalNumber
  *     String representation of the target HugeInt.
  *
- * @param {bigint} params.base
+ * @param {BigInt} params.base
  *     Numeric base used for HugeInt operations.
  *
  * @returns {function(Object): string}

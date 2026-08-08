@@ -22,7 +22,7 @@ import countPer from "../../permutations/countPermutations.js";
  * @param {DigitCell} cell
  *     The cell to split. Must be part of `hugeInt`.
  *
- * @param {bigint} countToLeave
+ * @param {BigInt} countToLeave
  *     Number of digit copies to keep in the original cell.
  *
  * @returns {void}
@@ -52,16 +52,16 @@ export const splitAfterCell = (hugeInt, cell, countToLeave) => {
  *  - The function is memoized because bases, digits, and countChange values
  *    repeat frequently during persistence exploration.
  *
- * @param {bigint} digit
+ * @param {BigInt} digit
  *     The digit being modified.
  *
- * @param {bigint} countChange
+ * @param {BigInt} countChange
  *     Number of digit copies affected by the mutation.
  *
- * @param {bigint} base
+ * @param {BigInt} base
  *     The numeric base (e.g., 10n, 12n, 16n).
  *
- * @returns {bigint}
+ * @returns {BigInt}
  *     Number of permutations skipped due to the mutation.
  */
 export const getPermutations = memorize((digit, countChange, base) => {
@@ -74,7 +74,7 @@ export const getPermutations = memorize((digit, countChange, base) => {
  * A no‑op placeholder function used by base‑accommodation modules when a digit
  * has no associated pruning rule.
  *
- * @returns {bigint}
+ * @returns {BigInt}
  *     Always returns 0n.
  */
 export const emptyFunction = () => 0n
