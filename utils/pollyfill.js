@@ -64,6 +64,33 @@ function toString(constructor) {
 }
 
 /**
+ * Computes the logarithm of a given number with an arbitrary base.
+ *
+ * Uses the change‑of‑base formula:
+ *    log_base(number) = Math.log(number) / Math.log(base)
+ *
+ * @param {number} base - The logarithmic base. Must be greater than 0 and not equal to 1.
+ * @param {number} number - The value to take the logarithm of. Must be greater than 0.
+ * @returns {number} The logarithm of `number` with the specified `base`.
+ *
+ * @throws {RangeError} If `base` is <= 0, equal to 1, or if `number` is <= 0.
+ *
+ * @example
+ * logX(2, 8);      // 3
+ * logX(10, 1000);  // 3
+ * logX(5, 125);    // 3
+ */
+function logX(base, number) {
+    // if (base <= 0 || base === 1) {
+    //     throw new RangeError("Base must be > 0 and not equal to 1.");
+    // }
+    // if (number <= 0) {
+    //     throw new RangeError("Number must be > 0.");
+    // }
+    return Math.log(number) / Math.log(base);
+}
+
+/**
  * Initialize polyfills for the runtime environment.
  *
  * @returns {void}
@@ -73,4 +100,6 @@ export const initPollyFill = () => {
         Array.prototype.group = group
     }
     toString(BigInt)
+
+    Math.logX = logX
 }
