@@ -52,7 +52,7 @@ const reviver = () => {
  * @param {string} filename
  *     Absolute path to the cache file.
  *
- * @param {Map<string, bigint>} map
+ * @param {Map<string, BigInt>} map
  *     The memoization cache to save.
  *
  * @returns {void}
@@ -73,7 +73,7 @@ function saveMapToFile(filename, map) {
  * @param {string} filename
  *     Absolute path to the cache file.
  *
- * @returns {Map<string, bigint>}
+ * @returns {Map<string, BigInt>}
  *     The loaded memoization cache.
  */
 function loadMapFromFileSync(filename) {
@@ -106,13 +106,13 @@ function loadMapFromFileSync(filename) {
  *    where N is defined by `process.normalizedEnv.memorize_save_bach`.
  *  - BigInt values are safely serialized/deserialized.
  *
- * @param {function(...*): bigint} fn
+ * @param {function(...*): BigInt} fn
  *     The function to memoize. Must return a BigInt.
  *
  * @param {string} name
  *     The name of the cache file (e.g., "getPermutations").
  *
- * @returns {function(...*): bigint}
+ * @returns {function(...*): BigInt}
  *     A memoized version of the function.
  */
 export default function memorize(fn, name) {

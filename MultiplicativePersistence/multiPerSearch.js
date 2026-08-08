@@ -79,7 +79,7 @@ import { multiPer, multiPerNBC } from './index.js'
  * @param {number} initVars.iterations.found_nothing_break_at
  *     Maximum allowed consecutive non-found iterations before breaking.
  *
- * @param {bigint} initVars.last_number
+ * @param {BigInt} initVars.last_number
  *     The last HugeInt value processed in the previous session.
  *
  * @param {number} initVars.up_time
@@ -166,7 +166,7 @@ export const multiPerSearch = async (
      * Optional permutation generator used when base accommodation rules apply.
      * If unsupported, defaults to 1n.
      *
-     * @type {ToPrimitive|bigint}
+     * @type {ToPrimitive|BigInt}
      */
     const createPermutations = baseAccommodate
         .supported.includes(process.normalizedEnv.base)

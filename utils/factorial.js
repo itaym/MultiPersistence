@@ -14,10 +14,10 @@ initConfig()
  *
  *   factorial(0) = factorial(1) = 1n
  *
- * @param {bigint} number
+ * @param {BigInt} number
  *     The BigInt value whose factorial should be computed.
  *
- * @returns {bigint}
+ * @returns {BigInt}
  *     The factorial of the given number.
  */
 const factorialFn = number => {
@@ -32,7 +32,7 @@ const factorialFn = number => {
  * significantly improving performance when factorial is called repeatedly
  * with the same BigInt inputs.
  *
- * @type {(number: bigint) => bigint}
+ * @type {(number: BigInt) => BigInt}
  */
 const factorial = memorize(factorialFn, 'factorial')
 

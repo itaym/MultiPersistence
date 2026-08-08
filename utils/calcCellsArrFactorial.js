@@ -10,10 +10,10 @@ import factorial from './factorial.js'
  *
  * If the array is empty, the function returns `1n`.
  *
- * @param {bigint[]} numbersArr
+ * @param {BigInt[]} numbersArr
  *     Array of BigInt values whose factorials will be multiplied.
  *
- * @returns {bigint}
+ * @returns {BigInt}
  *     The product of all factorials in the array.
  *
  * @example

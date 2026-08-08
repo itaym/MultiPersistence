@@ -4,7 +4,7 @@ import HugeInt from "../HugeInt/index.js";
  * Iteration statistics stored in the results file.
  *
  * @typedef {object} Iterations
- * @property {bigint} calculated
+ * @property {BigInt} calculated
  *     Total number of calculated iterations.
  *
  * @property {number} count
@@ -24,19 +24,19 @@ import HugeInt from "../HugeInt/index.js";
  * @property {number} [atRunTime]
  *     Milliseconds elapsed when this step was recorded.
  *
- * @property {bigint} combinations
+ * @property {BigInt} combinations
  *     Number of combinations evaluated at this step.
  *
  * @property {number} count
  *     Number of results found at this step.
  *
- * @property {bigint} first
+ * @property {BigInt} first
  *     First number found at this step.
  *
  * @property {number} [iteration]
  *     Iteration index when this step was recorded.
  *
- * @property {bigint} last
+ * @property {BigInt} last
  *     Last number found at this step.
  *
  * @property {number} [step]
@@ -67,13 +67,13 @@ import HugeInt from "../HugeInt/index.js";
  * Structure of the initialization variables loaded from disk.
  *
  * @typedef {object} InitVars
- * @property {bigint} base
+ * @property {BigInt} base
  *     The numeric base used for HugeInt operations.
  *
  * @property {Iterations} iterations
  *     Iteration statistics.
  *
- * @property {bigint} last_number
+ * @property {BigInt} last_number
  *     The last number processed before saving.
  *
  * @property {NumberLengths} number_lengths
@@ -90,7 +90,7 @@ import HugeInt from "../HugeInt/index.js";
  *
  * @param {string} key
  * @param {*} value
- * @returns {bigint|*}
+ * @returns {BigInt|*}
  */
 const reviver = (key, value) => {
     switch (key) {
@@ -182,7 +182,7 @@ const replacer = (key, value) => {
  * @param {InitVars} initVars
  *     The initialization variables to save.
  *
- * @param {bigint} base
+ * @param {BigInt} base
  *     The numeric base used to determine the filename.
  *
  * @returns {Promise<void>}

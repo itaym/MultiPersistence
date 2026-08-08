@@ -28,7 +28,7 @@ const TIME_UNITS_NAMES = [
  * Example:
  *   getUnitString(3n, 2) → "3 Days"
  *
- * @param {bigint} unitCount
+ * @param {BigInt} unitCount
  *     Number of units (e.g., years, days, hours).
  *
  * @param {number} i
@@ -51,7 +51,7 @@ const getUnitString = function(unitCount, i) {
 /**
  * Convert a duration in milliseconds into a human‑readable time string.
  *
- * The function supports both `number` and `bigint` inputs. Internally, the
+ * The function supports both `number` and `BigInt` inputs. Internally, the
  * value is converted to BigInt for consistent high‑precision arithmetic.
  *
  * Units included:
@@ -70,7 +70,7 @@ const getUnitString = function(unitCount, i) {
  *   getTimeString(123456789n)
  *   → "1 Day ,10 Hours ,17 Minutes ,36 Seconds"
  *
- * @param {bigint|number} numOfMilliseconds
+ * @param {BigInt|number} numOfMilliseconds
  *     Duration in milliseconds.
  *
  * @param {boolean} [excludeMilliseconds=true]
