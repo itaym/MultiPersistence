@@ -1,4 +1,7 @@
+// noinspection ES6UnusedImports
+
 import { promises as fs } from 'fs'
+// eslint-disable-next-line no-unused-vars
 import HugeInt from "../HugeInt/index.js";
 /**
  * Iteration statistics stored in the results file.
@@ -121,20 +124,20 @@ export const getInitVars = async () => {
     const fileName = `./results/${normalizedEnv.base.toString().padStart(5, '0')}_${vars_file}`
 
     const defaultVars = {
-        base: BigInt(env.base.replace('n', '')),
+        base: normalizedEnv.base,
         iterations: {
             calculated: 0n,
             count: 0,
             found_nothing: 0,
             found_nothing_break_at: 1_000_000_000,
         },
-        last_number: eval(env.last_number),
+        last_number: normalizedEnv.last_number,
         number_lengths: {},
         up_time: 0,
         steps: [],
     }
 
-    if (env.debug === 'true') return defaultVars
+    if (normalizedEnv.debug) return defaultVars
 
     try {
         let data = await fs.readFile(fileName, 'utf-8')
