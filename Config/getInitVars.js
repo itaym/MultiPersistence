@@ -191,9 +191,14 @@ const replacer = (key, value) => {
  * @returns {Promise<void>}
  */
 export const setInitVars = async (initVars, base) => {
-    const fileName = `./results/${base.toString().padStart(5, '0')}_${process.env.vars_file}`
+    const { normalizedEnv } = process
+    const { vars_file } = normalizedEnv
+
+    const fileName = `./results/${base.toString().padStart(5, '0')}_${vars_file}`
+
     try {
         await fs.rename(fileName, fileName.replace('.json', '.bak'))
-    } catch {}
+    }
+    catch {}
     await fs.writeFile(fileName, JSON.stringify(initVars, replacer, '\t'))
 }
