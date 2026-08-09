@@ -119,7 +119,7 @@ const reviver = (key, value) => {
  */
 export const getInitVars = async () => {
 
-    const { env, normalizedEnv } = process
+    const { normalizedEnv } = process
     const { vars_file } = normalizedEnv
     const fileName = `./results/${normalizedEnv.base.toString().padStart(5, '0')}_${vars_file}`
 
