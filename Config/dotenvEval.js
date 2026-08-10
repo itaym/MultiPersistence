@@ -1,97 +1,130 @@
 import { argv } from 'node:process';
 // noinspection ES6UnusedImports
 import HugeInt from "../HugeInt/index.js";
-/**
- * Normalized environment configuration produced by `dotenvEval`.
- *
- * @typedef {Object} NormalizedEnv
- * @property {BigInt} base
- *     Numeric base used for HugeInt operations.
- *
- * @property {BigInt} goal_power_of10
- *     Exponent used to compute `goal_number = base ** goal_power_of10`.
- *
- * @property {BigInt} goal_number
- *     The computed target number for the persistence search.
- *
- * @property {BigInt} last_number
- *     Optional last processed number (if provided in env).
- *
- * @property {number} log_interval
- *     Milliseconds between log prints.
- *
- * @property {number} memorize_save_bach
- *     Batch size for memoization persistence.
- *
- * @property {string} vars_file
- *     Path to the `.env` file used.
- *
- * @property {boolean} debug
- *     Whether debug mode is enabled.
- */
 
 /**
- * Evaluate and normalize environment variables from a parsed `.env` file.
+ * Safely coerce a CLI argument value into an appropriate JavaScript type.
  *
- * This function:
- *   1. Reads key/value pairs from `parsed`
- *   2. Attempts to `eval()` each value (trusted input only)
- *   3. Falls back to raw string if evaluation fails
- *   4. Stores normalized values in `process.normalizedEnv`
- *   5. Computes `goal_number = base ** goal_power_of10`
- *   6. Applies command‑line overrides for:
- *        - `base=...`
- *        - `debug=true|false`
+ * Coercion rules:
+ *   - "true"       → true
+ *   - "false"      → false
+ *   - "null"       → null
+ *   - "undefined"  → undefined
+ *   - Numeric strings → BigInt
+ *   - Everything else → raw string
  *
- * **Security note:**
- * The `eval()` call is safe here because the `.env` file is trusted and not
- * user‑controlled. This module must never be used on untrusted input.
+ * This function performs **no eval()** and is safe for untrusted input.
+ *
+ * @param {string} rawValue
+ *     The raw value from a CLI argument (e.g., "true", "42", "fast").
+ *
+ * @returns {boolean|bigint|null|undefined|string}
+ *     The coerced value.
+ */
+const coerceCliValue = (rawValue) => {
+    const lower = rawValue.toLowerCase();
+
+    if (lower === 'true') return true;
+    if (lower === 'false') return false;
+    if (lower === 'null') return null;
+    if (lower === 'undefined') return undefined;
+
+    try {
+        return BigInt(rawValue);
+    } catch {
+        return rawValue;
+    }
+};
+
+/**
+ * Normalize and evaluate environment variables from a parsed `.env` file.
+ *
+ * Responsibilities:
+ *   - Read key/value pairs from `parsed`
+ *   - Attempt to `eval()` each value (trusted input only)
+ *   - Fall back to raw string if evaluation fails
+ *   - Store normalized values in `process.normalizedEnv`
+ *   - Compute `goal_number = base ** goal_power_of10`
+ *
+ * Security:
+ *   - `eval()` is safe ONLY because `.env` is trusted.
+ *   - Never use this function on untrusted input.
  *
  * @param {{ parsed: Object<string,string> }} parsed
  *     The object produced by `dotenv` containing raw environment variables.
  */
-const dotenvEval = ({ parsed }) => {
-    let env = process.env
-    let normalizedEnv = process.normalizedEnv || {}
-    process.normalizedEnv = normalizedEnv
+const normalizeEnvFromDotenv = ({ parsed }) => {
+    const normalizedEnv = process.normalizedEnv || {};
+    process.normalizedEnv = normalizedEnv;
 
-    for (let [key, value] of Object.entries(parsed)) {
+    for (const [key, value] of Object.entries(parsed)) {
         try {
-            normalizedEnv[key.toLowerCase()] = eval(value + '')
-        }
-        catch {
-            normalizedEnv[key.toLowerCase()] = value
+            normalizedEnv[key.toLowerCase()] = eval(value + '');
+        } catch {
+            normalizedEnv[key.toLowerCase()] = value;
         }
     }
 
     normalizedEnv.goal_number =
-        BigInt(normalizedEnv.base) ** BigInt(normalizedEnv['goal_power_of10'])
+        BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10);
+};
 
-    argv.forEach((val) => {
-        const argArr = val.split('=')
+/**
+ * Apply command‑line argument overrides to normalized environment variables.
+ *
+ * Responsibilities:
+ *   - Accept CLI args in the form `key=value`
+ *   - Override ANY `.env` setting
+ *   - Update both `process.normalizedEnv` and `process.env`
+ *   - Recompute `goal_number` if `base` or `goal_power_of10` changes
+ *
+ * Notes:
+ *   - Values are manually coerced using `coerceCliValue()`
+ *   - No eval() is used here — safe for untrusted input
+ *   - Assumes `normalizeEnvFromDotenv()` has already run
+ *
+ * @param {string[]} argv
+ *     CLI arguments (e.g., from `process.argv.slice(2)`).
+ */
+const applyCliOverrides = (argv) => {
+    const normalizedEnv = process.normalizedEnv || {};
+    const env = process.env;
 
-        if (argArr[0] === 'base') {
-            const base = BigInt(argArr[1])
-            try {
-                if (base > 1n || base < 65537n) {
-                    normalizedEnv.base = base
-                    env.base = base + ''
-                }
-            }
-            catch {}
-        }
+    for (const arg of argv) {
+        const [key, rawValue] = arg.split('=');
+        if (!key || rawValue === undefined) continue;
 
-        if (argArr[0] === 'debug') {
-            const debug = argArr[1] === 'true'
-            try {
-                if (debug !== undefined) {
-                    normalizedEnv.debug = debug
-                    env.debug = !!debug + ''
-                }
-            }
-            catch {}
-        }
-    })
-}
+        const lowerKey = key.toLowerCase();
+        const value = coerceCliValue(rawValue);
+
+        normalizedEnv[lowerKey] = value;
+        env[lowerKey] = value + '';
+    }
+
+    if ('base' in normalizedEnv && 'goal_power_of10' in normalizedEnv) {
+        normalizedEnv.goal_number =
+            BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10);
+    }
+};
+
+/**
+ * High‑level environment initializer.
+ *
+ * Responsibilities:
+ *   1. Normalize `.env` values (trusted)
+ *   2. Apply CLI overrides (untrusted)
+ *   3. Produce final `process.normalizedEnv`
+ *
+ * Usage:
+ *   dotenvEval(parsed, process.argv.slice(2))
+ *
+ * @param {{ parsed: Object<string,string> }} parsed
+ *     The object produced by `dotenv`.
+ *
+ */
+const dotenvEval = (parsed) => {
+    normalizeEnvFromDotenv(parsed);
+    applyCliOverrides(argv);
+};
 
 export default dotenvEval
