@@ -50,10 +50,10 @@ const coerceCliValue = (rawValue) => {
  *   - `eval()` is safe ONLY because `.env` is trusted.
  *   - Never use this function on untrusted input.
  *
- * @param {{ parsed: Object<string,string> }} parsed
+ * @param {Object<string,string>} parsed
  *     The object produced by `dotenv` containing raw environment variables.
  */
-const normalizeEnvFromDotenv = ({ parsed }) => {
+const normalizeEnvFromDotenv = (parsed) => {
     const normalizedEnv = process.normalizedEnv || {};
     process.normalizedEnv = normalizedEnv;
 
@@ -118,7 +118,7 @@ const applyCliOverrides = (argv) => {
  * Usage:
  *   dotenvEval(parsed, process.argv.slice(2))
  *
- * @param {{ parsed: Object<string,string> }} parsed
+ * @param {Object<string,string>} parsed
  *     The object produced by `dotenv`.
  *
  */
