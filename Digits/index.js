@@ -66,8 +66,8 @@ if (maxBase > 64) {
  *
  * @type {BigInt[]}
  */
-const _toBigInt = new Array(2_000)
-for (let int = 0; int < 2_000; int++) {
+const _toBigInt = new Array(10_000)
+for (let int = 0; int < _toBigInt.length; int++) {
     _toBigInt[int] = BigInt(int)
 }
 
