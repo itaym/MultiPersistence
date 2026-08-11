@@ -122,7 +122,7 @@ const applyCliOverrides = (argv) => {
  *     The object produced by `dotenv`.
  *
  */
-const dotenvEval = (parsed) => {
+const dotenvEval = ({ parsed }) => {
     normalizeEnvFromDotenv(parsed);
     applyCliOverrides(argv);
 };
