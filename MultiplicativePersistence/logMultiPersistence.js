@@ -1,3 +1,8 @@
+import {
+    fromMiddleNumberLocations,
+    fromMiddleNumberMaxLength,
+    fromMiddleStringMaxLength, sanitize
+} from "../utils/stringsUtils.js";
 import { getTimeString } from '../utils/getTimeString.js'
 import countPermutations from '../permutations/countPermutations.js'
 import HugeInt from '../HugeInt/index.js'
@@ -20,55 +25,6 @@ const getColor = () => {
         currentColor = 1 - currentColor
         return colors[currentColor]
     }
-}
-
-/**
- * Replace control and problematic Unicode characters in a string.
- *
- * Control characters (0–31) are replaced with 'X'.
- * Characters in the range 150–166 are replaced with 'Y'.
- *
- * This prevents terminal corruption when logging HugeInt values.
- *
- * @param {string} str
- *     The input string to sanitize.
- *
- * @returns {string}
- *     A safe string containing only printable characters.
- */
-const sanitize = (str) => {
-    for (let x = 0; x < 32; x++) {
-        str = str.replaceAll(String.fromCharCode(x), 'X')
-    }
-    for (let x = 150; x < 167; x++) {
-        str = str.replaceAll(String.fromCharCode(x), 'Y')
-    }
-    return str
-}
-
-/**
- * Truncate a long string by preserving both ends and inserting "..." in the middle.
- *
- * Example:
- *   fromMiddleStringMaxLength("ABCDEFGHIJK", 6)
- *   → "AB...JK"
- *
- * @param {string} str
- *     The string to truncate.
- *
- * @param {number} [max=Number.MAX_SAFE_INTEGER]
- *     Maximum allowed length before truncation.
- *
- * @returns {string}
- *     The truncated or original string.
- */
-export const fromMiddleStringMaxLength= (str, max = Number.MAX_SAFE_INTEGER) => {
-    if (str.length > max) {
-        const str1 = str.substring(0, Math.floor(max / 2) - 3 + (max % 2 ? 1 : 0))
-        const str2 = str.substring(str.length -Math.floor(max / 2))
-        return str1 + '...' + str2
-    }
-    return str
 }
 
 /**
@@ -146,7 +102,7 @@ export default function logMultiPersistence({
             const sessionMilliseconds = endTime - startSessionTime
             const cellNo = currentNo.cellsLength
             const currentNumberStr = sanitize(currentNo.toLocaleString())
-            lastNumberFound = fromMiddleStringMaxLength(sanitize(lastNumberFound.toLocaleString()), 52)
+            lastNumberFound = fromMiddleNumberMaxLength(sanitize(lastNumberFound.toLocaleString()), 52)
 
             const iterationsPerSecond = Math.floor(Number(calcIterations / BigInt(Math.ceil(numOfMilliseconds / 1000))))
             const countIterationsPerSecond = Math.floor(countIterations / (numOfMilliseconds / 1000))
@@ -175,7 +131,9 @@ export default function logMultiPersistence({
             foundInLength = lengths[currentNoLength + ''] ? lengths[currentNoLength + ''].found : 0
 
             let logStr = '-'.repeat(140) + '\n'
-            logStr += fromMiddleStringMaxLength(`Current number: ${currentNumberStr} (${currentNo.lastCell.digit},${currentNo.lastCell?.prev?.digit},${currentNo.lastCell?.prev?.prev?.digit})`, 140).padEnd(140, '.') + '\n'
+            // logStr += fromMiddleStringMaxLength(`Current number: ${currentNumberStr} (${currentNo.lastCell.digit},${currentNo.lastCell?.prev?.digit},${currentNo.lastCell?.prev?.prev?.digit})`, 140).padEnd(140, '.') + '\n'
+            logStr += fromMiddleNumberMaxLength(currentNumberStr, 140) + '\n'
+            logStr += fromMiddleNumberLocations(currentNumberStr, 140) + '\n'
             logStr += `Number found in ` + fromMiddleStringMaxLength(`${maxSteps} -> ${lastNumberFound}`, 53).padEnd(54, '-') +
                       `Current number length: ${currentNoLength.toLocaleString()} (${cellNo})`.padEnd(70, '-') + '\n'
             logStr += `Calc Iter.: ${calcIterations.toLocaleString()} (${percentDone}%)`.padEnd(70, '-') +
@@ -199,4 +157,3 @@ export default function logMultiPersistence({
             //debugger
         }
 }}
-
