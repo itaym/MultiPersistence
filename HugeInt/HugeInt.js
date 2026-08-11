@@ -37,8 +37,8 @@ import { digitsObj as baseDigits, digitsValue, toBigInt } from '../Digits/index.
  *  - minimal memory churn during long-running numeric searches
  *
  * The number is stored in **least-significant-digit-first** order:
- *  firstCell → lowest digit
- *  lastCell  → highest digit
+ *  firstCell → the lowest digit
+ *  lastCell  → the highest digit
  *
  * Adjacent cells **never** contain the same digit. Repeated digits are merged
  * into a single cell with count > 1.
@@ -193,7 +193,7 @@ export class HugeInt {
     }
 
     /**
-     * First digit-cell (least significant digit).
+     * First digit-cell (the least significant digit).
      * Always non-null after construction.
      *
      * @type {DigitCell|null}
@@ -1247,7 +1247,7 @@ export class HugeInt {
      *  - None.
      *
      * @method [Symbol.iterator]
-     * @returns {Iterator<DigitCell>}
+     * @returns {Iterator<DigitCell|null>}
      *     An iterator over all digit-cells.
      */
     *[Symbol.iterator] () {
