@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import {readJsonFileSync, writeJsonFile} from "./fileUtils.js";
 
 /**
  * Custom JSON replacer used to serialize BigInt values when saving the cache
@@ -58,9 +59,7 @@ const reviver = () => {
  * @returns {void}
  */
 function saveMapToFile(filename, map) {
-    const data = JSON.stringify(Array.from(map.entries()), replacer, '\t')
-    try { fs.writeFileSync(filename, data) }
-    catch {}
+    writeJsonFile(filename, Array.from(map.entries()), replacer, '\t').then()
 }
 
 /**
@@ -78,8 +77,8 @@ function saveMapToFile(filename, map) {
  */
 function loadMapFromFileSync(filename) {
     try {
-        const data = fs.readFileSync(filename, 'utf8')
-        const entries = JSON.parse(data, reviver()).sort((a, b) => {
+        const json = readJsonFileSync(filename, reviver(), [])
+        const entries = json.sort((a, b) => {
             if (a[0] > b[0]) return 1
             if (a[0] < b[0]) return -1
             return 0
@@ -116,7 +115,9 @@ function loadMapFromFileSync(filename) {
  *     A memoized version of the function.
  */
 export default function memorize(fn, name) {
-    let saveToFile = process.normalizedEnv.memorize_save_bach
+    const { normalizedEnv } = process
+
+    const saveToFile = normalizedEnv.memorize_save_bach
 
     const fileName = `${path.normalize(path.resolve('./caching'))}/${name}.json`
     const cache = loadMapFromFileSync(fileName)

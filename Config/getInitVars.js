@@ -3,6 +3,7 @@
 import { promises as fs } from 'fs'
 // eslint-disable-next-line no-unused-vars
 import HugeInt from "../HugeInt/index.js";
+import {readJsonFile, writeJsonFile} from "../utils/fileUtils.js";
 /**
  * Iteration statistics stored in the results file.
  *
@@ -121,7 +122,7 @@ export const getInitVars = async () => {
 
     const { normalizedEnv } = process
     const { vars_file } = normalizedEnv
-    const fileName = `./results/${normalizedEnv.base.toString().padStart(5, '0')}_${vars_file}`
+    const filename = `./results/${normalizedEnv.base.toString().padStart(5, '0')}_${vars_file}`
 
     const defaultVars = {
         base: normalizedEnv.base,
@@ -140,16 +141,8 @@ export const getInitVars = async () => {
     if (normalizedEnv.debug) return defaultVars
 
     try {
-        let data = await fs.readFile(fileName, 'utf-8')
-        data = JSON.parse(data, reviver)
-        return data
-    } catch {
-        try {
-            let data = await fs.readFile(fileName.replace('json', 'bak'), 'utf-8')
-            data = JSON.parse(data, reviver)
-            return data
-        } catch {}
-    }
+        return await readJsonFile(filename, reviver, defaultVars)
+    } catch {}
 
     return defaultVars
 }
@@ -197,8 +190,7 @@ export const setInitVars = async (initVars, base) => {
     const fileName = `./results/${base.toString().padStart(5, '0')}_${vars_file}`
 
     try {
-        await fs.rename(fileName, fileName.replace('.json', '.bak'))
+        await writeJsonFile(fileName, initVars, replacer, '\t')
     }
     catch {}
-    await fs.writeFile(fileName, JSON.stringify(initVars, replacer, '\t'))
 }
