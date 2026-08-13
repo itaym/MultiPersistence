@@ -25,10 +25,12 @@ import fs from 'fs'
  *        ascii, utf8, utf-8, utf16le, utf-16le, ucs2, ucs-2, base64, base64url, latin1, binary, hex.
  */
 export const writeJsonFile = async (filename, value, replacer, space, encoding = { encoding: 'utf8' }) => {
+    const { normalizedEnv } = process
+    if (normalizedEnv.debug === true) return
 
     try {
         await fsPromises.rename(filename, `${filename}.bak`)
-    } catch (err) {debugger}
+    } catch {}
     finally {
         const json = JSON.stringify(value, replacer, space)
         await fsPromises.writeFile(filename, json, encoding)
@@ -57,6 +59,8 @@ export const writeJsonFile = async (filename, value, replacer, space, encoding =
  *        The parsed JSON object or array.
  */
 export const readJsonFile = async (filename, reviver, defaultJson = {}, encoding = { encoding: 'utf8' }) => {
+    const { normalizedEnv } = process
+    if (normalizedEnv.debug === true) return defaultJson
 
     const readAndParse = async (file) => {
         const raw = await fsPromises.readFile(file, encoding)
@@ -64,22 +68,21 @@ export const readJsonFile = async (filename, reviver, defaultJson = {}, encoding
     }
 
     try {
-        // Try main file
         return await readAndParse(filename)
     }
     catch(e) {
         try {
-            // Main failed → try .bak
             return await readAndParse(`${filename}.bak`)
         }
         catch {
-            // Both failed → return default
             return defaultJson
         }
     }
 }
 
 export const readJsonFileSync = (filename, reviver, defaultJson = {}, encoding = { encoding: 'utf8' }) => {
+    const { normalizedEnv } = process
+    if (normalizedEnv.debug === true) return
 
     const readAndParse = (file) => {
         const raw = fs.readFileSync(file, encoding)
@@ -87,16 +90,13 @@ export const readJsonFileSync = (filename, reviver, defaultJson = {}, encoding =
     }
 
     try {
-        // Try main file
         return readAndParse(filename)
     }
-    catch(e) {
+    catch {
         try {
-            // Main failed → try .bak
             return readAndParse(`${filename}.bak`)
         }
         catch {
-            // Both failed → return default
             return defaultJson
         }
     }

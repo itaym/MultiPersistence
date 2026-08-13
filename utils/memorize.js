@@ -1,4 +1,3 @@
-import fs from 'fs'
 import path from 'path'
 import {readJsonFileSync, writeJsonFile} from "./fileUtils.js";
 
@@ -58,7 +57,7 @@ const reviver = () => {
  *
  * @returns {void}
  */
-function saveMapToFile(filename, map) {
+export function saveMapToFile(filename, map) {
     writeJsonFile(filename, Array.from(map.entries()), replacer, '\t').then()
 }
 
@@ -75,7 +74,7 @@ function saveMapToFile(filename, map) {
  * @returns {Map<string, BigInt>}
  *     The loaded memoization cache.
  */
-function loadMapFromFileSync(filename) {
+export function loadMapFromFileSync(filename) {
     try {
         const json = readJsonFileSync(filename, reviver(), [])
         const entries = json.sort((a, b) => {
@@ -119,7 +118,8 @@ export default function memorize(fn, name) {
 
     const saveToFile = normalizedEnv.memorize_save_bach
 
-    const fileName = `${path.normalize(path.resolve('./caching'))}/${name}.json`
+    const fileName =  path.join(path.resolve('./caching'), `${name}.json`)
+
     const cache = loadMapFromFileSync(fileName)
     let setCounter = 0
 
