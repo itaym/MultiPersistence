@@ -1,40 +1,40 @@
-import { argv } from 'node:process';
+import { argv } from 'node:process'
 // noinspection ES6UnusedImports
-import HugeInt from "../HugeInt/index.js";
+import HugeInt from '../HugeInt/index.js'
 
 /**
  * Safely coerce a CLI argument value into an appropriate JavaScript type.
  *
  * Coercion rules:
- *   - "true"       → true
- *   - "false"      → false
- *   - "null"       → null
- *   - "undefined"  → undefined
+ *   - 'true'       → true
+ *   - 'false'      → false
+ *   - 'null''      → null
+ *   - 'undefined'  → undefined
  *   - Numeric strings → BigInt
  *   - Everything else → raw string
  *
  * This function performs **no eval()** and is safe for untrusted input.
  *
  * @param {string} rawValue
- *     The raw value from a CLI argument (e.g., "true", "42", "fast").
+ *     The raw value from a CLI argument (e.g., 'true', '42', 'fast').
  *
  * @returns {boolean|bigint|null|undefined|string}
  *     The coerced value.
  */
 const coerceCliValue = (rawValue) => {
-    const lower = rawValue.toLowerCase();
+    const lower = rawValue.toLowerCase()
 
-    if (lower === 'true') return true;
-    if (lower === 'false') return false;
-    if (lower === 'null') return null;
-    if (lower === 'undefined') return undefined;
+    if (lower === 'true') return true
+    if (lower === 'false') return false
+    if (lower === 'null') return null
+    if (lower === 'undefined') return undefined
 
     try {
-        return BigInt(rawValue);
+        return BigInt(rawValue)
     } catch {
-        return rawValue;
+        return rawValue
     }
-};
+}
 
 /**
  * Normalize and evaluate environment variables from a parsed `.env` file.
@@ -54,20 +54,20 @@ const coerceCliValue = (rawValue) => {
  *     The object produced by `dotenv` containing raw environment variables.
  */
 const normalizeEnvFromDotenv = (parsed) => {
-    const normalizedEnv = process.normalizedEnv || {};
-    process.normalizedEnv = normalizedEnv;
+    const normalizedEnv = process.normalizedEnv || {}
+    process.normalizedEnv = normalizedEnv
 
     for (const [key, value] of Object.entries(parsed)) {
         try {
-            normalizedEnv[key.toLowerCase()] = eval(value + '');
+            normalizedEnv[key.toLowerCase()] = eval(value + '')
         } catch {
-            normalizedEnv[key.toLowerCase()] = value;
+            normalizedEnv[key.toLowerCase()] = value
         }
     }
 
     normalizedEnv.goal_number =
-        BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10);
-};
+        BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10)
+}
 
 /**
  * Apply command‑line argument overrides to normalized environment variables.
@@ -87,25 +87,25 @@ const normalizeEnvFromDotenv = (parsed) => {
  *     CLI arguments (e.g., from `process.argv.slice(2)`).
  */
 const applyCliOverrides = (argv) => {
-    const normalizedEnv = process.normalizedEnv || {};
-    const env = process.env;
+    const normalizedEnv = process.normalizedEnv || {}
+    const env = process.env
 
     for (const arg of argv) {
-        const [key, rawValue] = arg.split('=');
-        if (!key || rawValue === undefined) continue;
+        const [key, rawValue] = arg.split('=')
+        if (!key || rawValue === undefined) continue
 
-        const lowerKey = key.toLowerCase();
-        const value = coerceCliValue(rawValue);
+        const lowerKey = key.toLowerCase()
+        const value = coerceCliValue(rawValue)
 
-        normalizedEnv[lowerKey] = value;
-        env[lowerKey] = value + '';
+        normalizedEnv[lowerKey] = value
+        env[lowerKey] = value + ''
     }
 
     if ('base' in normalizedEnv && 'goal_power_of10' in normalizedEnv) {
         normalizedEnv.goal_number =
-            BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10);
+            BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10)
     }
-};
+}
 
 /**
  * High‑level environment initializer.
@@ -127,10 +127,10 @@ const applyCliOverrides = (argv) => {
 const dotenvEval = ({ parsed, error }) => {
     if (error) {
         console.error(error)
-        process.exit(1);
+        process.exit(1)
     }
-    normalizeEnvFromDotenv(parsed);
-    applyCliOverrides(argv);
-};
+    normalizeEnvFromDotenv(parsed)
+    applyCliOverrides(argv)
+}
 
 export default dotenvEval

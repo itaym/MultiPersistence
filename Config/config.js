@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv'
 import { initPollyFill } from '../utils/pollyfill.js'
 import dotenvEval from './dotenvEval.js'
 
-let executed = false;
+let executed = false
 
 /**
  * Initialize application configuration.

@@ -1,4 +1,4 @@
-import { getPermutations, splitAfterCell } from "./utils.js";
+import { getPermutations, splitAfterCell } from './utils.js'
 
 /**
  * Base‑16 accommodation module.

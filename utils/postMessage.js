@@ -11,7 +11,7 @@
  * The main thread sets it to `'false'` immediately before sending a new one.
  *
  * Special case:
- *   - When sending the `"init"` message, the worker is considered ready
+ *   - When sending the `'init'` message, the worker is considered ready
  *     regardless of previous state, so `isWorkerReady` is forced to `'true'`
  *     to allow initialization to proceed without blocking.
  *
@@ -22,9 +22,9 @@
  *
  * @param {string} type
  *     Message type identifier. Common values:
- *       - `"init"`  → initialization message
- *       - `"stack"` → batch accumulation message
- *       - `"found"` → final batch processing message
+ *       - `'init'`  → initialization message
+ *       - `'stack'` → batch accumulation message
+ *       - `'found'` → final batch processing message
  *
  * @param {Object} data
  *     Arbitrary payload associated with the message. The worker interprets
@@ -36,7 +36,7 @@
  *
  * @example
  * // Attempt to send a message:
- * const success = postMessage(worker, "found", { messages: [...] })
+ * const success = postMessage(worker, 'found', { messages: [...] })
  * if (!success) {
  *     // Worker is busy — retry later
  * }

@@ -76,18 +76,18 @@ function toString(constructor) {
  * @throws {RangeError} If `base` is <= 0, equal to 1, or if `number` is <= 0.
  *
  * @example
- * logX(2, 8);      // 3
- * logX(10, 1000);  // 3
- * logX(5, 125);    // 3
+ * logX(2, 8)      // 3
+ * logX(10, 1000)  // 3
+ * logX(5, 125)    // 3
  */
 function logX(base, number) {
     // if (base <= 0 || base === 1) {
-    //     throw new RangeError("Base must be > 0 and not equal to 1.");
+    //     throw new RangeError('Base must be > 0 and not equal to 1.')
     // }
     // if (number <= 0) {
-    //     throw new RangeError("Number must be > 0.");
+    //     throw new RangeError('Number must be > 0.')
     // }
-    return Math.log(number) / Math.log(base);
+    return Math.log(number) / Math.log(base)
 }
 
 /**

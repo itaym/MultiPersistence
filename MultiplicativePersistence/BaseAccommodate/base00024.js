@@ -1,4 +1,4 @@
-import { getPermutations, splitAfterCell } from "./utils.js";
+import { getPermutations, splitAfterCell } from './utils.js'
 
 export const base00024 = (() => {
     const base = 24n

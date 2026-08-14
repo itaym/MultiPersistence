@@ -169,7 +169,7 @@ export class HugeInt {
      *
      * Behavior:
      *  - Counts the number of distinct digit groups, not the total number of digits.
-     *  - For example, the number 111223 has 3 cells: "111", "22", "3".
+     *  - For example, the number 111223 has 3 cells: '111', '22", "3".
      *
      * Complexity:
      *  - O(n) in number of cells.
@@ -278,17 +278,17 @@ export class HugeInt {
      */
     get value() {
         const o = this
-        let value = 0n;
-        let power = 0n;
-        let cell = this.firstCell;
+        let value = 0n
+        let power = 0n
+        let cell = this.firstCell
 
         while (cell) {
             value += cell.digit * (((o.#base ** cell.count) - 1n) / o.#baseMinusOne) * (o.#base ** power)
             power += cell.count
 
-            cell = cell.next;
+            cell = cell.next
         }
-        return value;
+        return value
     }
 
     /**
@@ -437,8 +437,8 @@ export class HugeInt {
 
         return this
     }
-    static maxBigInt = (...args) => args.reduce((a, b) => (a > b ? a : b));
-    static minBigInt = (...args) => args.reduce((a, b) => (a < b ? a : b));
+    static maxBigInt = (...args) => args.reduce((a, b) => (a > b ? a : b))
+    static minBigInt = (...args) => args.reduce((a, b) => (a < b ? a : b))
 
     /**
      * A single digit-cell in the HugeInt linked list.
@@ -465,7 +465,7 @@ export class HugeInt {
     add(hugeInt) {
 
         if (this.#base !== hugeInt.base) {
-            throw new Error('Base is incompatible.');
+            throw new Error('Base is incompatible.')
         }
         const newCell = {
             changed: false,
@@ -1232,7 +1232,7 @@ export class HugeInt {
      *
      * Example usage:
      *  for (const cell of hugeInt) {
-     *      console.log(cell.digit, cell.count);
+     *      console.log(cell.digit, cell.count)
      *  }
      *
      * Use cases:

@@ -15,17 +15,17 @@
  * is returned to ensure consistent behavior without breaking the search loop.
  */
 
-import { emptyFunction } from "./utils.js";
+import { emptyFunction } from './utils.js'
 import HugeInt from '../../HugeInt/index.js'
 
-import { base00006 } from "./base00006.js";
-import { base00008 } from "./base00008.js";
-import { base00009 } from "./base00009.js";
-import { base00010 } from "./base00010.js";
-import { base00014 } from "./base00014.js";
-import { base00012 } from "./base00012.js";
-import { base00015 } from "./base00015.js";
-import { base00016 } from "./base00016.js";
+import { base00006 } from './base00006.js'
+import { base00008 } from './base00008.js'
+import { base00009 } from './base00009.js'
+import { base00010 } from './base00010.js'
+import { base00014 } from './base00014.js'
+import { base00012 } from './base00012.js'
+import { base00015 } from './base00015.js'
+import { base00016 } from './base00016.js'
 
 /**
  * Selects and returns the base-specific accommodation function.

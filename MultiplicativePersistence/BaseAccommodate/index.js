@@ -1,7 +1,6 @@
-import {emptyFunction, getPermutations, splitAfterCell} from "./utils.js";
+import {emptyFunction, getPermutations, splitAfterCell} from './utils.js'
 
-export { default } from './BaseAccommodate.js';
-
+export { default } from './BaseAccommodate.js'
 
 const base00020 = (() => {
     const base = 20n
@@ -9,7 +8,7 @@ const base00020 = (() => {
     const fn5 = (currentNo, cell5) => {
         let permutationsSaved = 0n
 
-        const cell2 = currentNo.getCellOf(2n)
+        // const cell2 = currentNo.getCellOf(2n)
         const componentsOfTwo = currentNo.countTwoComponents()
 
         if (componentsOfTwo > 1n) {
@@ -652,11 +651,9 @@ const base00032 = (() => {
     return (currentNo) => {
         const checkCell = currentNo.firstCell
         let permutationsSaved = 0n
-        let skip = false
 
         if (!(checkCell.digit % 2n)) {
             permutationsSaved = checkingFns[checkCell.digit](currentNo, checkCell)
-            //skip = currentNo.countEvenDigits() > 4
         }
         return permutationsSaved
     }

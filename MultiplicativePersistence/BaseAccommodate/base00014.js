@@ -1,4 +1,4 @@
-import { getPermutations } from "./utils.js";
+import { getPermutations } from './utils.js'
 
 export const base00014 = (() => {
     let permutationsSaved

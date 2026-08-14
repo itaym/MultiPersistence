@@ -2,8 +2,8 @@
 
 import { promises as fs } from 'fs'
 // eslint-disable-next-line no-unused-vars
-import HugeInt from "../HugeInt/index.js";
-import {readJsonFile, writeJsonFile} from "../utils/fileUtils.js";
+import HugeInt from '../HugeInt/index.js'
+import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
 /**
  * Iteration statistics stored in the results file.
  *

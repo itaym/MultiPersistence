@@ -19,7 +19,7 @@
  *   - visually reorder text (bidi spoofing)
  *   - hide content (zero‑width)
  *
- * All sanitized characters are replaced with the literal "X".
+ * All sanitized characters are replaced with the literal 'X'.
  *
  * @param {string} str
  *     The input string to sanitize for terminal‑safe logging.
@@ -36,11 +36,11 @@ export const sanitize = (str) => {
         .replace(/[\u200B-\u200D]/g, 'X')
 
         // Bidirectional control characters
-        .replace(/[\u202A-\u202E]/g, 'X');
-};
+        .replace(/[\u202A-\u202E]/g, 'X')
+}
 /**
  * Truncates a string by keeping characters from the start and end,
- * inserting "..." in the middle. If the string fits within `max`,
+ * inserting '...' in the middle. If the string fits within `max`,
  * it is returned unchanged.
  *
  * @param {string} str - The original string
@@ -65,9 +65,9 @@ export const fromMiddleStringMaxLength = (str, max = Number.MAX_SAFE_INTEGER) =>
 /**
  * Computes index ranges for three-part truncation of a string.
  * Returns one of three modes:
- * - "short": string too short to split
- * - "full": string fits entirely within maxLen
- * - "three": three-part slicing required
+ * - 'short': string too short to split
+ * - 'full': string fits entirely within maxLen
+ * - 'three': three-part slicing required
  *
  * @param {string} str - The original string
  * @param {number} [maxLen=Number.MAX_SAFE_INTEGER] - Maximum allowed length

@@ -1,5 +1,5 @@
-import memorize from "../../utils/memorize.js";
-import countPer from "../../permutations/countPermutations.js";
+import memorize from '../../utils/memorize.js'
+import countPer from '../../permutations/countPermutations.js'
 
 /**
  * Split a DigitCell inside a HugeInt and increment the digit of the newly

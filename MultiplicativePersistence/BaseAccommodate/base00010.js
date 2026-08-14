@@ -1,4 +1,4 @@
-import { getPermutations } from "./utils.js";
+import { getPermutations } from './utils.js'
 
 /**
  * Base‑10 accommodation module.

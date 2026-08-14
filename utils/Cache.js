@@ -1,4 +1,4 @@
-import now from "./now.js";
+import now from './now.js'
 
 /**
  * A time‑based cache with sliding expiration and LFU (least‑frequently‑used)
@@ -25,19 +25,19 @@ export default class Cache extends Map {
      *   Optional name for debugging or identification.
      */
     constructor(decayPolicy = {}, name = undefined) {
-        super();
+        super()
 
-        this.name = name;
-        this.decayPolicy = { ...decayPolicy };
+        this.name = name
+        this.decayPolicy = { ...decayPolicy }
 
-        const max = (2 ** 24);
+        const max = (2 ** 24)
 
-        this.decayPolicy.maxSize ??= max;
-        this.decayPolicy.maxSize = this.decayPolicy.maxSize < 1 ? max : this.decayPolicy.maxSize;
-        this.decayPolicy.maxSize = Math.min(this.decayPolicy.maxSize, max);
+        this.decayPolicy.maxSize ??= max
+        this.decayPolicy.maxSize = this.decayPolicy.maxSize < 1 ? max : this.decayPolicy.maxSize
+        this.decayPolicy.maxSize = Math.min(this.decayPolicy.maxSize, max)
 
         if (!this.decayPolicy.expireIn)
-            this.decayPolicy.expireIn = max;
+            this.decayPolicy.expireIn = max
     }
 
     /**
@@ -50,18 +50,18 @@ export default class Cache extends Map {
     #enforceDecayPolicy() {
         const time = +now
         for (const [k, v] of this.entries()) {
-            if (v.expire < time) this.delete(k);
+            if (v.expire < time) this.delete(k)
         }
 
         while (this.size >= this.decayPolicy.maxSize) {
-            const items = Array.from(this.entries());
-            if (items.length === 0) break;
+            const items = Array.from(this.entries())
+            if (items.length === 0) break
 
-            items.sort((a, b) => (a[1].count || 0) - (b[1].count || 0));
-            const keyToDelete = items[0][0];
-            if (keyToDelete === undefined) break;
+            items.sort((a, b) => (a[1].count || 0) - (b[1].count || 0))
+            const keyToDelete = items[0][0]
+            if (keyToDelete === undefined) break
 
-            this.delete(keyToDelete);
+            this.delete(keyToDelete)
         }
     }
 
@@ -82,21 +82,21 @@ export default class Cache extends Map {
      *   If the cache is at max size and cannot evict enough entries.
      */
     set(key, item) {
-        const existing = super.get(key);
-        const time = +now;
+        const existing = super.get(key)
+        const time = +now
 
-        const insertingOrReplacingExpired = !existing || existing.expire <= time;
+        const insertingOrReplacingExpired = !existing || existing.expire <= time
         if (this.size >= this.decayPolicy.maxSize && insertingOrReplacingExpired) {
-            this.#enforceDecayPolicy();
+            this.#enforceDecayPolicy()
         }
 
         super.set(key, {
             count: existing ? existing.count : 0,
             expire: time + this.decayPolicy.expireIn,
             item,
-        });
+        })
 
-        return this;
+        return this
     }
 
     /**
@@ -112,19 +112,19 @@ export default class Cache extends Map {
      *   The stored value, or `undefined` if missing or expired.
      */
     get(key) {
-        const time = now + 0;
-        const entry = super.get(key);
+        const time = now + 0
+        const entry = super.get(key)
 
-        if (!entry) return undefined;
+        if (!entry) return undefined
 
         if (entry.expire < time) {
-            this.delete(key);
-            return undefined;
+            this.delete(key)
+            return undefined
         }
 
-        entry.expire = time + this.decayPolicy.expireIn;
-        entry.count++;
+        entry.expire = time + this.decayPolicy.expireIn
+        entry.count++
 
-        return entry.item;
+        return entry.item
     }
 }

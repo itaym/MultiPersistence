@@ -1,5 +1,5 @@
 import path from 'path'
-import {readJsonFileSync, writeJsonFile} from "./fileUtils.js";
+import {readJsonFileSync, writeJsonFile} from './fileutils.js'
 
 /**
  * Custom JSON replacer used to serialize BigInt values when saving the cache
@@ -108,7 +108,7 @@ export function loadMapFromFileSync(filename) {
  *     The function to memoize. Must return a BigInt.
  *
  * @param {string} name
- *     The name of the cache file (e.g., "getPermutations").
+ *     The name of the cache file (e.g., 'getPermutations').
  *
  * @returns {function(...*): BigInt}
  *     A memoized version of the function.

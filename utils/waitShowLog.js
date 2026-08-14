@@ -20,7 +20,7 @@ import gaySchluffen from './gaySchluffen.js'
  */
 const waitShowLog = async (milliSeconds = 20) => {
     while (process.env.isWorkerReady !== 'true') {
-        process.stdout.write(".")
+        process.stdout.write('.')
         await gaySchluffen(milliSeconds)
     }
     console.log(`\n${process.env.log}`)

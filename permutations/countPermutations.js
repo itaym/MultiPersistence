@@ -2,7 +2,7 @@ import { initConfig } from '../Config/config.js'
 
 import memorize from '../utils/memorize.js'
 
-initConfig();
+initConfig()
 
 let permutationsJson
 
@@ -20,7 +20,7 @@ let permutationsJson
  *    for runBase from lastCachedBase+1 up to `base`.
  *
  * Caching:
- *  - `getPCache` stores partial sums keyed by "length,base".
+ *  - `getPCache` stores partial sums keyed by 'length,base'.
  *  - `getPCacheLast` stores the highest base already computed for each length.
  *
  * @typedef {function} _getPermutations
@@ -76,7 +76,7 @@ const _getPermutations = (() => {
  *
  * Behavior:
  *  - Uses two caches:
- *      - `cache` stores partial sums keyed by "base,length".
+ *      - `cache` stores partial sums keyed by 'base,length'.
  *      - `cacheLast` stores the highest length already computed for each base.
  *  - Only computes new lengths beyond the cached ones.
  *  - Memoized using `memorize()` to persist results to disk.

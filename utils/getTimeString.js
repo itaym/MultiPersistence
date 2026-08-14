@@ -26,7 +26,7 @@ const TIME_UNITS_NAMES = [
  *   - scientific notation (if > 15 digits)
  *
  * Example:
- *   getUnitString(3n, 2) → "3 Days"
+ *   getUnitString(3n, 2) → '3 Days'
  *
  * @param {BigInt} unitCount
  *     Number of units (e.g., years, days, hours).
@@ -68,7 +68,7 @@ const getUnitString = function(unitCount, i) {
  *
  * Example:
  *   getTimeString(123456789n)
- *   → "1 Day ,10 Hours ,17 Minutes ,36 Seconds"
+ *   → '1 Day ,10 Hours ,17 Minutes ,36 Seconds'
  *
  * @param {BigInt|number} numOfMilliseconds
  *     Duration in milliseconds.

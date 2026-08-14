@@ -2,7 +2,7 @@ import {
     fromMiddleNumberLocations,
     fromMiddleNumberMaxLength,
     fromMiddleStringMaxLength, sanitize
-} from "../utils/stringsUtils.js";
+} from '../utils/stringsutils.js'
 import { getTimeString } from '../utils/getTimeString.js'
 import countPermutations from '../permutations/countPermutations.js'
 import HugeInt from '../HugeInt/index.js'

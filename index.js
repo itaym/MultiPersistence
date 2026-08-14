@@ -56,8 +56,8 @@ import { getInitVars } from './Config/getInitVars.js'
 import { initConfig } from './Config/config.js'
 import { initPollyFill } from './utils/pollyfill.js'
 import { multiPerSearch } from './MultiplicativePersistence/index.js'
-import waitShowLog from "./utils/waitShowLog.js";
-// import Cache from "./utils/Cache.js";
+import waitShowLog from './utils/waitShowLog.js'
+// import Cache from './utils/Cache.js'
 
 initConfig()
 initPollyFill()
@@ -71,67 +71,67 @@ initPollyFill()
 //
 //
 // async function testCache() {
-//     console.log("=== Cache Test Suite ===");
+//     console.log('=== Cache Test Suite ===')
 //
-//     const sleep = ms => new Promise(r => setTimeout(r, ms));
+//     const sleep = ms => new Promise(r => setTimeout(r, ms))
 //
-//     const cache = new Cache({ maxSize: 3, expireIn: 50 }, "test-cache");
+//     const cache = new Cache({ maxSize: 3, expireIn: 50 }, 'test-cache')
 //
-//     console.log("\n1. Test basic set/get");
-//     cache.set("a", 1);
-//     console.log("get(a) =", cache.get("a")); // expect 1
+//     console.log('\n1. Test basic set/get')
+//     cache.set("a", 1)
+//     console.log("get(a) =", cache.get("a")) // expect 1
 //
-//     console.log("\n2. Test expiration");
-//     cache.set("b", 2);
-//     await sleep(60);
-//     console.log("get(b) after expiration =", cache.get("b")); // expect undefined
+//     console.log("\n2. Test expiration")
+//     cache.set("b", 2)
+//     await sleep(60)
+//     console.log("get(b) after expiration =", cache.get("b")) // expect undefined
 //
-//     console.log("\n3. Test sliding expiration");
-//     cache.set("c", 3);
-//     await sleep(30);
-//     console.log("get(c) mid-way =", cache.get("c")); // refresh TTL
-//     await sleep(30);
-//     console.log("get(c) after refresh =", cache.get("c")); // should still exist
+//     console.log("\n3. Test sliding expiration")
+//     cache.set("c", 3)
+//     await sleep(30)
+//     console.log("get(c) mid-way =", cache.get("c")) // refresh TTL
+//     await sleep(30)
+//     console.log("get(c) after refresh =", cache.get("c")) // should still exist
 //
-//     console.log("\n4. Test LFU eviction");
-//     cache.set("x", "X");
-//     cache.set("y", "Y");
-//     cache.set("z", "Z");
+//     console.log("\n4. Test LFU eviction")
+//     cache.set("x", "X")
+//     cache.set("y", "Y")
+//     cache.set("z", "Z")
 //
 //     // Access x twice, y once, z never
-//     cache.get("x");
-//     cache.get("x");
-//     cache.get("y");
+//     cache.get("x")
+//     cache.get("x")
+//     cache.get("y")
 //
-//     console.log("Counts before eviction:");
-//     console.log("x =", cache.get("x"));
-//     console.log("y =", cache.get("y"));
-//     console.log("z =", cache.get("z"));
+//     console.log("Counts before eviction:")
+//     console.log("x =", cache.get("x"))
+//     console.log("y =", cache.get("y"))
+//     console.log("z =", cache.get("z"))
 //
-//     console.log("\nInsert new item to trigger LFU eviction");
-//     cache.set("new", "NEW");
+//     console.log("\nInsert new item to trigger LFU eviction")
+//     cache.set("new", "NEW")
 //
-//     console.log("Cache keys after LFU eviction:", [...cache.keys()]);
+//     console.log("Cache keys after LFU eviction:", [...cache.keys()])
 //     // expect "z" to be evicted (lowest count)
 //
-//     console.log("\n5. Test replacing expired entries");
-//     cache.set("temp", "TEMP");
-//     await sleep(60);
-//     cache.set("temp", "TEMP2");
-//     console.log("get(temp) =", cache.get("temp")); // expect TEMP2
+//     console.log("\n5. Test replacing expired entries")
+//     cache.set("temp", "TEMP")
+//     await sleep(60)
+//     cache.set("temp", "TEMP2")
+//     console.log("get(temp) =", cache.get("temp")) // expect TEMP2
 //
-//     console.log("\n6. Test maxSize enforcement + error");
-//     const smallCache = new Cache({ maxSize: 1, expireIn: 100 }, "small");
+//     console.log("\n6. Test maxSize enforcement + error")
+//     const smallCache = new Cache({ maxSize: 1, expireIn: 100 }, "small")
 //
-//     smallCache.set("a", 1);
+//     smallCache.set("a", 1)
 //     try {
-//         smallCache.set("b", 2); // should throw
-//         console.log("ERROR: did not throw");
+//         smallCache.set("b", 2) // should throw
+//         console.log("ERROR: did not throw")
 //     } catch (err) {
-//         console.log("Correctly threw:", err.message);
+//         console.log("Correctly threw:", err.message)
 //     }
 //
-//     console.log("\n=== Test Suite Complete ===");
+//     console.log("\n=== Test Suite Complete ===")
 // }
 // await testCache()
 // process.exit()

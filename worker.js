@@ -8,9 +8,9 @@
  * only sends new messages when the worker is idle.
  *
  * Message types handled:
- *  - "init": Initialize worker state, logging, and callback functions.
- *  - "stack": Accumulate message batches for later processing.
- *  - "found": Process all stacked messages, update statistics, generate logs,
+ *  - 'init': Initialize worker state, logging, and callback functions.
+ *  - 'stack': Accumulate message batches for later processing.
+ *  - 'found': Process all stacked messages, update statistics, generate logs,
  *             and persist updated initialization variables.
  *
  * The worker never blocks. Every message ends by setting
@@ -174,7 +174,7 @@ const onFoundCreator = (initVars) => {
 
 /**
  * @typedef {Object} MessageObj
- * @property {string} type - Message type ("init", "stack", "found")
+ * @property {string} type - Message type ('init', "stack", "found")
  * @property {Object} data - Message payload
  */
 

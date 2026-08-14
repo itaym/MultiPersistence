@@ -1,7 +1,7 @@
-import ToPrimitive from "../ToPrimitive/index.js";
+import ToPrimitive from '../ToPrimitive/index.js'
 
-const hrMilliseconds = process.hrtime.bigint();
-const dateNow = Date.now();
+const hrMilliseconds = process.hrtime.bigint()
+const dateNow = Date.now()
 
 /**
  * Creates a high‑resolution timestamp function.
@@ -25,9 +25,9 @@ const dateNow = Date.now();
  *   high‑resolution monotonic timing with the initial wall‑clock base.
  */
 const now = (hrMilliseconds, dateNow) => () => {
-    const hrNowMilliseconds = process.hrtime.bigint();
-    return dateNow + Math.floor(Number(hrNowMilliseconds - hrMilliseconds) / 1_000_000);
-};
+    const hrNowMilliseconds = process.hrtime.bigint()
+    return dateNow + Math.floor(Number(hrNowMilliseconds - hrMilliseconds) / 1_000_000)
+}
 
 /**
  * Exports a `ToPrimitive` wrapper around the high‑resolution `now()` function.
@@ -37,5 +37,5 @@ const now = (hrMilliseconds, dateNow) => () => {
  *
  * @type {ToPrimitive}
  */
-export default new ToPrimitive(null, now(hrMilliseconds, dateNow));
+export default new ToPrimitive(null, now(hrMilliseconds, dateNow))
 

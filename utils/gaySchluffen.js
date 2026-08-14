@@ -13,7 +13,7 @@
  *     A Promise that resolves with the sleep duration.
  *
  * @example
- * await gaySchluffen(100);  // pauses for 100ms
+ * await gaySchluffen(100)  // pauses for 100ms
  */
 
 const gaySchluffen = function(milliseconds) {
