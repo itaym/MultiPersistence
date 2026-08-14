@@ -120,9 +120,15 @@ const applyCliOverrides = (argv) => {
  *
  * @param {Object<string,string>} parsed
  *     The object produced by `dotenv`.
+ * @param {Object<string,string>} error
+ *     The object produced by `dotenv` if an error occurred.
  *
  */
-const dotenvEval = ({ parsed }) => {
+const dotenvEval = ({ parsed, error }) => {
+    if (error) {
+        console.error(error)
+        process.exit(1);
+    }
     normalizeEnvFromDotenv(parsed);
     applyCliOverrides(argv);
 };

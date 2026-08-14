@@ -1,5 +1,11 @@
+
+import { initConfig } from '../Config/config.js'
+import { initPollyFill } from '../utils/pollyfill.js'
 import path from "path";
 import { loadMapFromFileSync, saveMapToFile } from "./memorize.js";
+
+initConfig({ path: '../.env' })
+initPollyFill()
 
 /**
  * Merges multiple Map instances into a single Map.
@@ -33,7 +39,7 @@ const mergeMaps = (maps) => {
  * @returns {string} Absolute normalized path to the JSON file
  */
 const normalizeFilename = (filename) => {
-    const fullPath = path.join(path.resolve("./caching"), `${filename}.json`);
+    const fullPath = path.join(path.resolve("../caching"), `${filename}.json`);
     console.log(`📁 Normalized filename: ${fullPath}`);
     return fullPath;
 };
@@ -44,32 +50,61 @@ const normalizeFilename = (filename) => {
  *
  * Throws if any file does not exist or cannot be parsed.
  */
-const runMergeMap = () => {
+export const runMergeMap = () => {
     console.log("🚀 Running merge process...");
 
-    const filenames = [""]; // Will be edited manually
-    const mapsArray = [];
+    const bundle = [
+        [
+            "calcCellsArrFactorial",
+            "calcCellsArrFactorial1",
+            "calcCellsArrFactorial2"],
 
-    console.log(`📄 Preparing to load ${filenames.length} map files...`);
+        [
+            "countPermutations",
+            "countPermutations1",
+            "countPermutations2"],
+        [
+            "factorial",
+            "factorial1",
+            "factorial2"],
 
-    for (let filename of filenames) {
-        const normalizedFilename = normalizeFilename(filename);
+        [
+            "getPermutation",
+            "getPermutation1",
+            "getPermutation2"],
 
-        console.log(`📥 Loading map from: ${normalizedFilename}`);
-        const map = loadMapFromFileSync(normalizedFilename);
+        [
+            "getPermutations",
+            "getPermutations1",
+            "getPermutations2"]
+    ]
 
-        console.log(`   ✔ Loaded map with ${map.size} entries`);
-        mapsArray.push(map);
+    for (let filenames of bundle) {
+        const mapsArray = [];
+
+        console.log(`📄 Preparing to load ${filenames.length} map files...`);
+
+        for (let filename of filenames) {
+            const normalizedFilename = normalizeFilename(filename);
+
+            console.log(`📥 Loading map from: ${normalizedFilename}`);
+            const map = loadMapFromFileSync(normalizedFilename);
+
+            console.log(`   ✔ Loaded map with ${map.size} entries`);
+            mapsArray.push(map);
+        }
+
+        const joinedMap = mergeMaps(mapsArray);
+
+        const joinedMapsFilename = normalizeFilename(`${filenames[0]}_joined`);
+        console.log(`💾 Saving merged map to: ${joinedMapsFilename}`);
+
+        saveMapToFile(joinedMapsFilename, joinedMap);
+
+        console.log("🎉 Merge process completed successfully!");
     }
-
-    const joinedMap = mergeMaps(mapsArray);
-
-    const joinedMapsFilename = normalizeFilename("joined");
-    console.log(`💾 Saving merged map to: ${joinedMapsFilename}`);
-
-    saveMapToFile(joinedMapsFilename, joinedMap);
-
-    console.log("🎉 Merge process completed successfully!");
 };
 
-runMergeMap();
+runMergeMap()
+
+

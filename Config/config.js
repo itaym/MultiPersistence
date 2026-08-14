@@ -20,8 +20,8 @@ let executed = false;
  *
  * @returns {void}
  */
-export const initConfig = () => {
+export const initConfig = (options = undefined) => {
     if (executed) return
     initPollyFill()
-    dotenvEval(dotenv.config())
+    dotenvEval(dotenv.config(options))
 }
