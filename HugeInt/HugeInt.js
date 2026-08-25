@@ -76,24 +76,26 @@ export class HugeInt {
 
         if (initValue === 0n) {
             this.firstCell = {
+                additionSum: 0n,
                 changed: true,
                 count: 1n,
                 digit: 0n,
                 next: null,
                 prev: null,
-                result: 0n,
+                multiplySum: 0n,
             }
             this.lastCell = this.firstCell
         } else {
             const digit = initValue % base
             initValue /= base
             let currentCell = {
+                additionSum: 0n,
                 changed: true,
                 count: 1n,
                 digit,
                 next: null,
                 prev: null,
-                result: 0n,
+                multiplySum: 0n,
             }
             this.firstCell = currentCell
             while (initValue !== 0n) {
@@ -103,12 +105,13 @@ export class HugeInt {
                     currentCell.count++
                 } else {
                     currentCell.next = {
+                        additionSum: 0n,
                         changed: true,
                         count: 1n,
                         digit,
                         next: null,
                         prev: currentCell,
-                        result: 0n,
+                        multiplySum: 0n,
                     }
                     currentCell = currentCell.next
                 }
@@ -423,12 +426,13 @@ export class HugeInt {
             currentCell.digit = digitsValue[digitsArr[index][0]]
 
             currentCell.next = {
+                additionSum: 0n,
                 changed: true,
                 count: 0n,
                 digit: 0n,
                 next: null,
                 prev: currentCell,
-                result: 0n,
+                multiplySum: 0n,
             }
             currentCell = currentCell.next
         }
@@ -468,12 +472,13 @@ export class HugeInt {
             throw new Error('Base is incompatible.')
         }
         const newCell = {
+            additionSum: 0n,
             changed: false,
             count: 0n,
             digit: -1n,
             next: null,
             prev: null,
-            result: 0n,
+            multiplySum: 0n,
         }
         const firstLength = HugeInt.maxBigInt(this.length, hugeInt.length)
         const firstHugeInt = this.length >= hugeInt.length ? this : hugeInt
@@ -575,12 +580,13 @@ export class HugeInt {
                 return
             }
             this.addCellAfter(cell, {
+                additionSum: 0n,
                 changed: true,
                 count: cell.count - 1n,
                 digit: cell.digit,
                 next: null,
                 prev: null,
-                result: 0n,
+                multiplySum: 0n,
             })
             cell.count = 1n
             cell.digit++
@@ -595,12 +601,13 @@ export class HugeInt {
         }
         if (cell === this.lastCell) {
             this.addCellAfter(cell, {
+                additionSum: 0n,
                 changed: true,
                 count: 1n,
                 digit: 2n, // 1n
                 next: null,
                 prev: null,
-                result: 0n,
+                multiplySum: 0n,
             })
             return
         }
@@ -652,12 +659,13 @@ export class HugeInt {
 
             this.addCellAfter(
                 /** @type {DigitCell} */ cell, {
+                additionSum: 0n,
                 changed: true,
                 count: cell.count - 1n,
                 digit: cell.digit,
                 next: null,
                 prev: null,
-                result: 0n,
+                multiplySum: 0n,
             })
             cell.count = 1n
             cell.digit++
@@ -669,12 +677,13 @@ export class HugeInt {
         if (!cell.next) {
             this.addCellAfter(
                 /** @type {DigitCell} */ cell, {
+                additionSum: 0n,
                 changed: true,
                 count: 1n,
                 digit: 2n,
                 next: null,
                 prev: null,
-                result: 0n,
+                multiplySum: 0n,
             })
             return
         }
@@ -757,12 +766,13 @@ export class HugeInt {
                 return
             } else {
                 this.addCellAfter(cell, {
+                    additionSum: 0n,
                     changed: true,
                     count: cell.count - 1n,
                     digit: cell.digit,
                     next: null,
                     prev: null,
-                    result: 0n,
+                    multiplySum: 0n,
                 })
                 cell.count = 1n
                 cell.digit--
@@ -1068,12 +1078,13 @@ export class HugeInt {
      */
     splitCellAfter(cell, countToSplit) {
         const newCell = {
+            additionSum: 0n,
             changed: true,
             count: cell.count - countToSplit,
             digit: cell.digit,
             next: null,
             prev: null,
-            result: 0n
+            multiplySum: 0n
         }
         this.addCellAfter(cell, newCell)
         cell.count = countToSplit
@@ -1125,12 +1136,13 @@ export class HugeInt {
      */
     splitCellBefore(cell, countToSplit) {
         const newCell = {
+            additionSum: 0n,
             changed: true,
             count: countToSplit,
             digit: cell.digit,
             next: null,
             prev: null,
-            result: 0n
+            multiplySum: 0n
         }
         this.addCellBefore(cell, newCell)
         cell.count -= countToSplit

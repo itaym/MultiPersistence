@@ -58,7 +58,7 @@ const getColor = () => {
  *   - iterationsPerLog: number — iterations since last log
  *
  * @param {Object} params
- * @param {string} params.goalNumber
+ * @param {HugeInt} params.goalNumber
  *     String representation of the target HugeInt.
  *
  * @param {BigInt} params.base
@@ -94,7 +94,7 @@ export default function logMultiPersistence({
     }) {
         let lastNumberFound = countSteps[countSteps.length - 1]?.first || 0n
         let maxSteps = countSteps[countSteps.length - 1]?.step
-        lastNumberFound = new HugeInt(lastNumberFound, base)
+        lastNumberFound = new HugeInt(lastNumberFound.currentNoValue, base)
         currentNo = new HugeInt(currentNo, base)
         try {
             const numOfMilliseconds = endTime - startTime

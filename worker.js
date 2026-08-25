@@ -29,7 +29,7 @@ initConfig()
 
 /**
  * Numerical base used for HugeInt operations.
- * @type {number}
+ * @type {BigInt|number}
  */
 let base
 
@@ -77,6 +77,8 @@ let stackMessages = []
  * @property {number} steps - Number of persistence steps.
  * @property {number} atRunTime - Runtime at the moment of discovery.
  * @property {number} calcIterations - Total calculated iterations.
+ * @property {BigInt} additionSum
+ * @property {BigInt} multiplySum
  */
 
 /**
@@ -118,18 +120,28 @@ const createLengthsArray = (currentNo) => {
 const onFoundCreator = (initVars) => {
     const { steps: countSteps, number_lengths } = initVars
 
-    return ({ atRunTime, calcIterations, steps }, currentNo, length, startTime, endTime) => {
+    return ({ atRunTime, calcIterations, steps, additionSum, multiplySum }, currentNo, length, startTime, endTime) => {
         const currentNoValue = currentNo.value
 
         // Initialize step statistics if missing
         if (!countSteps[steps]) {
             countSteps[steps] = {
+                additionSum: 0n,
+                multiplySum: 0n,
                 atRunTime,
                 combinations: 0n,
                 count: 0,
-                first: currentNoValue,
+                first: {
+                    additionSum,
+                    multiplySum,
+                    currentNoValue,
+                },
                 iteration: 0,
-                last: 0,
+                last: {
+                    additionSum,
+                    multiplySum,
+                    currentNoValue,
+                },
                 step: steps,
             }
         }
@@ -138,9 +150,15 @@ const onFoundCreator = (initVars) => {
         const lengthsArr = createLengthsArray(currentNo)
         const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(lengthsArr)
 
+        countStep.additionSum += additionSum
+        countStep.multiplySum += multiplySum
         countStep.combinations += combinations
         countStep.count++
-        countStep.last = currentNoValue
+        countStep.last = {
+            additionSum,
+            multiplySum,
+            currentNoValue,
+        },
         countStep.atRunTime = atRunTime
         countStep.iteration = calcIterations
 
@@ -157,15 +175,31 @@ const onFoundCreator = (initVars) => {
 
         if (!numberLength.steps[steps]) {
             numberLength.steps[steps] = {
+                additionSum: 0n,
+                multiplySum: 0n,
                 count: 0,
                 combinations: 0n,
-                first: currentNoValue,
-                last: 0n,
+                first: {
+                    additionSum,
+                    multiplySum,
+                    currentNoValue,
+                },
+                last: {
+                    additionSum,
+                    multiplySum,
+                    currentNoValue,
+                },
             }
         }
 
         const numberLengthSteps = numberLength.steps[steps]
-        numberLengthSteps.last = currentNoValue
+        numberLengthSteps.additionSum += additionSum
+        numberLengthSteps.multiplySum += multiplySum
+        numberLengthSteps.last = {
+            additionSum,
+            multiplySum,
+            currentNoValue,
+        }
         numberLengthSteps.count++
         numberLengthSteps.combinations += combinations
         numberLength.found++
@@ -176,6 +210,7 @@ const onFoundCreator = (initVars) => {
  * @typedef {Object} MessageObj
  * @property {string} type - Message type ('init', "stack", "found")
  * @property {Object} data - Message payload
+ * @property {BigInt} data.base
  */
 
 /**
@@ -241,6 +276,7 @@ const onMessage = async (messageObj) => {
             stackMessages = []
 
             // Update iteration statistics
+            /** @type {Iterations} */
             initVars.iterations = {
                 calculated: calcIterations,
                 count: countIterations,

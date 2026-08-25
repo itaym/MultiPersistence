@@ -14,3 +14,17 @@
  * @property {number} memorize_save_bach - Number of items to batch before saving (from MEMORIZE_SAVE_BACH)
  * @property {boolean} debug - Whether debug mode is enabled (from DEBUG)
  */
+
+/**
+ * Result object returned by digit‑reduction functions.
+ *
+ * @typedef {Object} ReduceResults
+ * @property {BigInt} additionSum
+ *     Sum of all digits (digit * count) in the HugeInt.
+ *
+ * @property {BigInt} multiplySum
+ *     Product of all digits (digit ** count) in the HugeInt.
+ *
+ * @property {number} steps
+ *     Number of multiplicative steps performed so far.
+ */

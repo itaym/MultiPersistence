@@ -8,25 +8,6 @@ import waitShowLog from '../utils/waitShowLog.js'
 import { multiPer, multiPerNBC } from './index.js'
 
 /**
- * Multiplicative Persistence Search Engine
- *
- * This module implements the main search loop used to explore numbers in a
- * given base and identify those with non-trivial multiplicative persistence.
- *
- * The search operates on HugeInt instances, incrementing them in sorted form,
- * applying pruning rules, computing persistence, batching results, sending
- * them to a worker thread for processing or logging, and dynamically adjusting
- * logging intervals based on runtime performance.
- *
- * The loop is optimized for long-running computations and supports:
- *  - Worker message batching
- *  - Dynamic logging intervals
- *  - Zero/modulo-based pruning
- *  - Session continuation using previous iteration statistics
- *  - Switching between multiPer and multiPerNBC for performance
- */
-
-/**
  * Performs the multiplicative persistence search loop.
  *
  * This function is the main computational engine of the system. It iterates
@@ -38,52 +19,11 @@ import { multiPer, multiPerNBC } from './index.js'
  * `process.env.isWorkerReady`, ensuring that messages are only sent when the
  * worker is ready to receive them.
  *
- * Search behavior:
- *  - Initializes the HugeInt from the last processed number.
- *  - Increments the number using `addOneToSorted()`.
- *  - Applies modulo-based pruning via `onModuloBase`.
- *  - Computes persistence using either `multiPer` or `multiPerNBC`.
- *  - Tracks consecutive non-found results to determine when to break.
- *  - Batches found results into groups of 100 for efficient worker messaging.
- *  - Dynamically adjusts logging intervals based on iteration timing.
- *  - Sends periodic log messages containing detailed runtime statistics.
- *  - Performs a final log and cleanup after the search terminates.
- *
- * Performance notes:
- *  - The loop is optimized for extremely long-running searches.
- *  - Logging intervals adapt automatically to maintain consistent output.
- *  - Persistence computation switches to `multiPerNBC` when beneficial.
- *  - Pruning rules significantly reduce unnecessary persistence evaluations.
- *
  * @async
  * @function multiPerSearch
  *
- * @param {Object} initVars
+ * @param {InitVars} initVars
  *     Initialization parameters for continuing a previous search session.
- *
- * @param {number} initVars.base
- *     Numerical base used for HugeInt digit interpretation.
- *
- * @param {Object} initVars.iterations
- *     Iteration statistics from previous runs.
- *
- * @param {number} initVars.iterations.calculated
- *     Total number of persistence calculations performed so far.
- *
- * @param {number} initVars.iterations.count
- *     Total number of iterations performed so far.
- *
- * @param {number} initVars.iterations.found_nothing
- *     Count of consecutive iterations that did not produce a non-trivial result.
- *
- * @param {number} initVars.iterations.found_nothing_break_at
- *     Maximum allowed consecutive non-found iterations before breaking.
- *
- * @param {BigInt} initVars.last_number
- *     The last HugeInt value processed in the previous session.
- *
- * @param {number} initVars.up_time
- *     Total runtime accumulated across previous sessions.
  *
  * @param {number} log_interval
  *     Desired interval (in milliseconds) between log outputs.
@@ -102,18 +42,19 @@ import { multiPer, multiPerNBC } from './index.js'
  */
 
 export const multiPerSearch = async (
-    {
-        base,
-        iterations,
-        last_number,
-        up_time,
-    },
+    initVars,
     log_interval,
     startSessionTime,
     startTime,
     worker,
 ) => {
 
+    const {
+        base,
+            iterations,
+            last_number,
+            up_time,
+    } = initVars
     let calcIterations = iterations.calculated
     let countIterations = iterations.count
     let currentNo = new HugeInt(last_number, base)
@@ -128,7 +69,8 @@ export const multiPerSearch = async (
     let notToBreak = notFoundLimit > notFound
 
     let startTimeLog = startSessionTime
-    let steps = 2
+    /** @type {ReduceResults} */
+    let reduceResults
 
     /**
      * Bound version of multiPerNBC using the current HugeInt and base.
@@ -177,10 +119,15 @@ export const multiPerSearch = async (
      * Creates a formatted message object containing persistence results and
      * iteration statistics for worker transmission.
      *
-     * @returns {Object}
-     *     Structured message containing timing, iteration counts, and persistence.
+     * @see startTime
+     * @see calcIterations
+     * @see reduceResults
+     *
+     * @returns {FoundMessage}
      */
-    const createMessage = () => prepareBindMessage(startTime, calcIterations, steps)
+    const createMessage = () =>
+        prepareBindMessage(startTime, calcIterations, reduceResults)
+
 
     currentNo.addOneToSorted()
 
@@ -201,10 +148,10 @@ export const multiPerSearch = async (
         calcIterations += createPermutations
         countIterations++
 
-        steps = multiPerFn()
+        reduceResults = multiPerFn()
 
-        // Found a number with persistence != 2
-        if (steps !== 2) {
+        if (reduceResults.steps !== 2) {
+
             notFoundLimit = Math.max(countIterations, notFoundLimit)
             notFound = 0
 

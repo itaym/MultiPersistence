@@ -89,27 +89,34 @@ function reduce(arr) {
  * @param {HugeInt} hugeInt
  *     The HugeInt instance whose digit product is computed.
  *
- * @returns {BigInt}
+ * @returns {ReduceResults}
  *     The product of all digits in the HugeInt.
  */
 function reduceHI(hugeInt) {
-    let cell = hugeInt.firstCell.next, lastResult
+    let cell = hugeInt.firstCell.next
+    let multiplySum, additionSum
 
     while (cell && cell.changed) cell = cell.next
 
     cell ?
-        (lastResult = cell.result, cell = cell.prev) :
-        (lastResult = 1n, cell = hugeInt.lastCell)
+        (multiplySum = cell.multiplySum, additionSum = cell.additionSum, cell = cell.prev) :
+        (multiplySum = 1n, additionSum = 0n, cell = hugeInt.lastCell)
 
     do {
-        lastResult *= cell.digit ** cell.count
+        multiplySum *= cell.digit ** cell.count
+        additionSum += cell.digit * cell.count
+        cell.additionSum = additionSum
         cell.changed = false
-        cell.result = lastResult
+        cell.multiplySum = multiplySum
 
         cell = cell.prev
     } while (cell)
 
-    return lastResult
+    return {
+        additionSum,
+        multiplySum,
+        steps: 1
+    }
 }
 
 /**
@@ -128,11 +135,18 @@ function reduceHI(hugeInt) {
  * @param {number} base
  *     Numerical base used for digit interpretation.
  *
- * @returns {number}
+ * @returns {ReduceResults}
  *     Number of multiplicative steps required to reach a single digit.
  */
 export const multiPer = function (currentNo, base) {
-    if (currentNo.isLTBase()) return 0
+    if (currentNo.isLTBase()) {
+        /** @type {ReduceResults} */
+        return {
+            additionSum: currentNo.firstCell.digit,
+            multiplySum: currentNo.firstCell.digit,
+            steps: 0,
+        }
+    }
 
     return multiPerNBC(currentNo, base)
 }
@@ -155,12 +169,14 @@ export const multiPer = function (currentNo, base) {
  * @param {number} base
  *     Numerical base used for digit interpretation.
  *
- * @returns {number}
+ * @returns {ReduceResults}
  *     Persistence count excluding the initial base-case check.
  */
 export const multiPerNBC = function (currentNo, base) {
 
-    return 1 + multiPer2(reduceHI(currentNo), base)
+    const reduceResult = reduceHI(currentNo)
+    reduceResult.steps += multiPer2(reduceResult.multiplySum, base)
+    return reduceResult
 }
 
 /**
