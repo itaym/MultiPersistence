@@ -22,7 +22,7 @@ import { multiPer, multiPerNBC } from './index.js'
  * @async
  * @function multiPerSearch
  *
- * @param {InitVars} initVars
+ * @param {ComputationState} computationState
  *     Initialization parameters for continuing a previous search session.
  *
  * @param {number} log_interval
@@ -42,7 +42,7 @@ import { multiPer, multiPerNBC } from './index.js'
  */
 
 export const multiPerSearch = async (
-    initVars,
+    computationState,
     log_interval,
     startSessionTime,
     startTime,
@@ -51,10 +51,10 @@ export const multiPerSearch = async (
 
     const {
         base,
-            iterations,
-            last_number,
-            up_time,
-    } = initVars
+        iterations,
+        last_number,
+        up_time,
+    } = computationState
     let calcIterations = iterations.calculated
     let countIterations = iterations.count
     let currentNo = new HugeInt(last_number, base)

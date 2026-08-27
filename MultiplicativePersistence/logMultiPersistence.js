@@ -57,11 +57,10 @@ const getColor = () => {
  *   - startTime, endTime, startSessionTime, startTimeLog: timestamps
  *   - iterationsPerLog: number — iterations since last log
  *
- * @param {Object} params
- * @param {HugeInt} params.goalNumber
- *     String representation of the target HugeInt.
+ * @param {HugeInt} goalNumber
+ *     The target HugeInt.
  *
- * @param {BigInt} params.base
+ * @param {BigInt} base
  *     Numeric base used for HugeInt operations.
  *
  * @returns {function(Object): string}

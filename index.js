@@ -20,31 +20,21 @@
  *
  * @module MainIndex
  *
- * @typedef {Object} InitVars
- * @property {number} up_time
- *     Milliseconds of previous session uptime, used to compute the adjusted
- *     start time for the current session.
- * @property {number} [other]
- *     Additional initialization fields returned by getInitVars().
- *
- * @typedef {Object} WorkerInitPayload
- * @property {InitVars} VARS
+ * @typedef {Object} WorkerConfig
+ * @property {ComputationState} VARS
  *     Initialization variables for the worker.
- * @property {number} base
+ * @property {BigInt} base
  *     Numerical base used for HugeInt operations.
- * @property {string} goalNumber
- *     The target number (as a string) for the persistence search.
+ * @property {BigInt} goalNumber
+ *     The target number for the persistence search.
+ * @property {Iterations} iterations
+ *     The Iterations metadata for the persistence search
+ * @property {HugeInt} last_number
+ *     The Iterations metadata for the persistence search
  * @property {number} startSessionTime
  *     Timestamp (ms) when the current session began.
  * @property {number} startTime
  *     Adjusted timestamp including previous uptime.
- *
- * @typedef {Object} MultiPerSearchParams
- * @property {InitVars} initVars
- * @property {number} logInterval
- * @property {number} startSessionTime
- * @property {number} startTime
- * @property {Worker} worker
  *
  * @throws {Error}
  *     If configuration is invalid or the worker fails to initialize.
@@ -52,7 +42,7 @@
 import HugeInt from './HugeInt/index.js'
 import postMessages from './utils/postMessage.js'
 import { Worker, SHARE_ENV } from 'worker_threads'
-import { getInitVars } from './Config/getInitVars.js'
+import { getComputationState } from './Config/computationStateIO.js'
 import { initConfig } from './Config/config.js'
 import { initPollyFill } from './utils/pollyfill.js'
 import { multiPerSearch } from './MultiplicativePersistence/index.js'
@@ -149,29 +139,31 @@ const worker = new Worker('./worker.js', {
     },
 })
 
-let initVars = await getInitVars()
+let computationState = await getComputationState()
 
 const goalNumber = new HugeInt(normalizedEnv.goal_number, normalizedEnv.base)
 const log_interval = normalizedEnv['log_interval']
 const startSessionTime = Date.now()
-const startTime = startSessionTime - initVars.up_time
+const startTime = startSessionTime - computationState.up_time
 
-postMessages( worker, 'init', {
+/** @type WorkerConfig */
+const workerConfig = {
+    VARS: {
+        ...computationState,
+    },
+    base:  normalizedEnv.base,
+    goalNumber: goalNumber.value,
+    startSessionTime,
+    startTime,
+}
 
-        VARS: {
-        ...initVars,
-        },
-        base:  normalizedEnv.base,
-        goalNumber: goalNumber.value,
-        startSessionTime,
-        startTime,
-    })
+postMessages( worker, 'init', workerConfig)
 
 while (process.env.isWorkerReady !== 'true') {
     await waitShowLog(100)
 }
 
 // noinspection JSCheckFunctionSignatures
-await multiPerSearch(initVars, log_interval, startSessionTime, startTime, worker)
+await multiPerSearch(computationState, log_interval, startSessionTime, startTime, worker)
 await worker.terminate()
 console.log('---------- FINISH ----------')

@@ -26,20 +26,13 @@
  *       - `'stack'` → batch accumulation message
  *       - `'found'` → final batch processing message
  *
- * @param {Object} data
+ * @param {any} data
  *     Arbitrary payload associated with the message. The worker interprets
  *     this based on the `type` field.
  *
  * @returns {boolean}
  *     `true`  → message was sent successfully
  *     `false` → worker was busy; message was NOT sent
- *
- * @example
- * // Attempt to send a message:
- * const success = postMessage(worker, 'found', { messages: [...] })
- * if (!success) {
- *     // Worker is busy — retry later
- * }
  */
 const postMessage = (worker, type, data) => {
 

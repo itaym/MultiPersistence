@@ -70,7 +70,7 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
 /**
  * Structure of the initialization variables loaded from disk.
  *
- * @typedef {object} InitVars
+ * @typedef {object} ComputationState
  * @property {BigInt} base
  *     The numeric base used for HugeInt operations.
  *
@@ -111,19 +111,20 @@ const reviver = (key, value) => {
 }
 
 /**
- * Load initialization variables from the results file.
+ * Load computation state variables from the results file.
  *
  * If `debug=true`, returns default values without reading from disk.
  * If the main JSON file is missing, attempts to load a `.bak` backup.
  *
- * @returns {Promise<InitVars>}
+ * @returns {Promise<ComputationState>}
  */
-export const getInitVars = async () => {
+export const getComputationState = async () => {
 
     const { normalizedEnv } = process
     const { vars_file } = normalizedEnv
     const filename = `./results/${normalizedEnv.base.toString().padStart(5, '0')}_${vars_file}`
 
+    /** @type ComputationState */
     const defaultVars = {
         base: normalizedEnv.base,
         iterations: {
@@ -168,14 +169,14 @@ const replacer = (key, value) => {
 }
 
 /**
- * Save initialization variables to disk.
+ * Save computation state variables to disk.
  *
  * Writes to:
  *   ./results/<base>_<vars_file>
  *
  * Before writing, attempts to rename the existing file to `.bak`.
  *
- * @param {InitVars} initVars
+ * @param {ComputationState} computationState
  *     The initialization variables to save.
  *
  * @param {BigInt} base
@@ -183,14 +184,14 @@ const replacer = (key, value) => {
  *
  * @returns {Promise<void>}
  */
-export const setInitVars = async (initVars, base) => {
+export const setComputationState = async (computationState, base) => {
     const { normalizedEnv } = process
     const { vars_file } = normalizedEnv
 
     const fileName = `./results/${base.toString().padStart(5, '0')}_${vars_file}`
 
     try {
-        await writeJsonFile(fileName, initVars, replacer, '\t')
+        await writeJsonFile(fileName, computationState, replacer, '\t')
     }
     catch {}
 }
