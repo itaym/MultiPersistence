@@ -287,11 +287,11 @@ const onMessage = async (messageObj) => {
 
             computationState.last_number = currentNo
             computationState.up_time = endTime - startTime
-            delete data.messages
+            delete found.messages
 
             // Generate log snapshot
             process.env.log = log({
-                ...data,
+                ...found,
                 countSteps: computationState.steps,
                 messagesCount: noOfMessages,
                 lengths: computationState.number_lengths,
