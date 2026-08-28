@@ -57,7 +57,14 @@ export const multiPerSearch = async (
     } = computationState
     let calcIterations = iterations.calculated
     let countIterations = iterations.count
-    let currentNo = new HugeInt(last_number, base)
+    let currentNo = new HugeInt(last_number, base, () => ({
+        additionSum: 0n,
+        changed: true,
+        count: 1n,
+        digit: 0n,
+        next: null,
+        prev: null,
+        multiplySum: 0n}))
     let endTime
 
     let iterationsPerLog = countIterations

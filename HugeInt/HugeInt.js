@@ -1,4 +1,5 @@
 import { digitsObj as baseDigits, digitsValue, toBigInt } from '../Digits/index.js'
+import { testDigitCellFactory } from './utils.js'
 
 /**
  * A single digit-cell in the HugeInt linked list.
@@ -67,36 +68,39 @@ export class HugeInt {
      * @param {BigInt} [base=10n]
      *     Numerical base used for digit decomposition.
      *
+     * @param {() => Object} [digitCellFactory]
+     *     Factory function that creates new DigitCell objects.
+     *     Called once for validation and then for every cell creation.
+     *
      * @returns {HugeInt}
      */
-    constructor(initValue = 0n, base = 10n) {
+    constructor(initValue = 0n, base = 10n, digitCellFactory = undefined) {
 
         this.#base = base
         this.#baseMinusOne = this.#base - 1n
-
-        if (initValue === 0n) {
-            this.firstCell = {
-                additionSum: 0n,
+        this.#digitCellFactory = digitCellFactory || (() => (
+            /** @type {DigitCell} */
+            {
                 changed: true,
                 count: 1n,
                 digit: 0n,
                 next: null,
                 prev: null,
-                multiplySum: 0n,
-            }
+            })
+        )
+
+        if (!testDigitCellFactory(this.#digitCellFactory)) {
+            throw new Error('digitCellFactory function ... (copilot enter description here')
+        }
+
+        if (initValue === 0n) {
+            this.firstCell = this.#digitCellFactory()
             this.lastCell = this.firstCell
         } else {
             const digit = initValue % base
             initValue /= base
-            let currentCell = {
-                additionSum: 0n,
-                changed: true,
-                count: 1n,
-                digit,
-                next: null,
-                prev: null,
-                multiplySum: 0n,
-            }
+            let currentCell = this.#digitCellFactory()
+            currentCell.digit = digit
             this.firstCell = currentCell
             while (initValue !== 0n) {
                 const digit = initValue % base
@@ -104,15 +108,8 @@ export class HugeInt {
                 if (currentCell.digit === digit) {
                     currentCell.count++
                 } else {
-                    currentCell.next = {
-                        additionSum: 0n,
-                        changed: true,
-                        count: 1n,
-                        digit,
-                        next: null,
-                        prev: currentCell,
-                        multiplySum: 0n,
-                    }
+                    currentCell.next = this.#digitCellFactory()
+                    currentCell.digit = digit
                     currentCell = currentCell.next
                 }
             }
@@ -136,7 +133,12 @@ export class HugeInt {
      * Cached value of (base - 1n), used for geometric series calculations.
      */
     #baseMinusOne
-
+    /**
+     * @private
+     * @type {() => DigitCell}
+     * Factory function used to create new DigitCell objects.
+     */
+    #digitCellFactory
     /**
      * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      * @section @@GETTERS
@@ -425,15 +427,8 @@ export class HugeInt {
             currentCell.count = toBigInt[digitsArr[index].length]
             currentCell.digit = digitsValue[digitsArr[index][0]]
 
-            currentCell.next = {
-                additionSum: 0n,
-                changed: true,
-                count: 0n,
-                digit: 0n,
-                next: null,
-                prev: currentCell,
-                multiplySum: 0n,
-            }
+            currentCell.next = this.#digitCellFactory()
+            currentCell.next.prev = currentCell
             currentCell = currentCell.next
         }
         this.lastCell = currentCell.prev
@@ -471,15 +466,8 @@ export class HugeInt {
         if (this.#base !== hugeInt.base) {
             throw new Error('Base is incompatible.')
         }
-        const newCell = {
-            additionSum: 0n,
-            changed: false,
-            count: 0n,
-            digit: -1n,
-            next: null,
-            prev: null,
-            multiplySum: 0n,
-        }
+        const newCell = this.#digitCellFactory()
+        newCell.digit = -1n
         const firstLength = HugeInt.maxBigInt(this.length, hugeInt.length)
         const firstHugeInt = this.length >= hugeInt.length ? this : hugeInt
         const secondHugeInt = this.length >= hugeInt.length ? hugeInt : this
@@ -573,21 +561,17 @@ export class HugeInt {
     addOne(cell) {
         cell ??= this.firstCell
         cell.changed = true
+        let cellToAdd
 
         if (cell.digit !== this.#baseMinusOne) {
             if (cell.count === 1n) {
                 cell.digit++
                 return
             }
-            this.addCellAfter(cell, {
-                additionSum: 0n,
-                changed: true,
-                count: cell.count - 1n,
-                digit: cell.digit,
-                next: null,
-                prev: null,
-                multiplySum: 0n,
-            })
+            cellToAdd = this.#digitCellFactory()
+            cellToAdd.count = cell.count - 1n
+            cellToAdd.digit = cell.digit
+            this.addCellAfter(cell, cellToAdd)
             cell.count = 1n
             cell.digit++
             return
@@ -600,15 +584,9 @@ export class HugeInt {
             this.removeCell(cell.prev)
         }
         if (cell === this.lastCell) {
-            this.addCellAfter(cell, {
-                additionSum: 0n,
-                changed: true,
-                count: 1n,
-                digit: 2n, // 1n
-                next: null,
-                prev: null,
-                multiplySum: 0n,
-            })
+            cellToAdd = this.#digitCellFactory()
+            cellToAdd.digit = 2n //1n
+            this.addCellAfter(cell, cellToAdd)
             return
         }
         this.addOne(cell.next)
@@ -643,12 +621,13 @@ export class HugeInt {
      *  - Mutates the HugeInt structure.
      *
      * @method addOneToSorted
-     * @param {DigitCell|null} [cell=this.firstCell]
+     * @param {DigitCell} [cell=this.firstCell]
      *     The cell to increment.
      *
      * @returns {void}
      */
     addOneToSorted(cell = this.firstCell) {
+        let cellToAdd
         cell.changed = true
 
         if (cell.digit !== this.#baseMinusOne) {
@@ -656,17 +635,11 @@ export class HugeInt {
                 cell.digit++
                 return
             }
+            cellToAdd = this.#digitCellFactory()
+            cellToAdd.count = cell.count -1n
+            cellToAdd.digit = cell.digit
 
-            this.addCellAfter(
-                /** @type {DigitCell} */ cell, {
-                additionSum: 0n,
-                changed: true,
-                count: cell.count - 1n,
-                digit: cell.digit,
-                next: null,
-                prev: null,
-                multiplySum: 0n,
-            })
+            this.addCellAfter(cell, cellToAdd)
             cell.count = 1n
             cell.digit++
             return
@@ -675,16 +648,10 @@ export class HugeInt {
         cell.digit = 0n
 
         if (!cell.next) {
-            this.addCellAfter(
-                /** @type {DigitCell} */ cell, {
-                additionSum: 0n,
-                changed: true,
-                count: 1n,
-                digit: 2n,
-                next: null,
-                prev: null,
-                multiplySum: 0n,
-            })
+            cellToAdd = this.#digitCellFactory()
+            cellToAdd.digit = 2n
+
+            this.addCellAfter(cell, cellToAdd)
             return
         }
         this.addOneToSorted(cell.next)
@@ -759,21 +726,18 @@ export class HugeInt {
      */
     subtractOne(cell) {
         cell ??= this.firstCell
+        let cellToAdd
 
         if (cell.digit !== 0n) {
             if (cell.count === 1n) {
                 cell.digit--
                 return
             } else {
-                this.addCellAfter(cell, {
-                    additionSum: 0n,
-                    changed: true,
-                    count: cell.count - 1n,
-                    digit: cell.digit,
-                    next: null,
-                    prev: null,
-                    multiplySum: 0n,
-                })
+                cellToAdd = this.#digitCellFactory()
+                cellToAdd.count = cell.count -1n
+                cellToAdd.digit = cell.digit
+
+                this.addCellAfter(cell, cellToAdd)
                 cell.count = 1n
                 cell.digit--
                 return
@@ -1077,15 +1041,10 @@ export class HugeInt {
      *     The newly created cell containing the remainder of the digits.
      */
     splitCellAfter(cell, countToSplit) {
-        const newCell = {
-            additionSum: 0n,
-            changed: true,
-            count: cell.count - countToSplit,
-            digit: cell.digit,
-            next: null,
-            prev: null,
-            multiplySum: 0n
-        }
+        const newCell = this.#digitCellFactory()
+        newCell.count = cell.count - countToSplit
+        newCell.digit = cell.digit
+
         this.addCellAfter(cell, newCell)
         cell.count = countToSplit
         cell.changed = true
@@ -1135,15 +1094,10 @@ export class HugeInt {
      *     The newly created cell containing the extracted digits.
      */
     splitCellBefore(cell, countToSplit) {
-        const newCell = {
-            additionSum: 0n,
-            changed: true,
-            count: countToSplit,
-            digit: cell.digit,
-            next: null,
-            prev: null,
-            multiplySum: 0n
-        }
+        const newCell = this.#digitCellFactory()
+        newCell.count = cell.count - countToSplit
+        newCell.digit = cell.digit
+
         this.addCellBefore(cell, newCell)
         cell.count -= countToSplit
         cell.changed = true
