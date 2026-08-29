@@ -25,41 +25,25 @@ import { testDigitCellFactory } from './utils.js'
  */
 
 /**
- * Represents a large integer using a compressed linked‑list structure of digit cells.
+ * Represents a large integer using a compressed linked-list structure of digit cells.
  *
- * Each digit cell stores:
- *  - a digit (0 ≤ digit < base)
- *  - a count (how many times the digit repeats consecutively)
- *  - links to previous and next cells
- *
- * This structure is optimized for:
- *  - extremely fast incremental mutation (addOne, subtractOne)
- *  - efficient multiplicative persistence calculations
- *  - minimal memory churn during long-running numeric searches
- *
- * The number is stored in **least-significant-digit-first** order:
- *  firstCell → the lowest digit
- *  lastCell  → the highest digit
- *
- * Adjacent cells **never** contain the same digit. Repeated digits are merged
- * into a single cell with count > 1.
+ * Each digit cell stores a digit, a count of consecutive repetitions of that digit,
+ * and links to previous and next cells. Adjacent cells never contain the same digit;
+ * repeated digits are merged into a single cell with count > 1. The list is stored
+ * in least-significant-digit-first order, where `firstCell` is the lowest digit and
+ * `lastCell` is the highest digit.
  *
  * @class HugeInt
  */
 export class HugeInt {
 
     /**
-     * Constructs a HugeInt from an initial BigInt value.
+     * Constructs a HugeInt instance from an initial BigInt value.
      *
-     * Behavior:
-     *  - If initValue === 0n, creates a single cell containing digit 0.
-     *  - Otherwise, decomposes the number into base‑digits, compressing repeated digits
-     *    into single cells with count > 1.
-     *
-     * Invariants preserved:
-     *  - firstCell.prev === null
-     *  - lastCell.next === null
-     *  - adjacent cells never share the same digit
+     * If the initial value is 0n, a single cell containing digit 0 is created.
+     * Otherwise, the value is decomposed into digits in the given base and
+     * compressed into digit cells where consecutive identical digits share a cell
+     * with an increased count.
      *
      * @constructor
      * @param {BigInt} [initValue=0n]
@@ -69,8 +53,8 @@ export class HugeInt {
      *     Numerical base used for digit decomposition.
      *
      * @param {() => DigitCell} [digitCellFactory]
-     *     Factory function that creates new DigitCell objects.
-     *     Called once for validation and then for every cell creation.
+     *     Factory function that creates new DigitCell objects. It is validated once
+     *     and then used for every cell creation.
      *
      * @returns {HugeInt}
      */
@@ -79,18 +63,18 @@ export class HugeInt {
         this.#base = base
         this.#baseMinusOne = this.#base - 1n
         this.#digitCellFactory = digitCellFactory || (() => (
-            /** @type {DigitCell} */
-            {
-                changed: true,
-                count: 1n,
-                digit: 0n,
-                next: null,
-                prev: null,
-            })
+                /** @type {DigitCell} */
+                {
+                    changed: true,
+                    count: 1n,
+                    digit: 0n,
+                    next: null,
+                    prev: null,
+                })
         )
 
         if (!testDigitCellFactory(this.#digitCellFactory)) {
-            throw new Error('digitCellFactory function ... (copilot enter description here')
+            throw new Error('digitCellFactory function must return a valid DigitCell object')
         }
 
         if (initValue === 0n) {
@@ -109,61 +93,56 @@ export class HugeInt {
                     currentCell.count++
                 } else {
                     currentCell.next = this.#digitCellFactory()
-                    currentCell.digit = digit
+                    currentCell.next.digit = digit
+                    currentCell.next.prev = currentCell
                     currentCell = currentCell.next
                 }
             }
             this.lastCell = currentCell
         }
     }
+
     /**
-     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-     * @section @@PRIVATE FIELDS
-     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-     */
-    /**
+     * Base used for digit decomposition and arithmetic.
+     *
      * @private
      * @type {BigInt}
-     * Base used for digit decomposition and arithmetic.
      */
     #base
+
     /**
+     * Cached value of (base - 1n), used for geometric series calculations.
+     *
      * @private
      * @type {BigInt}
-     * Cached value of (base - 1n), used for geometric series calculations.
      */
     #baseMinusOne
+
     /**
+     * Factory function used to create new DigitCell objects.
+     *
      * @private
      * @type {() => DigitCell}
-     * Factory function used to create new DigitCell objects.
      */
     #digitCellFactory
-    /**
-     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-     * @section @@GETTERS
-     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-     */
 
+    /**
+     * Returns the numerical base used by this HugeInt.
+     *
+     * @readonly
+     * @returns {BigInt}
+     */
     get base() {
         return this.#base
     }
+
     /**
      * Returns the digit-cell immediately preceding the last (most significant) cell.
      *
-     * Behavior:
-     *  - If the number contains only one cell, this getter returns `null`.
-     *  - Otherwise, it returns the cell whose `next` pointer references `lastCell`.
-     *
-     * Use cases:
-     *  - Useful for operations that need to inspect or modify the second-most-significant digit.
-     *  - Often used in cell-splitting or rollover logic.
-     *
-     * Invariants:
-     *  - `lastCell.prev` is always either a valid DigitCell or `null`.
+     * If the number contains only one cell, this getter returns `null`.
      *
      * @readonly
-     * @property {DigitCell|null}
+     * @returns {DigitCell|null}
      */
     get beforeLastCell() {
         return this.lastCell.prev
@@ -172,20 +151,10 @@ export class HugeInt {
     /**
      * Returns the number of digit-cells in the linked list.
      *
-     * Behavior:
-     *  - Counts the number of distinct digit groups, not the total number of digits.
-     *  - For example, the number 111223 has 3 cells: '111', '22", "3".
-     *
-     * Complexity:
-     *  - O(n) in number of cells.
-     *
-     * Use cases:
-     *  - Debugging
-     *  - Structural analysis
-     *  - Performance tuning
+     * This counts distinct digit groups, not the total number of digits.
      *
      * @readonly
-     * @property {number}
+     * @returns {number}
      */
     get cellsLength() {
         let count = 0
@@ -206,7 +175,7 @@ export class HugeInt {
     firstCell
 
     /**
-     * Last digit-cell (most significant digit).
+     * Last digit-cell (the most significant digit).
      * Always non-null after construction.
      *
      * @type {DigitCell}
@@ -216,20 +185,10 @@ export class HugeInt {
     /**
      * Returns the total number of digits represented by the HugeInt.
      *
-     * Behavior:
-     *  - Sums the `count` field of each digit-cell.
-     *  - For example, the number 111223 has length 6.
-     *
-     * Complexity:
-     *  - O(n) in number of cells.
-     *
-     * Use cases:
-     *  - Persistence calculations
-     *  - Permutation generation
-     *  - Logging and statistics
+     * This is computed by summing the `count` field of each digit-cell.
      *
      * @readonly
-     * @property {BigInt}
+     * @returns {BigInt}
      */
     get length() {
         let count = 0n
@@ -244,15 +203,10 @@ export class HugeInt {
     /**
      * Returns the second digit-cell (the one after `firstCell`).
      *
-     * Behavior:
-     *  - If the number contains only one cell, returns `null`.
-     *
-     * Use cases:
-     *  - Helpful for algorithms that need to inspect the next digit group.
-     *  - Often used in rollover logic and cell-splitting operations.
+     * If the number contains only one cell, this returns `null`.
      *
      * @readonly
-     * @property {DigitCell|null}
+     * @returns {DigitCell|null}
      */
     get secondCell() {
         return this.firstCell.next
@@ -261,25 +215,12 @@ export class HugeInt {
     /**
      * Computes and returns the full numeric value represented by the HugeInt.
      *
-     * Behavior:
-     *  - Reconstructs the number by expanding each digit-cell into its repeated digits.
-     *  - Uses geometric series to compute repeated-digit blocks efficiently:
-     *      digit * ((base^count - 1) / (base - 1)) * (base^power)
-     *
-     * Complexity:
-     *  - O(n) in number of cells, but involves BigInt exponentiation.
-     *  - This is intentionally expensive and should NOT be used inside tight loops.
-     *
-     * Use cases:
-     *  - Logging
-     *  - Debugging
-     *  - Final output after search
-     *
-     * Side effects:
-     *  - None. Pure computation.
+     * The value is reconstructed by expanding each digit-cell into its repeated digits
+     * and applying the appropriate powers of the base. Geometric series are used to
+     * compute repeated-digit blocks efficiently.
      *
      * @readonly
-     * @property {BigInt}
+     * @returns {BigInt}
      */
     get value() {
         const o = this
@@ -305,22 +246,8 @@ export class HugeInt {
     /**
      * Inserts a new digit-cell immediately after the specified `currentCell`.
      *
-     * Behavior:
-     *  - Updates `prev` and `next` pointers of all affected cells.
-     *  - Ensures the linked-list structure remains valid.
-     *  - If the inserted cell becomes the last cell (i.e., `currentCell.next` was null),
-     *    updates `this.lastCell` accordingly.
-     *
-     * Invariants preserved:
-     *  - Adjacent cells never share the same digit unless explicitly intended by caller.
-     *  - `firstCell.prev` remains null.
-     *  - `lastCell.next` remains null.
-     *
-     * Side effects:
-     *  - Mutates the linked list structure.
-     *
-     * Complexity:
-     *  - O(1)
+     * Updates the `prev` and `next` pointers of the involved cells and, if the
+     * inserted cell becomes the last cell, updates `this.lastCell` accordingly.
      *
      * @method addCellAfter
      * @param {DigitCell} currentCell
@@ -347,20 +274,8 @@ export class HugeInt {
     /**
      * Inserts a new digit-cell immediately before the specified `currentCell`.
      *
-     * Behavior:
-     *  - Updates `prev` and `next` pointers of all affected cells.
-     *  - If the inserted cell becomes the first cell (i.e., `currentCell.prev` was null),
-     *    updates `this.firstCell` accordingly.
-     *
-     * Invariants preserved:
-     *  - Linked list remains structurally sound.
-     *  - Adjacent cells do not share identical digits unless caller intends it.
-     *
-     * Side effects:
-     *  - Mutates the linked list structure.
-     *
-     * Complexity:
-     *  - O(1)
+     * Updates the `prev` and `next` pointers of the involved cells and, if the
+     * inserted cell becomes the first cell, updates `this.firstCell` accordingly.
      *
      * @method addCellBefore
      * @param {DigitCell} currentCell
@@ -386,23 +301,10 @@ export class HugeInt {
     /**
      * Replaces the current HugeInt contents with a new value parsed from a string.
      *
-     * Behavior:
-     *  - Splits the string into groups of repeated digits using a regex.
-     *  - Converts each group into a digit-cell with `count = group.length`.
-     *  - Rebuilds the linked list from least-significant to most-significant digit.
-     *  - Updates internal base fields (`#base`, `#baseMinusOne`).
-     *
-     * Important:
-     *  - This method **mutates the entire HugeInt**, replacing all existing cells.
-     *  - A temporary trailing cell is created and then removed to finalize the structure.
-     *
-     * Invariants preserved:
-     *  - Adjacent cells never share the same digit.
-     *  - `firstCell.prev === null`
-     *  - `lastCell.next === null`
-     *
-     * Complexity:
-     *  - O(n) in number of digit groups.
+     * The string is split into groups of repeated digits, each group is converted
+     * into a digit-cell with `count` equal to the group length, and the linked list
+     * is rebuilt from least-significant to most-significant digit. The internal base
+     * fields (`#base`, `#baseMinusOne`) are updated to match the provided base.
      *
      * @method fromString
      * @param {string} str
@@ -420,7 +322,8 @@ export class HugeInt {
         this.#base = base
         this.#baseMinusOne = this.#base - 1n
 
-        let currentCell = this.firstCell
+        let currentCell = this.#digitCellFactory()
+        this.firstCell = currentCell
 
         for (let index = digitsArr.length - 1; index > -1; index--) {
 
@@ -436,11 +339,16 @@ export class HugeInt {
 
         return this
     }
+
     static maxBigInt = (...args) => args.reduce((a, b) => (a > b ? a : b))
     static minBigInt = (...args) => args.reduce((a, b) => (a < b ? a : b))
 
     /**
      * A single digit-cell in the HugeInt linked list.
+     *
+     * Each cell tracks whether it was changed, the number of consecutive occurrences
+     * of its digit, the digit value itself, links to neighboring cells, and an
+     * optional cached result used by multiplicative persistence algorithms.
      *
      * @typedef {Object} DigitCell
      * @property {boolean} changed
@@ -532,25 +440,10 @@ export class HugeInt {
     /**
      * Increments the HugeInt by exactly 1, mutating the digit-cell structure in place.
      *
-     * Behavior:
-     *  - If the digit is not at `base - 1`, increments the digit.
-     *  - If the cell has `count > 1`, splits the cell so only one digit is incremented.
-     *  - If the digit rolls over (digit == base - 1), sets digit to 0 and propagates
-     *    the carry to the next cell.
-     *  - If rollover occurs at the last cell, a new cell is appended.
-     *  - Adjacent zero-cells may be merged.
-     *
-     * This method preserves sorted digit grouping and ensures minimal structural changes.
-     *
-     * Invariants preserved:
-     *  - No adjacent cells share the same digit after operation.
-     *  - Linked list remains valid.
-     *
-     * Complexity:
-     *  - O(k) where k is number of rollover steps (usually very small).
-     *
-     * Side effects:
-     *  - Mutates the HugeInt structure.
+     * The specified cell (or the least-significant cell by default) is incremented,
+     * splitting the cell if it has a count greater than 1, handling rollover when the
+     * digit reaches `base - 1`, and propagating carry to more significant cells as
+     * needed. A new cell is appended if rollover occurs at the most significant cell.
      *
      * @method addOne
      * @param {DigitCell|null} [cell=this.firstCell]
@@ -593,32 +486,13 @@ export class HugeInt {
     }
 
     /**
-     * Increments the HugeInt by 1, assuming the digit-cells are sorted in ascending order.
+     * Increments the HugeInt by 1, assuming digit-cells are sorted in ascending order.
      *
-     * This is the primary increment method used by the multiplicative persistence search.
-     * It is optimized for performance and minimal mutation.
-     *
-     * Behavior:
-     *  - If digit < base - 1:
-     *      - If count == 1, simply increment digit.
-     *      - If count > 1, splits the cell so only one digit increments.
-     *  - If digit == base - 1:
-     *      - Sets digit to 0 and propagates carry to next cell.
-     *      - If no next cell exists, appends a new cell with digit 2 (special behavior).
-     *
-     * Special note:
-     *  - The appended digit is `2n` (not `1n`). This is intentional and part of your
-     *    persistence search optimization. Document this behavior clearly.
-     *
-     * Invariants preserved:
-     *  - No adjacent cells share the same digit.
-     *  - Linked list remains valid.
-     *
-     * Complexity:
-     *  - O(k) where k is number of rollover steps.
-     *
-     * Side effects:
-     *  - Mutates the HugeInt structure.
+     * The specified cell (or the least-significant cell by default) is incremented.
+     * If the digit is below `base - 1`, it is increased directly, splitting the cell
+     * when needed. If the digit equals `base - 1`, it is set to 0 and carry is
+     * propagated to the next cell. If no next cell exists, a new cell with digit `2n`
+     * is appended.
      *
      * @method addOneToSorted
      * @param {DigitCell} [cell=this.firstCell]
@@ -650,7 +524,6 @@ export class HugeInt {
         if (!cell.next) {
             cellToAdd = this.#digitCellFactory()
             cellToAdd.digit = 2n
-
             this.addCellAfter(cell, cellToAdd)
             return
         }
@@ -660,20 +533,8 @@ export class HugeInt {
     /**
      * Removes a digit-cell from the linked list.
      *
-     * Behavior:
-     *  - Updates `prev.next` and `next.prev` pointers.
-     *  - If removing the first cell, updates `this.firstCell`.
-     *  - If removing the last cell, updates `this.lastCell`.
-     *
-     * Invariants preserved:
-     *  - Linked list remains structurally valid.
-     *  - Caller must ensure removal does not violate digit-grouping rules.
-     *
-     * Complexity:
-     *  - O(1)
-     *
-     * Side effects:
-     *  - Mutates the HugeInt structure.
+     * Adjusts neighboring cell pointers and updates `firstCell` or `lastCell`
+     * when removing the first or last cell.
      *
      * @method removeCell
      * @param {DigitCell} cell
@@ -694,29 +555,15 @@ export class HugeInt {
         else {
             this.lastCell = cell.prev
         }
-
     }
 
     /**
-     * Decrements the HugeInt by exactly 1, mutating the digit-cell structure in place.
+     * Decrements the HugeInt by 1, mutating the digit-cell structure in place.
      *
-     * Behavior:
-     *  - If digit > 0:
-     *      - If count == 1, simply decrement digit.
-     *      - If count > 1, splits the cell so only one digit decrements.
-     *  - If digit == 0:
-     *      - Sets digit to base - 1 and propagates borrow to next cell.
-     *      - If borrow reaches the last cell, resets it to a single zero-digit.
-     *
-     * Invariants preserved:
-     *  - No adjacent cells share the same digit.
-     *  - Linked list remains valid.
-     *
-     * Complexity:
-     *  - O(k) where k is number of borrow steps.
-     *
-     * Side effects:
-     *  - Mutates the HugeInt structure.
+     * The specified cell (or the least-significant cell by default) is decremented.
+     * If the digit is above 0, it is decreased directly, splitting the cell when
+     * needed. If the digit is 0, it becomes `base - 1` and borrow is propagated to
+     * the next cell. If borrow reaches the last cell, it becomes a single zero-digit.
      *
      * @method subtractOne
      * @param {DigitCell|null} [cell=this.firstCell]
@@ -757,18 +604,8 @@ export class HugeInt {
     /**
      * Determines whether the HugeInt represents a value greater than or equal to the base.
      *
-     * Behavior:
-     *  - Returns `true` if:
-     *      - The first cell has `count > 1`, meaning at least two digits exist, OR
-     *      - There is more than one digit-cell (`firstCell.next` is not null).
-     *  - Returns `false` only if the number consists of exactly one digit-cell with count = 1.
-     *
-     * Use cases:
-     *  - Quick check for whether the number is multi-digit.
-     *  - Used in multiplicative persistence optimizations.
-     *
-     * Complexity:
-     *  - O(1)
+     * Returns true if the number contains more than one digit, either by having
+     * multiple cells or a single cell with count greater than 1.
      *
      * @method isGTBase
      * @returns {boolean}
@@ -781,16 +618,8 @@ export class HugeInt {
     /**
      * Counts how many times a specific digit appears in the HugeInt.
      *
-     * Behavior:
-     *  - Iterates through all digit-cells.
-     *  - Sums the `count` of each cell whose `digit` matches the requested digit.
-     *
-     * Complexity:
-     *  - O(n) in number of cells.
-     *
-     * Use cases:
-     *  - Multiplicative persistence heuristics.
-     *  - Digit distribution analysis.
+     * Iterates through all digit-cells and sums the counts of cells whose digit
+     * matches the requested value.
      *
      * @method digitCount
      * @param {BigInt} digit
@@ -810,18 +639,10 @@ export class HugeInt {
     }
 
     /**
-     * Returns the first digit-cell whose `digit` matches the specified value.
+     * Returns the first digit-cell whose digit matches the specified value.
      *
-     * Behavior:
-     *  - Scans the linked list from least-significant to most-significant digit.
-     *  - Returns the first matching cell, or `null` if no such cell exists.
-     *
-     * Complexity:
-     *  - O(n)
-     *
-     * Use cases:
-     *  - Structural inspection.
-     *  - Optimizations that require direct access to a digit group.
+     * Scans the linked list from least-significant to most-significant digit and
+     * returns the first matching cell, or null if none exists.
      *
      * @method getCellOf
      * @param {BigInt} digit
@@ -842,16 +663,7 @@ export class HugeInt {
     /**
      * Checks whether the HugeInt contains at least one occurrence of the specified digit.
      *
-     * Behavior:
-     *  - Iterates through digit-cells.
-     *  - Returns `true` upon first match.
-     *
-     * Complexity:
-     *  - O(n)
-     *
-     * Use cases:
-     *  - Fast digit presence checks.
-     *  - Persistence heuristics (e.g., checking for zeros or even digits).
+     * Returns true upon the first match while scanning the digit-cells.
      *
      * @method isCellOf
      * @param {BigInt} digit
@@ -872,17 +684,8 @@ export class HugeInt {
     /**
      * Determines whether the HugeInt represents a value less than the base.
      *
-     * Behavior:
-     *  - Returns `true` only if:
-     *      - There is exactly one digit-cell, AND
-     *      - That cell has `count === 1`.
-     *  - This means the number is a single digit.
-     *
-     * Complexity:
-     *  - O(1)
-     *
-     * Use cases:
-     *  - Base-case checks in persistence algorithms.
+     * Returns true only if the number consists of exactly one digit-cell with
+     * count equal to 1.
      *
      * @method isLTBase
      * @returns {boolean}
@@ -895,15 +698,7 @@ export class HugeInt {
     /**
      * Returns the least-significant digit of the HugeInt.
      *
-     * Behavior:
-     *  - Equivalent to `value % base`, but O(1) because the first cell stores the LSD.
-     *
-     * Complexity:
-     *  - O(1)
-     *
-     * Use cases:
-     *  - Multiplicative persistence modulo optimizations.
-     *  - Quick digit checks.
+     * Equivalent to `value % base` but computed in constant time using the first cell.
      *
      * @method moduloBase
      * @returns {BigInt}
@@ -916,15 +711,7 @@ export class HugeInt {
     /**
      * Checks whether the HugeInt contains at least one even digit.
      *
-     * Behavior:
-     *  - Iterates through digit-cells.
-     *  - Returns `true` upon encountering a digit where `digit % 2n === 0n`.
-     *
-     * Complexity:
-     *  - O(n)
-     *
-     * Use cases:
-     *  - Persistence heuristics (even digits drastically affect multiplication).
+     * Iterates through all digit-cells and returns true if any digit is divisible by 2.
      *
      * @method hasEvenDigits
      * @returns {boolean}
@@ -942,19 +729,8 @@ export class HugeInt {
     /**
      * Counts the total number of factors of 2 contributed by all digits in the HugeInt.
      *
-     * Behavior:
-     *  - For each digit-cell:
-     *      - Computes `log2(digit)` using floating-point math.
-     *      - If the digit is a power of two (log2 is an integer),
-     *        multiplies that exponent by the cell's count.
-     *  - Sums all such contributions.
-     *
-     * Important:
-     *  - Uses floating-point `Math.log2`, which is safe for small digits (0–9).
-     *  - This method is used in multiplicative persistence heuristics.
-     *
-     * Complexity:
-     *  - O(n)
+     * For each digit-cell, computes log2(digit). If the digit is a power of two,
+     * multiplies that exponent by the cell's count and adds it to the total.
      *
      * @method countTwoComponents
      * @param {DigitCell|null} [cell=this.firstCell]
@@ -980,15 +756,6 @@ export class HugeInt {
      * Counts the total number of factors of 2 contributed by all digits,
      * excluding the least-significant digit-cell.
      *
-     * Behavior:
-     *  - Equivalent to `countTwoComponents(this.firstCell.next)`.
-     *
-     * Use cases:
-     *  - Persistence heuristics where the LSD is treated separately.
-     *
-     * Complexity:
-     *  - O(n)
-     *
      * @method countTwoComponentsNoFirstCell
      * @returns {number}
      *     Total exponent of 2 contributed by all digits except the first cell.
@@ -998,37 +765,10 @@ export class HugeInt {
     }
 
     /**
-     * Splits a digit-cell into two consecutive cells, placing the newly created cell
-     * **after** the specified `cell`.
+     * Splits a digit-cell into two consecutive cells, placing the new cell after the given cell.
      *
-     * Purpose:
-     *  - Used when only part of a digit group should be incremented, decremented,
-     *    or otherwise mutated.
-     *  - Ensures that operations affecting only a subset of repeated digits do not
-     *    corrupt the compressed representation.
-     *
-     * Behavior:
-     *  - The original cell's `count` is reduced to `countToSplit`.
-     *  - A new cell is created with:
-     *      - `count = original.count - countToSplit`
-     *      - `digit = original.digit`
-     *      - `changed = true`
-     *  - The new cell is inserted immediately after the original cell.
-     *
-     * Invariants preserved:
-     *  - Adjacent cells never share the same digit unless caller intends it.
-     *  - Linked list pointers (`prev`, `next`) remain valid.
-     *  - `firstCell` and `lastCell` are updated if needed.
-     *
-     * Complexity:
-     *  - O(1)
-     *
-     * Side effects:
-     *  - Mutates the HugeInt structure.
-     *
-     * Edge cases:
-     *  - Caller must ensure `countToSplit < cell.count`.
-     *  - Caller must ensure `countToSplit > 0`.
+     * The original cell keeps `countToSplit` digits. The new cell receives the remaining digits
+     * and is inserted immediately after the original cell.
      *
      * @method splitCellAfter
      * @param {DigitCell} cell
@@ -1052,36 +792,10 @@ export class HugeInt {
     }
 
     /**
-     * Splits a digit-cell into two consecutive cells, placing the newly created cell
-     * **before** the specified `cell`.
+     * Splits a digit-cell into two consecutive cells, placing the new cell before the given cell.
      *
-     * Purpose:
-     *  - Used when operations require isolating a subset of repeated digits at the
-     *    beginning of a digit group.
-     *  - Supports decrement, increment, and structural transformations.
-     *
-     * Behavior:
-     *  - A new cell is created with:
-     *      - `count = countToSplit`
-     *      - `digit = cell.digit`
-     *      - `changed = true`
-     *  - The original cell's `count` is reduced by `countToSplit`.
-     *  - The new cell is inserted immediately before the original cell.
-     *
-     * Invariants preserved:
-     *  - Linked list remains structurally valid.
-     *  - Adjacent cells do not share identical digits unless caller intends it.
-     *  - `firstCell` and `lastCell` are updated if needed.
-     *
-     * Complexity:
-     *  - O(1)
-     *
-     * Side effects:
-     *  - Mutates the HugeInt structure.
-     *
-     * Edge cases:
-     *  - Caller must ensure `countToSplit < cell.count`.
-     *  - Caller must ensure `countToSplit > 0`.
+     * The new cell receives `countToSplit` digits. The original cell's count is reduced
+     * accordingly, and the new cell is inserted immediately before the original cell.
      *
      * @method splitCellBefore
      * @param {DigitCell} cell
@@ -1107,27 +821,8 @@ export class HugeInt {
     /**
      * Converts the HugeInt into a plain string representation in its current base.
      *
-     * Behavior:
-     *  - Iterates from the most-significant digit-cell (`lastCell`) down to the
-     *    least-significant (`firstCell`).
-     *  - For each cell, repeats the digit-character `count` times.
-     *  - Uses `baseDigits.get(cell.digit)` to convert digit values into characters.
-     *
-     * Important:
-     *  - This method expands the compressed representation into a full string.
-     *  - For very large numbers, this can produce extremely long strings.
-     *  - This method is intentionally O(n_digits), not O(n_cells).
-     *
-     * Use cases:
-     *  - Logging
-     *  - Debugging
-     *  - Final output after search
-     *
-     * Complexity:
-     *  - O(total_digits)
-     *
-     * Side effects:
-     *  - None. Pure conversion.
+     * Expands each digit-cell into repeated digit characters and concatenates them
+     * from most-significant to least-significant digit.
      *
      * @method toString
      * @returns {string}
@@ -1139,7 +834,6 @@ export class HugeInt {
 
         do {
             tmpStr += baseDigits.get(cell.digit).repeat(Number(cell.count))
-
             cell = cell.prev
         } while (cell)
 
@@ -1147,28 +841,9 @@ export class HugeInt {
     }
 
     /**
-     * Converts the HugeInt into a human-friendly string with comma separators.
+     * Converts the HugeInt into a comma-separated string representation.
      *
-     * Behavior:
-     *  - First calls `toString()` to obtain the full digit string.
-     *  - Splits the string into groups of three digits from left to right.
-     *  - Joins the groups using commas.
-     *
-     * Example:
-     *  - "1234567" → "1,234,567"
-     *
-     * Important:
-     *  - This is purely cosmetic formatting.
-     *  - Does not depend on locale rules beyond comma grouping.
-     *
-     * Complexity:
-     *  - O(total_digits)
-     *
-     * Use cases:
-     *  - Displaying large numbers in logs or UI.
-     *
-     * Side effects:
-     *  - None.
+     * Formats the full digit string into groups of three digits separated by commas.
      *
      * @method toLocaleString
      * @returns {string}
@@ -1191,26 +866,7 @@ export class HugeInt {
     /**
      * Enables iteration over all digit-cells in the HugeInt.
      *
-     * Behavior:
-     *  - Implements the JavaScript iterator protocol.
-     *  - Yields each digit-cell from least-significant (`firstCell`) to
-     *    most-significant (`lastCell`).
-     *
-     * Example usage:
-     *  for (const cell of hugeInt) {
-     *      console.log(cell.digit, cell.count)
-     *  }
-     *
-     * Use cases:
-     *  - Debugging
-     *  - Structural inspection
-     *  - Algorithms that need to traverse all digit groups
-     *
-     * Complexity:
-     *  - O(n_cells)
-     *
-     * Side effects:
-     *  - None.
+     * Yields each digit-cell from least-significant to most-significant digit.
      *
      * @method [Symbol.iterator]
      * @returns {Iterator<DigitCell|null>}

@@ -261,16 +261,13 @@ const onMessage = async (messageObj) => {
             stackMessages.push(messages)
 
             // Process all stacked message batches
+            const currentNoObj = new HugeInt(0n, base)
+
             for (const batch of stackMessages) {
-
                 for (const message of batch) {
-
-                    const currentNoObj = new HugeInt(0n, base)
                     currentNoObj.fromString(message.currentNoStr, base)
-
                     onFound(message, currentNoObj, message.currentNoStr.length, startTime, endTime)
                 }
-
                 noOfMessages += batch.length
             }
 

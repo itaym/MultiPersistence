@@ -8,39 +8,32 @@ import waitShowLog from '../utils/waitShowLog.js'
 import { multiPer, multiPerNBC } from './index.js'
 
 /**
- * Performs the multiplicative persistence search loop.
+ * Executes the multiplicative‑persistence search loop.
  *
- * This function is the main computational engine of the system. It iterates
- * through HugeInt values, applies pruning rules, computes multiplicative
- * persistence, batches results, sends messages to a worker thread, and triggers
- * periodic logging based on dynamic timing heuristics.
- *
- * The search loop respects a semaphore-like mechanism via
- * `process.env.isWorkerReady`, ensuring that messages are only sent when the
- * worker is ready to receive them.
+ * Iterates HugeInt values, applies pruning rules, computes persistence,
+ * batches results, sends messages to a worker, and performs periodic logging.
  *
  * @async
  * @function multiPerSearch
  *
  * @param {ComputationState} computationState
- *     Initialization parameters for continuing a previous search session.
+ *     Initial state for continuing a search session.
  *
  * @param {number} log_interval
- *     Desired interval (in milliseconds) between log outputs.
+ *     Interval in milliseconds between log outputs.
  *
  * @param {number} startSessionTime
- *     Timestamp marking the start of the current session.
+ *     Timestamp marking the start of the session.
  *
  * @param {number} startTime
  *     Adjusted timestamp including previous uptime.
  *
  * @param {Worker} worker
- *     Worker thread instance receiving search results and log messages.
+ *     Worker receiving search results and logs.
  *
  * @returns {Promise<void>}
- *     Resolves when the search loop terminates and final logs are sent.
+ *     Resolves when the search loop finishes.
  */
-
 export const multiPerSearch = async (
     computationState,
     log_interval,
@@ -55,8 +48,10 @@ export const multiPerSearch = async (
         last_number,
         up_time,
     } = computationState
+
     let calcIterations = iterations.calculated
     let countIterations = iterations.count
+
     let currentNo = new HugeInt(last_number, base, () => ({
         additionSum: 0n,
         changed: true,
@@ -66,7 +61,6 @@ export const multiPerSearch = async (
         prev: null,
         multiplySum: 0n}))
     let endTime
-
     let iterationsPerLog = countIterations
     let logAfter = (countIterations + countIterations / up_time * log_interval) || 250_000
 
@@ -80,40 +74,29 @@ export const multiPerSearch = async (
     let reduceResults
 
     /**
-     * Bound version of multiPerNBC using the current HugeInt and base.
-     * Used when switching to the optimized persistence calculation path.
+     * Bound persistence functions for the current HugeInt and base.
      *
      * @type {Function}
      */
     const multiPerNBB = multiPerNBC.bind(null, currentNo, Number(base))
-
-    /**
-     * Bound version of multiPer using the current HugeInt and base.
-     * Used as the default persistence calculation path.
-     *
-     * @type {Function}
-     */
     let multiPerFn = multiPer.bind(null, currentNo, Number(base))
 
     /**
-     * Bound version of prepareMessage, allowing message creation using the
-     * current HugeInt context.
+     * Bound message creator for the current HugeInt.
      *
      * @type {Function}
      */
     const prepareBindMessage = prepareMessage.bind(currentNo)
 
     /**
-     * Bound version of onModuloBase, applying modulo-based pruning rules
-     * directly to the current HugeInt.
+     * Bound modulo‑based pruning function.
      *
      * @type {Function}
      */
     const on_ModuloBase = onModuloBase.bind(currentNo)
 
     /**
-     * Optional permutation generator used when base accommodation rules apply.
-     * If unsupported, defaults to 1n.
+     * Optional permutation generator for base‑accommodation rules.
      *
      * @type {ToPrimitive|BigInt}
      */
@@ -123,31 +106,15 @@ export const multiPerSearch = async (
         : 1n
 
     /**
-     * Creates a formatted message object containing persistence results and
-     * iteration statistics for worker transmission.
-     *
-     * @see startTime
-     * @see calcIterations
-     * @see reduceResults
+     * Creates a formatted message containing persistence results.
      *
      * @returns {FoundMessage}
      */
     const createMessage = () =>
         prepareBindMessage(startTime, calcIterations, reduceResults)
 
-
     currentNo.addOneToSorted()
 
-    /**
-     * Main search loop:
-     *  - Increments the HugeInt.
-     *  - Applies pruning rules.
-     *  - Computes persistence.
-     *  - Tracks non-found streaks.
-     *  - Batches found results.
-     *  - Performs periodic logging.
-     *  - Terminates when non-found streak exceeds threshold.
-     */
     while (notToBreak) {
 
         on_ModuloBase()
@@ -164,7 +131,6 @@ export const multiPerSearch = async (
 
             messages.push(createMessage())
 
-            // Batch messages in groups of 100
             if (messages.length >= 100) {
                 if (postMessages(worker, 'stack', { messages })) {
                     messages = []
@@ -172,18 +138,15 @@ export const multiPerSearch = async (
             }
         }
         else {
-            // Not found — increment counter
             notFound++
             notToBreak = (notFoundLimit > notFound) &&
                 (currentNo.length < process.normalizedEnv.goal_power_of10)
         }
 
-        // Time to log
         if (countIterations > logAfter) {
             endTime = Date.now()
             const currentNoValue = currentNo.value
 
-            // Switch to optimized multiPerNBC if needed
             if (multiPerFn !== multiPerNBB) {
                 multiPerFn = multiPerNBB
             }
@@ -216,13 +179,6 @@ export const multiPerSearch = async (
 
         currentNo.addOneToSorted()
     }
-
-    /**
-     * Final logging and cleanup:
-     *  - Performs one last persistence decrement.
-     *  - Sends final statistics to the worker.
-     *  - Ensures all pending logs are flushed.
-     */
 
     endTime = Date.now()
     await waitShowLog()

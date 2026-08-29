@@ -1,22 +1,15 @@
 import gaySchluffen from './gaySchluffen.js'
 
 /**
- * Wait until a worker process signals readiness, printing progress dots while waiting.
+ * Waits until the worker signals readiness and prints progress dots while waiting.
  *
- * This asynchronous function repeatedly checks:
+ * Checks `process.env.isWorkerReady` repeatedly, sleeping between checks.
+ * When ready, prints the worker log.
  *
- *     process.env.isWorkerReady === 'true'
- *
- * If the worker is not ready, it prints a dot to stdout and sleeps for the
- * specified number of milliseconds using `gaySchluffen()`. Once ready, it
- * prints the worker's log message stored in `process.env.log`.
- *
- * @async
  * @param {number} [milliSeconds=20]
- *     Delay between readiness checks, in milliseconds.
+ *     Delay between checks in milliseconds.
  *
  * @returns {Promise<void>}
- *     Resolves once the worker is ready and the log has been printed.
  */
 const waitShowLog = async (milliSeconds = 20) => {
     while (process.env.isWorkerReady !== 'true') {

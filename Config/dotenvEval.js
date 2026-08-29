@@ -3,20 +3,12 @@ import { argv } from 'node:process'
 import HugeInt from '../HugeInt/index.js'
 
 /**
- * Safely coerce a CLI argument value into an appropriate JavaScript type.
+ * Converts a CLI argument string into a JavaScript value.
  *
- * Coercion rules:
- *   - 'true'       → true
- *   - 'false'      → false
- *   - 'null''      → null
- *   - 'undefined'  → undefined
- *   - Numeric strings → BigInt
- *   - Everything else → raw string
- *
- * This function performs **no eval()** and is safe for untrusted input.
+ * Supports booleans, null, undefined, BigInt, and raw strings.
  *
  * @param {string} rawValue
- *     The raw value from a CLI argument (e.g., 'true', '42', 'fast').
+ *     The raw CLI argument value.
  *
  * @returns {boolean|bigint|null|undefined|string}
  *     The coerced value.
@@ -37,21 +29,15 @@ const coerceCliValue = (rawValue) => {
 }
 
 /**
- * Normalize and evaluate environment variables from a parsed `.env` file.
+ * Normalizes environment variables parsed from dotenv.
  *
- * Responsibilities:
- *   - Read key/value pairs from `parsed`
- *   - Attempt to `eval()` each value (trusted input only)
- *   - Fall back to raw string if evaluation fails
- *   - Store normalized values in `process.normalizedEnv`
- *   - Compute `goal_number = base ** goal_power_of10`
- *
- * Security:
- *   - `eval()` is safe ONLY because `.env` is trusted.
- *   - Never use this function on untrusted input.
+ * Converts values using eval (trusted input only) and stores results
+ * in `process.normalizedEnv`. Computes `goal_number` from base settings.
  *
  * @param {Object<string,string>} parsed
- *     The object produced by `dotenv` containing raw environment variables.
+ *     Raw environment variables from dotenv.
+ *
+ * @returns {void}
  */
 const normalizeEnvFromDotenv = (parsed) => {
     const normalizedEnv = process.normalizedEnv || {}
@@ -70,21 +56,16 @@ const normalizeEnvFromDotenv = (parsed) => {
 }
 
 /**
- * Apply command‑line argument overrides to normalized environment variables.
+ * Applies CLI overrides to normalized environment variables.
  *
- * Responsibilities:
- *   - Accept CLI args in the form `key=value`
- *   - Override ANY `.env` setting
- *   - Update both `process.normalizedEnv` and `process.env`
- *   - Recompute `goal_number` if `base` or `goal_power_of10` changes
- *
- * Notes:
- *   - Values are manually coerced using `coerceCliValue()`
- *   - No eval() is used here — safe for untrusted input
- *   - Assumes `normalizeEnvFromDotenv()` has already run
+ * Accepts arguments in the form `key=value`, coerces values safely,
+ * updates both normalizedEnv and process.env, and recomputes goal_number
+ * when relevant settings change.
  *
  * @param {string[]} argv
- *     CLI arguments (e.g., from `process.argv.slice(2)`).
+ *     CLI arguments.
+ *
+ * @returns {void}
  */
 const applyCliOverrides = (argv) => {
     const normalizedEnv = process.normalizedEnv || {}
@@ -108,21 +89,16 @@ const applyCliOverrides = (argv) => {
 }
 
 /**
- * High‑level environment initializer.
- *
- * Responsibilities:
- *   1. Normalize `.env` values (trusted)
- *   2. Apply CLI overrides (untrusted)
- *   3. Produce final `process.normalizedEnv`
- *
- * Usage:
- *   dotenvEval(parsed, process.argv.slice(2))
+ * Initializes environment variables by normalizing dotenv values
+ * and applying CLI overrides.
  *
  * @param {Object<string,string>} parsed
- *     The object produced by `dotenv`.
- * @param {Object<string,string>} error
- *     The object produced by `dotenv` if an error occurred.
+ *     Parsed dotenv variables.
  *
+ * @param {Object<string,string>} error
+ *     Error object from dotenv, if any.
+ *
+ * @returns {void}
  */
 const dotenvEval = ({ parsed, error }) => {
     if (error) {

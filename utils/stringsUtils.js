@@ -1,51 +1,35 @@
 /**
- * Sanitize a string for safe use in terminal output (e.g., console.log).
+ * Sanitizes a string for terminal‑safe output.
  *
- * This function removes characters that can disrupt terminal behavior,
- * including:
- *
- *   - ASCII control characters (0–31)
- *   - DEL (127)
- *   - C1 control characters (128–159)
- *   - Zero‑width characters (U+200B–U+200D)
- *   - Bidirectional control marks (U+202A–U+202E)
- *
- * These characters may:
- *   - break lines
- *   - move the cursor
- *   - overwrite previous characters
- *   - trigger beeps
- *   - inject ANSI escape sequences
- *   - visually reorder text (bidi spoofing)
- *   - hide content (zero‑width)
- *
- * All sanitized characters are replaced with the literal 'X'.
+ * Replaces control, zero‑width, and bidi characters with 'X'.
  *
  * @param {string} str
- *     The input string to sanitize for terminal‑safe logging.
+ *     Input string.
  *
  * @returns {string}
- *     A sanitized version of the string, safe for console.log.
+ *     Sanitized string.
  */
 export const sanitize = (str) => {
     return str
         // ASCII control chars + DEL + C1 control chars
         .replace(/[\x00-\x1F\x7F-\x9F]/g, 'X')
-
         // Zero‑width characters
         .replace(/[\u200B-\u200D]/g, 'X')
-
         // Bidirectional control characters
         .replace(/[\u202A-\u202E]/g, 'X')
 }
+
 /**
- * Truncates a string by keeping characters from the start and end,
- * inserting '...' in the middle. If the string fits within `max`,
- * it is returned unchanged.
+ * Truncates a string by keeping start and end segments with '...' in the middle.
  *
- * @param {string} str - The original string
- * @param {number} [max=Number.MAX_SAFE_INTEGER] - Maximum allowed length
- * @returns {string} The truncated string or the original if no truncation is needed
+ * @param {string} str
+ *     Original string.
+ *
+ * @param {number} [max=Number.MAX_SAFE_INTEGER]
+ *     Maximum allowed length.
+ *
+ * @returns {string}
+ *     Truncated or original string.
  */
 export const fromMiddleStringMaxLength = (str, max = Number.MAX_SAFE_INTEGER) => {
     if (max < 4 || str.length <= max) {
@@ -63,15 +47,16 @@ export const fromMiddleStringMaxLength = (str, max = Number.MAX_SAFE_INTEGER) =>
 }
 
 /**
- * Computes index ranges for three-part truncation of a string.
- * Returns one of three modes:
- * - 'short': string too short to split
- * - 'full': string fits entirely within maxLen
- * - 'three': three-part slicing required
+ * Computes slicing ranges for three‑part truncation.
  *
- * @param {string} str - The original string
- * @param {number} [maxLen=Number.MAX_SAFE_INTEGER] - Maximum allowed length
- * @returns {object} Range information describing how the string should be sliced
+ * @param {string} str
+ *     Original string.
+ *
+ * @param {number} [maxLen=Number.MAX_SAFE_INTEGER]
+ *     Maximum allowed length.
+ *
+ * @returns {object}
+ *     Range information.
  */
 export const computeThreePartRanges = (str, maxLen = Number.MAX_SAFE_INTEGER) => {
     const n = str.length
@@ -116,14 +101,16 @@ export const computeThreePartRanges = (str, maxLen = Number.MAX_SAFE_INTEGER) =>
 }
 
 /**
- * Produces a truncated string using three-part slicing:
- * left...middle...right
+ * Produces a truncated string using three‑part slicing.
  *
- * If the string is short or fits within maxLen, it is returned unchanged.
+ * @param {string} str
+ *     Original string.
  *
- * @param {string} str - The original string
- * @param {number} [maxLen=Number.MAX_SAFE_INTEGER] - Maximum allowed length
- * @returns {string} The truncated string
+ * @param {number} [maxLen=Number.MAX_SAFE_INTEGER]
+ *     Maximum allowed length.
+ *
+ * @returns {string}
+ *     Truncated or original string.
  */
 export const fromMiddleNumberMaxLength = (str, maxLen = Number.MAX_SAFE_INTEGER) => {
     const ranges = computeThreePartRanges(str, maxLen)
@@ -144,16 +131,16 @@ export const fromMiddleNumberMaxLength = (str, maxLen = Number.MAX_SAFE_INTEGER)
 }
 
 /**
- * Creates a visual index map string showing the exact character ranges used
- * in the three-part truncation. Each segment's total width matches the number
- * of characters it represents.
+ * Creates a visual index map for three‑part truncation.
  *
- * Example:
- *   1------------------------------------------45...63----------------------------------------107...127......................................170
+ * @param {string} str
+ *     Original string.
  *
- * @param {string} str - The original string
- * @param {number} [maxLen=Number.MAX_SAFE_INTEGER] - Maximum allowed length
- * @returns {string} A visual map of index ranges
+ * @param {number} [maxLen=Number.MAX_SAFE_INTEGER]
+ *     Maximum allowed length.
+ *
+ * @returns {string}
+ *     Visual index map.
  */
 export const fromMiddleNumberLocations = (str, maxLen = Number.MAX_SAFE_INTEGER) => {
     const ranges = computeThreePartRanges(str, maxLen)

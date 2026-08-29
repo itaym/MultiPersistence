@@ -3,22 +3,15 @@ import { initConfig } from '../Config/config.js'
 initConfig()
 
 /**
- * Compute the factorial of a BigInt value recursively.
+ * Computes the factorial of a BigInt recursively.
  *
- * This is the pure (non‑memoized) implementation used as the base function
- * for the memoized `factorial`. It returns:
- *
- *   factorial(n) = n × factorial(n − 1)
- *
- * with the base case:
- *
- *   factorial(0) = factorial(1) = 1n
+ * Returns 1n for values ≤ 1n; otherwise multiplies n by factorial(n − 1).
  *
  * @param {BigInt} number
- *     The BigInt value whose factorial should be computed.
+ *     Value to compute.
  *
  * @returns {BigInt}
- *     The factorial of the given number.
+ *     Factorial result.
  */
 const factorialFn = number => {
     if (!number || (number <= 1n)) return 1n
@@ -27,10 +20,6 @@ const factorialFn = number => {
 
 /**
  * Memoized factorial function.
- *
- * Uses the `memorize` utility to cache results of factorial computations,
- * significantly improving performance when factorial is called repeatedly
- * with the same BigInt inputs.
  *
  * @type {(number: BigInt) => BigInt}
  */

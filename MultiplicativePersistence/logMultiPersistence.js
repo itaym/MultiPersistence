@@ -7,16 +7,13 @@ import { getTimeString } from '../utils/getTimeString.js'
 import countPermutations from '../permutations/countPermutations.js'
 import HugeInt from '../HugeInt/index.js'
 import chalk from 'chalk'
-
-
 /**
- * Create a color‑toggling function for alternating log line colors.
+ * Creates a color‑toggling function for alternating log colors.
  *
- * Returns a closure that cycles between two Chalk color names (`white`, `yellow`)
- * each time it is called. Used to visually separate log rows.
+ * Returns a closure that alternates between two Chalk color names.
  *
  * @returns {function(): string}
- *     A function that returns the next color name.
+ *     Function returning the next color name.
  */
 const getColor = () => {
     const colors = ['white', 'yellow']
@@ -28,43 +25,18 @@ const getColor = () => {
 }
 
 /**
- * Create a logging function for multiplicative‑persistence search sessions.
+ * Creates a logging function for multiplicative‑persistence sessions.
  *
- * This function returns a closure that formats detailed runtime statistics into
- * a multi‑line log string. It is called repeatedly during the search to display:
- *
- *   - Current HugeInt being evaluated
- *   - Steps and combinations found at each persistence depth
- *   - Iteration counts (calculated vs real)
- *   - Iterations per second
- *   - Estimated time remaining
- *   - Session uptime
- *   - Base, lengths, and found counts
- *
- * Inputs:
- *   - goalNumber: HugeInt string representation of the target number
- *   - base: numeric base used for HugeInt digit operations
- *
- * The returned logger receives a state object containing:
- *   - calcIterations: BigInt — number of calculated iterations
- *   - countIterations: number — number of real iterations
- *   - countSteps: array — persistence results per step
- *   - currentNo: BigInt or HugeInt — current number being evaluated
- *   - lengths: object — statistics per number length
- *   - messagesCount: number — total found messages
- *   - notFound: number — count of unsuccessful searches
- *   - notFoundLimit: number — threshold for stopping
- *   - startTime, endTime, startSessionTime, startTimeLog: timestamps
- *   - iterationsPerLog: number — iterations since last log
+ * Returns a closure that formats runtime statistics into a multi‑line log string.
  *
  * @param {HugeInt} goalNumber
- *     The target HugeInt.
+ *     The target number.
  *
  * @param {BigInt} base
  *     Numeric base used for HugeInt operations.
  *
  * @returns {function(Object): string}
- *     A function that formats and returns a multi‑line log string.
+ *     Function that formats and returns a log string.
  */
 export default function logMultiPersistence({
     goalNumber,
@@ -77,20 +49,20 @@ export default function logMultiPersistence({
     let foundInLength = 0
 
     return function ({
-        calcIterations,
-        countIterations,
-        countSteps,
-        currentNo,
-        endTime,
-        notFoundLimit,
-        iterationsPerLog,
-        lengths,
-        messagesCount,
-        notFound,
-        startSessionTime,
-        startTime,
-        startTimeLog,
-    }) {
+                         calcIterations,
+                         countIterations,
+                         countSteps,
+                         currentNo,
+                         endTime,
+                         notFoundLimit,
+                         iterationsPerLog,
+                         lengths,
+                         messagesCount,
+                         notFound,
+                         startSessionTime,
+                         startTime,
+                         startTimeLog,
+                     }) {
         let lastNumberFound = countSteps[countSteps.length - 1]?.first || 0n
         let maxSteps = countSteps[countSteps.length - 1]?.step
         lastNumberFound = new HugeInt(lastNumberFound.currentNoValue, base)
@@ -153,6 +125,6 @@ export default function logMultiPersistence({
             //console.log(logStr)
         }
         catch (e) {
-            //debugger
+            // debugger
         }
 }}
