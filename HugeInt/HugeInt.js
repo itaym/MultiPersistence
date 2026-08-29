@@ -68,7 +68,7 @@ export class HugeInt {
      * @param {BigInt} [base=10n]
      *     Numerical base used for digit decomposition.
      *
-     * @param {() => Object} [digitCellFactory]
+     * @param {() => DigitCell} [digitCellFactory]
      *     Factory function that creates new DigitCell objects.
      *     Called once for validation and then for every cell creation.
      *
@@ -201,17 +201,17 @@ export class HugeInt {
      * First digit-cell (the least significant digit).
      * Always non-null after construction.
      *
-     * @type {DigitCell|null}
+     * @type {DigitCell}
      */
-    firstCell = null
+    firstCell
 
     /**
      * Last digit-cell (most significant digit).
      * Always non-null after construction.
      *
-     * @type {DigitCell|null}
+     * @type {DigitCell}
      */
-    lastCell = null
+    lastCell
 
     /**
      * Returns the total number of digits represented by the HugeInt.
@@ -479,7 +479,7 @@ export class HugeInt {
         let secondCell = secondHugeInt.firstCell
         let firstIndex = 0n
         let secondIndex = 0n
-        let aNewCell = { ...newCell }
+        let aNewCell = /*** @type {DigitCell} */ { ...newCell }
         const aNewFirstCell = aNewCell
 
         for (let index = 0; index < firstLength; index++) {
@@ -500,7 +500,7 @@ export class HugeInt {
                 aNewCell.count++
             }
             else {
-                aNewCell.next = { ...newCell }
+                aNewCell.next = /*** @type {DigitCell} */ { ...newCell }
                 aNewCell.next.prev = aNewCell
                 aNewCell = aNewCell.next
                 aNewCell.count = 1n
@@ -517,7 +517,7 @@ export class HugeInt {
             }
         }
         if (carry > 0n) {
-            aNewCell.next = { ...newCell }
+            aNewCell.next = /*** @type {DigitCell} */ { ...newCell }
             aNewCell.next.prev = aNewCell
             aNewCell = aNewCell.next
             aNewCell.count = 1n
