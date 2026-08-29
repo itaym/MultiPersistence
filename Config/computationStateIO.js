@@ -97,16 +97,17 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  * @returns {BigInt|*}
  */
 const reviver = (key, value) => {
-    try {
-        switch (key) {
-            case 'base':
-            case 'calculated':
-            case 'combinations':
-            case 'iteration':
-            case 'last_number':
-                return BigInt(value)
-        }
-    } catch (error) { console.log(key)}
+    switch (key) {
+        case 'additionSum':
+        case 'base':
+        case 'calculated':
+        case 'currentNoValue':
+        case 'combinations':
+        case 'iteration':
+        case 'last_number':
+        case 'multiplySum':
+            return BigInt(value)
+    }
     return value
 }
 
@@ -185,6 +186,8 @@ const replacer = (key, value) => {
 export const setComputationState = async (computationState, base) => {
     const { normalizedEnv } = process
     const { vars_file } = normalizedEnv
+
+    if (normalizedEnv.debug) return
 
     const fileName = `./results/${base.toString().padStart(5, '0')}_${vars_file}`
 

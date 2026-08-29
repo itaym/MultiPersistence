@@ -220,7 +220,6 @@ const onFoundCreator = (computationState) => {
  */
 const onMessage = async (messageObj) => {
     const { type } = messageObj
-    const { normalizedEnv } = process
 
     switch (type) {
 
@@ -295,12 +294,7 @@ const onMessage = async (messageObj) => {
                 startSessionTime,
                 startTime,
             })
-
-            // Persist updated state unless debugging
-            if (!normalizedEnv.debug) {
-                await setComputationState(computationState, base)
-            }
-
+            await setComputationState(computationState, base)
             break
         }
     }

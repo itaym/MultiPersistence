@@ -65,7 +65,7 @@ export default function logMultiPersistence({
                      }) {
         let lastNumberFound = countSteps[countSteps.length - 1]?.first || 0n
         let maxSteps = countSteps[countSteps.length - 1]?.step
-        lastNumberFound = new HugeInt(0n, base).fromString(lastNumberFound.currentNoValue, base)
+        lastNumberFound = new HugeInt(lastNumberFound.currentNoValue, base)
         currentNo = new HugeInt(currentNo, base)
         try {
             const numOfMilliseconds = endTime - startTime
