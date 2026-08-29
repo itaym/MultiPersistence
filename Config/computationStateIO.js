@@ -97,16 +97,16 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  * @returns {BigInt|*}
  */
 const reviver = (key, value) => {
-    switch (key) {
-        case 'base':
-        case 'calculated':
-        case 'combinations':
-        case 'first':
-        case 'iteration':
-        case 'last':
-        case 'last_number':
-            return BigInt(value)
-    }
+    try {
+        switch (key) {
+            case 'base':
+            case 'calculated':
+            case 'combinations':
+            case 'iteration':
+            case 'last_number':
+                return BigInt(value)
+        }
+    } catch (error) { console.log(key)}
     return value
 }
 
@@ -138,8 +138,6 @@ export const getComputationState = async () => {
         up_time: 0,
         steps: [],
     }
-
-    if (normalizedEnv.debug) return defaultVars
 
     try {
         return await readJsonFile(filename, reviver, defaultVars)
