@@ -809,7 +809,7 @@ export class HugeInt {
      */
     splitCellBefore(cell, countToSplit) {
         const newCell = this.#digitCellFactory()
-        newCell.count = cell.count - countToSplit
+        newCell.count = countToSplit
         newCell.digit = cell.digit
 
         this.addCellBefore(cell, newCell)
