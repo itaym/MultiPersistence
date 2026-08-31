@@ -78,26 +78,24 @@ export function loadMapFromFileSync(filename) {
 }
 
 /**
- * Memoizes a function and persists results to disk.
+ * Wraps a function with disk-backed memoization, keyed by its JSON.stringify args.
+ * Periodically persists the cache to `./caching/{name}.json` every
+ * `normalizedEnv.memorize_save_bach` sets.
  *
- * @param {function(...*): BigInt} fn
- *     Function to memoize.
- *
- * @param {string} name
- *     Cache file name.
- *
- * @returns {function(...*): BigInt}
- *     Memoized function.
+ * @template {(...args: any[]) => any} F
+ * @param {F} fn - the function to memoize
+ * @param {string} name - cache file name (without extension), used as `./caching/{name}.json`
+ * @returns {(...args: Parameters<F>) => ReturnType<F>} a memoized version of fn
  */
 export default function memorize(fn, name) {
-    const { normalizedEnv } = process
-    const saveToFile = normalizedEnv.memorize_save_bach
-
     const fileName = path.join(path.resolve('./caching'), `${name}.json`)
     const cache = loadMapFromFileSync(fileName)
     let setCounter = 0
 
     return function (...args) {
+        const { normalizedEnv } = process
+        const saveToFile = normalizedEnv.memorize_save_bach
+
         const key = args.join()
         let data = cache.get(key)
         if (data) return data
