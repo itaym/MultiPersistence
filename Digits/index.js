@@ -1,3 +1,5 @@
+import memorize from "../utils/memorize.js";
+
 /**
  * Maximum supported numeric base for BigInt string conversion.
  *
@@ -60,6 +62,21 @@ if (maxBase > 64) {
     }
 }
 
+/**
+ * Builds the string of digit characters for a given base.
+ *
+ * @param {bigint} base - the numeric base
+ * @returns {string} concatenated digit characters for the base
+ */
+export const baseDigits = memorize((base) => {
+    let digitsString = ''
+
+    for (let digit = 0n; digit < base; digit++) {
+        digitsString += digitsObj.get(digit)
+    }
+
+    return digitsString
+}, 'baseDigits')
 
 /**
  * Precomputed BigInt values for integers 0 through 1999.
