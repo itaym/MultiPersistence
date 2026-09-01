@@ -20,24 +20,19 @@
  *
  * @module MainIndex
  *
- * @typedef {Object} WorkerConfig
- * @property {ComputationState} VARS
- *     Initialization variables for the worker.
- * @property {BigInt} base
- *     Numerical base used for HugeInt operations.
- * @property {BigInt} goalNumber
- *     The target number for the persistence search.
- * @property {Iterations} iterations
- *     The Iterations metadata for the persistence search
- * @property {HugeInt} last_number
- *     The Iterations metadata for the persistence search
- * @property {number} startSessionTime
- *     Timestamp (ms) when the current session began.
- * @property {number} startTime
- *     Adjusted timestamp including previous uptime.
- *
  * @throws {Error}
  *     If configuration is invalid or the worker fails to initialize.
+ */
+
+/**
+ * Payload sent to the worker on the `init` message.
+ *
+ * @typedef {Object} WorkerConfig
+ * @property {import('./Config/computationStateIO.js').ComputationState} VARS  the worker's starting computation state
+ * @property {BigInt} base              numeric base used for HugeInt operations
+ * @property {BigInt} goalNumber        target number for the persistence search
+ * @property {number} startSessionTime  timestamp (ms) when this session began
+ * @property {number} startTime         session start adjusted for prior uptime (ms)
  */
 import HugeInt from './HugeInt/index.js'
 import postMessages from './utils/postMessage.js'
@@ -132,7 +127,7 @@ env.isWorkerReady = 'false'
 env.log = ''
 
 // noinspection JSCheckFunctionSignatures
-const worker = new Worker('./worker.js', {
+const worker = new Worker('./worker/index.js', {
     'env': SHARE_ENV,
     resourceLimits: {
         maxOldGenerationSizeMb: 32_768
@@ -146,7 +141,7 @@ const log_interval = normalizedEnv['log_interval']
 const startSessionTime = Date.now()
 const startTime = startSessionTime - computationState.up_time
 
-/** @type WorkerConfig */
+/** @type {WorkerConfig} */
 const workerConfig = {
     VARS: {
         ...computationState,
