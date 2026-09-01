@@ -1,4 +1,5 @@
 import memorize from "../utils/memorize.js";
+import {sanitize} from "../utils/stringsUtils.js";
 
 /**
  * Maximum supported numeric base for BigInt string conversion.
@@ -82,9 +83,9 @@ export const baseDigits = memorize(
             digitsString += digitsObj.get(digit)
         }
 
-        return digitsString
+        return sanitize(digitsString)
     },
-    'baseDigits'
+    'baseDigits', 1
 )
 
 /**

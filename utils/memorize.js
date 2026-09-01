@@ -4,7 +4,6 @@ import {readJsonFileSync, writeJsonFile} from './fileutils.js'
 
 /**
  * JSON replacer for serializing BigInt values.
- *
  * Converts BigInt to string for JSON compatibility.
  *
  * @param {string} key
@@ -20,8 +19,7 @@ const replacer = (key, value) => {
 /**
  * JSON reviver for deserializing BigInt values.
  *
- * @returns {function(string, *): *}
- *     Reviver function.
+ * @returns {function(string, *): *} - Reviver function.
  */
 const reviver = () => {
     let toggle = 0
@@ -38,11 +36,8 @@ const reviver = () => {
 /**
  * Saves a Map to a JSON file.
  *
- * @param {string} filename
- *     Path to the file.
- *
- * @param {Map<string, BigInt>} map
- *     Map to serialize.
+ * @param {string} filename - Path to the file.
+ * @param {Map<string, BigInt>} map - Map to serialize.
  *
  * @returns {void}
  */
@@ -52,14 +47,11 @@ export function saveMapToFile(filename, map) {
 
 /**
  * Loads a Map from a JSON file.
- *
  * Returns an empty Map if loading fails.
  *
- * @param {string} filename
- *     Path to the file.
+ * @param {string} filename - Path to the file.
  *
- * @returns {Map<string, BigInt>}
- *     Loaded map.
+ * @returns {Map<string, BigInt>} - Loaded map.
  */
 export function loadMapFromFileSync(filename) {
     try {
@@ -78,18 +70,6 @@ export function loadMapFromFileSync(filename) {
     }
 }
 
-/**
- * Wraps a function with disk-backed memoization, keyed by its JSON.stringify args.
- * Periodically persists the cache to `{normalizedEnv.memorize_cache_dir}/{name}.json` every
- * `normalizedEnv.memorize_save_bach` sets. The cache directory and file are only
- * resolved on the first actual call, since `normalizedEnv` may not be initialized
- * yet when `memorize()` itself is called (typically at module load time).
- *
- * @template {(...args: any[]) => any} F
- * @param {F} fn - the function to memoize
- * @param {string} name - cache file name (without extension), used as `{cache_dir}/{name}.json`
- * @returns {(...args: Parameters<F>) => ReturnType<F>} a memoized version of fn
- */
 const usedNames = new Set()
 
 /**
@@ -100,7 +80,19 @@ const usedNames = new Set()
  */
 const isValidName = (name) => typeof name === 'string' && name.length > 0
 
-export default function memorize(fn, name) {
+/**
+ * Wraps a function with disk-backed memoization, keyed by its `args.join()`.
+ * When `name` is given, the cache is loaded from
+ * `{normalizedEnv.memorize_cache_dir}/{name}.json` up front and re-persisted every
+ * `batchSize` new entries — so `initConfig()` must have run before `memorize()`.
+ *
+ * @template {(...args: any[]) => any} F
+ * @param {F} fn         the function to memoize
+ * @param {string} name  cache file name (without extension), used as `{cache_dir}/{name}.json`
+ * @param {number} [batchSize]  new entries between disk writes; defaults to `normalizedEnv.memorize_save_bach`
+ * @returns {(...args: Parameters<F>) => ReturnType<F>} a memoized version of fn
+ */
+export default function memorize(fn, name, batchSize = undefined) {
     const useDiskCache = isValidName(name)
 
     if (useDiskCache) {
@@ -110,31 +102,33 @@ export default function memorize(fn, name) {
         usedNames.add(name)
     }
 
+    /** @type {string|null} */
     let fileName = null
-    let cache = useDiskCache ? null : new Map()
+    let cache = new Map()
     let setCounter = 0
 
+    if (useDiskCache) {
+        const cacheDir = path.resolve(process.normalizedEnv.memorize_cache_dir)
+        fs.mkdirSync(cacheDir, { recursive: true })
+        fileName = path.join(cacheDir, `${name}.json`)
+        cache = loadMapFromFileSync(fileName)
+    }
+
     return function (...args) {
-        const { normalizedEnv } = process
-        const saveBachSize = normalizedEnv.memorize_save_bach
-
-        if (useDiskCache && cache === null) {
-            const cacheDir = path.resolve(normalizedEnv.memorize_cache_dir)
-            fs.mkdirSync(cacheDir, { recursive: true })
-            fileName = path.join(cacheDir, `${name}.json`)
-            cache = loadMapFromFileSync(fileName)
-        }
-
         const key = args.join()
+
         let data = cache.get(key)
         if (data !== undefined) return data
 
         data = fn(...args)
         cache.set(key, data)
-        setCounter++
 
-        if (useDiskCache && !(setCounter % saveBachSize))
-            saveMapToFile(fileName, cache)
+        if (useDiskCache) {
+            const saveBachSize = batchSize ?? process.normalizedEnv.memorize_save_bach
+
+            if (!(++setCounter % saveBachSize))
+                saveMapToFile(fileName, cache)
+        }
 
         return data
     }
