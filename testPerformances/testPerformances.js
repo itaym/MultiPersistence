@@ -9,29 +9,46 @@ const serializeStats = stats => ({
     percent: (stats.perSecond / stats.perSecond2 * 100 - 100).toFixed(4).padStart(8, ' ') + '%',
     totalDuration: getTimeString(stats.totalDuration, false),
 })
-const showStats = (fn1, fn2, arg1, arg2, multiplyBy) => {
-    const fn1Stats = fn1.stats(multiplyBy)
-    const fn2Stats = fn2.stats(multiplyBy)
-    const arg1Stats = arg1.stats(1)
-    const arg2Stats = arg2.stats(1)
 
-    fn1Stats.perSecond2 = fn2Stats.perSecond
-    fn2Stats.perSecond2 = fn1Stats.perSecond
-    arg1Stats.perSecond2 = arg2Stats.perSecond
-    arg2Stats.perSecond2 = arg1Stats.perSecond
+const showStats = (tests, args, multiplyBy) => {
 
-    const results = {
-        fn1: serializeStats(fn1Stats),
-        fn2: serializeStats(fn2Stats),
-        arg1: serializeStats(arg1Stats),
-        arg2: serializeStats(arg2Stats),
+    const funStats = {}
+    const argStats = {}
+    let funAverage = 0
+    let argAverage = 0
+
+
+    for (let x = 0; x < tests.length; x++) {
+        const fnKey = `fn_${x}`
+        const arKey = `ar_${x}`
+        funStats[fnKey] = tests[x].stats(multiplyBy)
+        argStats[arKey] = args[x].stats(multiplyBy)
+
+        funAverage += funStats[fnKey].perSecond
+        argAverage += argStats[arKey].perSecond
     }
+
+    funAverage /= tests.length
+    argAverage /= args.length
+
+    const results = {}
+
+    for (let x = 0; x < tests.length; x++) {
+        const fnKey = `fn_${x}`
+        const arKey = `ar_${x}`
+        funStats[fnKey].perSecond2 = funAverage
+        argStats[arKey].perSecond2 = argAverage
+
+        results[fnKey] = serializeStats(funStats[fnKey])
+        results[arKey] = serializeStats(argStats[arKey])
+    }
+
     console.table(results)
     return results
 }
 
 const testPerformances = (
-    { test_1, test_2, getArgs_1, getArgs_2 },
+    { tests, getArgs },
     {
         multiplyBy = 1,
         numIterations = 1_000_000_001,
@@ -39,37 +56,43 @@ const testPerformances = (
         warmupIterations = 1_000_000,
     }) => {
 
-    const fn1 = measureTime(test_1)
-    const fn2 = measureTime(test_2)
-    const arg1 = measureTime(getArgs_1)
-    const arg2 = measureTime(getArgs_2)
+    const measureTimeFun = {}
+    const measureTimeArg = {}
 
-    run = {fn1: fn1, arg1: arg1, fn2: fn2, arg2: arg2,}
+    for (let x = 0; x < tests.length; x++) {
+        const fnKey = `fn_${x}`
+        const arKey = `ar_${x}`
+        measureTimeFun[fnKey] = measureTime(tests[x])
+        measureTimeArg[arKey] = measureTime(getArgs[x])
+    }
 
     for (let x = 0; x < warmupIterations; x++) {
-        run.fn1(run.arg1())
-        run.fn2(run.arg2())
+        for (let y = 0; y < tests.length; y++) {
+            const fnKey = `fn_${y}`
+            const arKey = `ar_${y}`
+            measureTimeFun[fnKey](measureTimeArg[arKey]())
+        }
     }
-    run.fn1.reset()
-    run.fn2.reset()
-    run.arg1.reset()
-    run.arg2.reset()
+
+    for (let x = 0; x < tests.length; x++) {
+        const fnKey = `fn_${x}`
+        const arKey = `ar_${x}`
+        measureTimeFun[fnKey].reset()
+        measureTimeArg[arKey].reset()
+    }
 
     for (; counter < numIterations; counter++) {
 
-        run.fn1(run.arg1())
-        run.fn2(run.arg2())
+        for (let x = 0; x < tests.length; x++) {
+            const fnKey = `fn_${x}`
+            const arKey = `ar_${x}`
+            measureTimeFun[fnKey](measureTimeArg[arKey]())
+        }
 
         if (counter % showAfter === 0) {
-            showStats(fn1, fn2, arg1, arg2, multiplyBy)
-
-            if (((counter / showAfter) % 2) === 0)
-                run = {fn1: fn1, arg1: arg1, fn2: fn2, arg2: arg2,}
-            else
-                run = {fn1: fn2, arg1: arg2, fn2: fn1, arg2: arg1,}
+            showStats(Object.values(measureTimeFun),Object.values(measureTimeArg), multiplyBy)
         }
     }
-    return showStats(fn1, fn2, arg1, arg2, multiplyBy)
+    return showStats(Object.values(measureTimeFun),Object.values(measureTimeArg), multiplyBy)
 }
-
 export default testPerformances
