@@ -20,12 +20,8 @@
  * Result object returned by digit‑reduction functions.
  *
  * @typedef {Object} ReduceResults
- * @property {BigInt} additionSum
- *     Sum of all digits (digit * count) in the HugeInt.
+ * @property {BigInt} additionSum - Sum of all digits (digit * count) in the HugeInt.
+ * @property {BigInt} multiplySum - Product of all digits (digit ** count) in the HugeInt.
  *
- * @property {BigInt} multiplySum
- *     Product of all digits (digit ** count) in the HugeInt.
- *
- * @property {number} steps
- *     Number of multiplicative steps performed so far.
+ * @property {number} steps - Number of multiplicative steps performed so far.
  */
