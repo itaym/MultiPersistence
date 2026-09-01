@@ -3,7 +3,7 @@ import {
     sanitize,
     truncate,
     truncateWithRuler,
-} from '../utils/stringsutils.js'
+} from '../utils/stringsUtils.js'
 import { getTimeString } from '../utils/getTimeString.js'
 import countPermutations from '../permutations/countPermutations.js'
 import HugeInt from '../HugeInt/index.js'

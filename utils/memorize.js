@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import {readJsonFileSync, writeJsonFile} from './fileutils.js'
+import {readJsonFileSync, writeJsonFile} from './fileUtils.js'
 
 /**
  * JSON replacer for serializing BigInt values.
@@ -83,8 +83,8 @@ const isValidName = (name) => typeof name === 'string' && name.length > 0
 /**
  * Wraps a function with disk-backed memoization, keyed by its `args.join()`.
  * When `name` is given, the cache is loaded from
- * `{normalizedEnv.memorize_cache_dir}/{name}.json` up front and re-persisted every
- * `batchSize` new entries — so `initConfig()` must have run before `memorize()`.
+ * `{normalizedEnv.memorize_cache_dir}/{name}.json` on the first call and
+ * re-persisted every `batchSize` new entries.
  *
  * @template {(...args: any[]) => any} F
  * @param {F} fn         the function to memoize
@@ -104,10 +104,13 @@ export default function memorize(fn, name, batchSize = undefined) {
 
     /** @type {string|null} */
     let fileName = null
-    let cache = new Map()
+    let cache = useDiskCache ? null : new Map()
     let setCounter = 0
 
-    if (useDiskCache) {
+    // Deferred to the first call: for disk caches (e.g. baseDigits) `memorize()`
+    // runs while Config is still bootstrapping, before initConfig() has populated
+    // process.normalizedEnv. `cache === null` is only ever true here, once.
+    const loadCache = () => {
         const cacheDir = path.resolve(process.normalizedEnv.memorize_cache_dir)
         fs.mkdirSync(cacheDir, { recursive: true })
         fileName = path.join(cacheDir, `${name}.json`)
@@ -115,6 +118,8 @@ export default function memorize(fn, name, batchSize = undefined) {
     }
 
     return function (...args) {
+        if (cache === null) loadCache()
+
         const key = args.join()
 
         let data = cache.get(key)
