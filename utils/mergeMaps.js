@@ -33,13 +33,18 @@ const mergeMaps = (maps) => {
 }
 
 /**
- * Normalizes a filename into an absolute JSON path inside the /caching directory.
+ * Normalizes a filename into an absolute JSON path inside the cache directory.
+ *
+ * mergeMaps.js is run from inside `utils/`, one level below the repo root
+ * where `.env` and `memorize_cache_dir` are resolved from - so `memorize_cache_dir`
+ * (e.g. `./caching`) is joined onto `../` rather than the current directory.
  *
  * @param {string} filename - Filename without extension
  * @returns {string} Absolute normalized path to the JSON file
  */
 const normalizeFilename = (filename) => {
-    const fullPath = path.join(path.resolve('../caching'), `${filename}.json`)
+    const { normalizedEnv: { memorize_cache_dir } } = process
+    const fullPath = path.join(path.resolve('../', memorize_cache_dir), `${filename}.json`)
     console.log(`📁 Normalized filename: ${fullPath}`)
     return fullPath
 }

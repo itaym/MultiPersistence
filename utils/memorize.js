@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 import {readJsonFileSync, writeJsonFile} from './fileutils.js'
 
@@ -79,32 +80,60 @@ export function loadMapFromFileSync(filename) {
 
 /**
  * Wraps a function with disk-backed memoization, keyed by its JSON.stringify args.
- * Periodically persists the cache to `./caching/{name}.json` every
- * `normalizedEnv.memorize_save_bach` sets.
+ * Periodically persists the cache to `{normalizedEnv.memorize_cache_dir}/{name}.json` every
+ * `normalizedEnv.memorize_save_bach` sets. The cache directory and file are only
+ * resolved on the first actual call, since `normalizedEnv` may not be initialized
+ * yet when `memorize()` itself is called (typically at module load time).
  *
  * @template {(...args: any[]) => any} F
  * @param {F} fn - the function to memoize
- * @param {string} name - cache file name (without extension), used as `./caching/{name}.json`
+ * @param {string} name - cache file name (without extension), used as `{cache_dir}/{name}.json`
  * @returns {(...args: Parameters<F>) => ReturnType<F>} a memoized version of fn
  */
+const usedNames = new Set()
+
+/**
+ * Checks whether a cache `name` is usable as a file name.
+ *
+ * @param {*} name
+ * @returns {boolean}
+ */
+const isValidName = (name) => typeof name === 'string' && name.length > 0
+
 export default function memorize(fn, name) {
-    const fileName = path.join(path.resolve('./caching'), `${name}.json`)
-    const cache = loadMapFromFileSync(fileName)
+    const useDiskCache = isValidName(name)
+
+    if (useDiskCache) {
+        if (usedNames.has(name)) {
+            throw new Error(`memorize: cache file name "${name}" is already used by another memorized function`)
+        }
+        usedNames.add(name)
+    }
+
+    let fileName = null
+    let cache = useDiskCache ? null : new Map()
     let setCounter = 0
 
     return function (...args) {
         const { normalizedEnv } = process
-        const saveToFile = normalizedEnv.memorize_save_bach
+        const saveBachSize = normalizedEnv.memorize_save_bach
+
+        if (useDiskCache && cache === null) {
+            const cacheDir = path.resolve(normalizedEnv.memorize_cache_dir)
+            fs.mkdirSync(cacheDir, { recursive: true })
+            fileName = path.join(cacheDir, `${name}.json`)
+            cache = loadMapFromFileSync(fileName)
+        }
 
         const key = args.join()
         let data = cache.get(key)
-        if (data) return data
+        if (data !== undefined) return data
 
         data = fn(...args)
         cache.set(key, data)
         setCounter++
 
-        if (!(setCounter % saveToFile))
+        if (useDiskCache && !(setCounter % saveBachSize))
             saveMapToFile(fileName, cache)
 
         return data
