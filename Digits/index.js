@@ -65,18 +65,27 @@ if (maxBase > 64) {
 /**
  * Builds the string of digit characters for a given base.
  *
- * @param {bigint} base - the numeric base
- * @returns {string} concatenated digit characters for the base
+ * @type {(base: BigInt) => String}
  */
-export const baseDigits = memorize((base) => {
-    let digitsString = ''
+export const baseDigits = memorize(
+    /**
+     * Builds the string of digit characters for a given base by concatenating
+     * digitsObj lookups for 0n..base-1n.
+     *
+     * @param {BigInt} base - the numeric base
+     * @returns {String} concatenated digit characters for the base
+     */
+    (base) => {
+        let digitsString = ''
 
-    for (let digit = 0n; digit < base; digit++) {
-        digitsString += digitsObj.get(digit)
-    }
+        for (let digit = 0n; digit < base; digit++) {
+            digitsString += digitsObj.get(digit)
+        }
 
-    return digitsString
-}, 'baseDigits')
+        return digitsString
+    },
+    'baseDigits'
+)
 
 /**
  * Precomputed BigInt values for integers 0 through 1999.
