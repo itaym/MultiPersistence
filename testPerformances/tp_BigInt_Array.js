@@ -13,24 +13,28 @@ for (let int = 0; int < 1_001; int++) {
     tbi[int] = BigInt(int)
 }
 
-const test_1 = function(num) {
-    let v = BigInt(num)
-    if (num === 1000) {
-        number1 = 0
-    }
-    return v
-}
-const test_2 = function(num) {
-    let v = tbi[num]
-    if (num === 1000) {
-        number2 = 0
-    }
-    return v
-}
-const getArgs_1 = () => (number1++)
-const getArgs_2 = () => (number2++)
+const tests = [
+    function(num) {
+        let v = BigInt(num)
+        if (num === 1000) {
+            number1 = 0
+        }
+        return v
+    },
+    function(num) {
+        let v = tbi[num]
+        if (num === 1000) {
+            number2 = 0
+        }
+        return v
+    },
+]
+const getArgs = [
+    () => (number1++),
+    () => (number2++),
+]
 
-testPerformances({ test_1, test_2, getArgs_1, getArgs_2 }, {
+testPerformances({ tests, getArgs }, {
     multiplyBy,
     numIterations,
     showAfter,
