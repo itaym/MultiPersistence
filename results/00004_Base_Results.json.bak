@@ -1,106 +1,186 @@
 {
 	"base": "4",
 	"iterations": {
-		"calculated": "499501",
-		"count": 499501,
-		"found_nothing": 499411,
+		"calculated": "499502",
+		"count": 499502,
+		"found_nothing": 499412,
 		"found_nothing_break_at": 1000000000
 	},
-	"last_number": "19135511587904242070547220019628033067038628368144920007960712280429437689872838564277658105275104498640766077316457712890785316014384255523765522602777553089854998190885380000114796524706674145238154498343914374130269243941064727324552837673411058995150832759693733134824104934270551941589360703661722113557361484830743084267063247467985676483489129416738167119451104305087001355372713548626877980552867766499232736354503629976400673693308863875256814905650348653425826297264945339860013659536105097125896737597287669254724797736572009084819212630647104195905921466803807128469660908960364141858171562",
+	"last_number": "19135511587904242070547220019628033067038628368144920007960712280429437689872838564277658105275104498640766077316457712890785316014384255523765522602777553089854998190885380000114796524706674145238154498343914374130269243941064727324552837673411058995150832759693733134824104934270551941589360703661722113557361484830743084267063247467985676483489129416738167119451104305087001355372713548626877980552867766499232736354503629976400673693308863875256814905650348653425826297264945339860013659536105097125896737597287669254724797736572009084819212630647104195905921466803807128469660908960364141858171563",
 	"number_lengths": {
 		"1": {
 			"found": 3,
-			"time": 632,
+			"time": 678,
 			"steps": {
 				"0": {
+					"additionSum": "6",
+					"multiplySum": "6",
 					"count": 3,
 					"combinations": "3",
-					"first": "1",
-					"last": "3"
+					"first": {
+						"additionSum": "1",
+						"multiplySum": "1",
+						"currentNoValue": "1"
+					},
+					"last": {
+						"additionSum": "3",
+						"multiplySum": "3",
+						"currentNoValue": "3"
+					}
 				}
 			}
 		},
 		"3": {
 			"found": 1,
-			"time": 632,
+			"time": 678,
 			"steps": {
 				"3": {
+					"additionSum": "9",
+					"multiplySum": "27",
 					"count": 1,
 					"combinations": "1",
-					"first": "63",
-					"last": "63"
+					"first": {
+						"additionSum": "9",
+						"multiplySum": "27",
+						"currentNoValue": "63"
+					},
+					"last": {
+						"additionSum": "9",
+						"multiplySum": "27",
+						"currentNoValue": "63"
+					}
 				}
 			}
 		},
 		"4": {
 			"found": 1,
-			"time": 632,
+			"time": 678,
 			"steps": {
 				"3": {
+					"additionSum": "11",
+					"multiplySum": "54",
 					"count": 1,
 					"combinations": "4",
-					"first": "191",
-					"last": "191"
+					"first": {
+						"additionSum": "11",
+						"multiplySum": "54",
+						"currentNoValue": "191"
+					},
+					"last": {
+						"additionSum": "11",
+						"multiplySum": "54",
+						"currentNoValue": "191"
+					}
 				}
 			}
 		},
 		"6": {
 			"found": 2,
-			"time": 632,
+			"time": 678,
 			"steps": {
 				"3": {
+					"additionSum": "35",
+					"multiplySum": "1215",
 					"count": 2,
 					"combinations": "7",
-					"first": "3071",
-					"last": "4095"
+					"first": {
+						"additionSum": "17",
+						"multiplySum": "486",
+						"currentNoValue": "3071"
+					},
+					"last": {
+						"additionSum": "18",
+						"multiplySum": "729",
+						"currentNoValue": "4095"
+					}
 				}
 			}
 		},
 		"10": {
 			"found": 1,
-			"time": 632,
+			"time": 678,
 			"steps": {
 				"3": {
+					"additionSum": "30",
+					"multiplySum": "59049",
 					"count": 1,
 					"combinations": "1",
-					"first": "1048575",
-					"last": "1048575"
+					"first": {
+						"additionSum": "30",
+						"multiplySum": "59049",
+						"currentNoValue": "1048575"
+					},
+					"last": {
+						"additionSum": "30",
+						"multiplySum": "59049",
+						"currentNoValue": "1048575"
+					}
 				}
 			}
 		},
 		"12": {
 			"found": 1,
-			"time": 632,
+			"time": 678,
 			"steps": {
 				"3": {
+					"additionSum": "35",
+					"multiplySum": "354294",
 					"count": 1,
 					"combinations": "12",
-					"first": "12582911",
-					"last": "12582911"
+					"first": {
+						"additionSum": "35",
+						"multiplySum": "354294",
+						"currentNoValue": "12582911"
+					},
+					"last": {
+						"additionSum": "35",
+						"multiplySum": "354294",
+						"currentNoValue": "12582911"
+					}
 				}
 			}
 		}
 	},
-	"up_time": 1036,
+	"up_time": 1386,
 	"steps": [
 		{
-			"atRunTime": 351,
+			"additionSum": "6",
+			"multiplySum": "6",
+			"atRunTime": 336,
 			"combinations": "3",
 			"count": 3,
-			"first": "1",
+			"first": {
+				"additionSum": "1",
+				"multiplySum": "1",
+				"currentNoValue": "1"
+			},
 			"iteration": "3",
-			"last": "3",
+			"last": {
+				"additionSum": "3",
+				"multiplySum": "3",
+				"currentNoValue": "3"
+			},
 			"step": 0
 		},
 		null,
 		null,
 		{
-			"atRunTime": 351,
+			"additionSum": "120",
+			"multiplySum": "414639",
+			"atRunTime": 337,
 			"combinations": "25",
 			"count": 6,
-			"first": "63",
+			"first": {
+				"additionSum": "9",
+				"multiplySum": "27",
+				"currentNoValue": "63"
+			},
 			"iteration": "90",
-			"last": "12582911",
+			"last": {
+				"additionSum": "35",
+				"multiplySum": "354294",
+				"currentNoValue": "12582911"
+			},
 			"step": 3
 		}
 	]
