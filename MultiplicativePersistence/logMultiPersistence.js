@@ -48,6 +48,14 @@ const formatRow = (left, right, leftWidth = 70, rightWidth = 70) =>
     formatColumn(left, leftWidth) + formatColumn(right, rightWidth) + '\n'
 
 /**
+ * Formats a byte count as gigabytes with two decimals.
+ *
+ * @param {Number} bytes
+ * @returns {String}
+ */
+const toGB = (bytes) => (bytes / 1024 ** 3).toFixed(2)
+
+/**
  * Computes the iteration-rate, ETA and progress stats shown in the log header.
  *
  * @param {Object} params
@@ -189,6 +197,7 @@ export default function logMultiPersistence({ goalNumber, base }) {
         const lastNumberFoundStr = truncate(sanitize(lastNumberFound.toLocaleString()), 2, 52)
         const currentNoLength = currentNoHI.length
         const foundInLength = lengths[currentNoLength + '']?.found || 0
+        const mem = process.memoryUsage()
 
         const rates = computeRateStats({
             calcIterations, countIterations, iterationsPerLog, notFound,
@@ -201,7 +210,7 @@ export default function logMultiPersistence({ goalNumber, base }) {
         logStr += truncatedWithRuler.ruler + '\n'
 
         logStr += 'Number found in ' + truncate(`${maxSteps} -> ${lastNumberFoundStr}`, 3, RULER_WIDTH).padEnd(54, '-') +
-            `Current number length: ${currentNoLength.toLocaleString()} (${cellNo})`.padEnd(70, '-') + '\n'
+            `Cells: ${cellNo.toLocaleString()}  RSS: ${toGB(mem.rss)} GB  worker heap: ${toGB(mem.heapUsed)} GB`.padEnd(70, '-') + '\n'
 
         logStr += formatRow(
             `Calc Iter.: ${calcIterations.toLocaleString()} (${rates.percentDone}%)`,
