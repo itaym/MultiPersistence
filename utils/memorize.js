@@ -2,36 +2,30 @@ import fs from 'fs'
 import path from 'path'
 import {readJsonFileSync, writeJsonFile} from './fileUtils.js'
 
+/** Matches a serialized BigInt: digits followed by a literal `n`, e.g. `"720n"`. */
+const BIGINT_TAG = /^-?\d+n$/
+
 /**
- * JSON replacer for serializing BigInt values.
- * Converts BigInt to string for JSON compatibility.
+ * JSON replacer: tags BigInt values with a trailing `n` so the reviver can tell
+ * them apart from plain strings that merely look numeric (e.g. baseDigits' "0123").
  *
  * @param {string} key
  * @param {*} value
  * @returns {*}
  */
-const replacer = (key, value) => {
-    const name = value?.constructor?.name
-    if (name === 'BigInt') return value.toString()
-    return value
-}
+const replacer = (key, value) =>
+    typeof value === 'bigint' ? `${value}n` : value
 
 /**
- * JSON reviver for deserializing BigInt values.
+ * JSON reviver: converts only `n`-tagged strings back to BigInt; every other
+ * value (strings, numbers, objects) passes through untouched.
  *
- * @returns {function(string, *): *} - Reviver function.
+ * @param {string} key
+ * @param {*} value
+ * @returns {*}
  */
-const reviver = () => {
-    let toggle = 0
-    return (key, value) => {
-        toggle++
-        if (toggle === 2) {
-            toggle = -1
-            return BigInt(value)
-        }
-        return value
-    }
-}
+const reviver = (key, value) =>
+    typeof value === 'string' && BIGINT_TAG.test(value) ? BigInt(value.slice(0, -1)) : value
 
 /**
  * Saves a Map to a JSON file.
@@ -50,12 +44,11 @@ export function saveMapToFile(filename, map) {
  * Returns an empty Map if loading fails.
  *
  * @param {string} filename - Path to the file.
- *
  * @returns {Map<string, BigInt>} - Loaded map.
  */
 export function loadMapFromFileSync(filename) {
     try {
-        const json = readJsonFileSync(filename, reviver(), [])
+        const json = readJsonFileSync(filename, reviver, [])
         const entries = json.sort((a, b) => {
             if (a[0] > b[0]) return 1
             if (a[0] < b[0]) return -1
