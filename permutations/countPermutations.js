@@ -4,8 +4,6 @@ import memorize from '../utils/memorize.js'
 
 initConfig()
 
-let permutationsJson
-
 /**
  * Computes permutations of a given length using digits 1…base.
  * Uses internal caching to avoid re-computation.
@@ -97,8 +95,7 @@ const getPermutations = (() => {
 const countPermutations = memorize((_length, base) => {
     if (_length <= 0n) return 0n
 
-    permutationsJson = getPermutations(base, _length)
-    return permutationsJson
+    return getPermutations(base, _length)
 }, 'countPermutations')
 
 export default countPermutations
