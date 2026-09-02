@@ -1,38 +1,21 @@
 import fs from 'fs'
 import path from 'path'
-import {readJsonFileSync, writeJsonFile} from './fileUtils.js'
+import { createStore } from '../io/index.js'
+import { readJsonFileSync } from './fileUtils.js'
+import { writeJsonFile } from './fileUtils.js'
+import { replacer, reviver } from '../io/bigintCodec.js'
 
-/** Matches a serialized BigInt: digits followed by a literal `n`, e.g. `"720n"`. */
-const BIGINT_TAG = /^-?\d+n$/
-
-/**
- * JSON replacer: tags BigInt values with a trailing `n` so the reviver can tell
- * them apart from plain strings that merely look numeric (e.g. baseDigits' "0123").
- *
- * @param {string} key
- * @param {*} value
- * @returns {*}
- */
-const replacer = (key, value) =>
-    typeof value === 'bigint' ? `${value}n` : value
-
-/**
- * JSON reviver: converts only `n`-tagged strings back to BigInt; every other
- * value (strings, numbers, objects) passes through untouched.
- *
- * @param {string} key
- * @param {*} value
- * @returns {*}
- */
-const reviver = (key, value) =>
-    typeof value === 'string' && BIGINT_TAG.test(value) ? BigInt(value.slice(0, -1)) : value
+/** Module URL of the codec, shared with the `io` persist worker. */
+const CODEC_URL = new URL('../io/bigintCodec.js', import.meta.url).href
 
 /**
  * Saves a Map to a JSON file.
  *
+ * Legacy helper kept for `utils/mergeMaps.js`; the memoized path persists
+ * through {@link module:io} instead.
+ *
  * @param {string} filename - Path to the file.
  * @param {Map<string, BigInt>} map - Map to serialize.
- *
  * @returns {void}
  */
 export function saveMapToFile(filename, map) {
@@ -40,8 +23,9 @@ export function saveMapToFile(filename, map) {
 }
 
 /**
- * Loads a Map from a JSON file.
- * Returns an empty Map if loading fails.
+ * Loads a Map from a JSON file. Returns an empty Map if loading fails.
+ *
+ * Legacy helper kept for `utils/mergeMaps.js`.
  *
  * @param {string} filename - Path to the file.
  * @returns {Map<string, BigInt>} - Loaded map.
@@ -74,60 +58,90 @@ const usedNames = new Set()
 const isValidName = (name) => typeof name === 'string' && name.length > 0
 
 /**
- * Wraps a function with disk-backed memoization, keyed by its `args.join()`.
- * When `name` is given, the cache is loaded from
- * `{normalizedEnv.memorize_cache_dir}/{name}.json` on the first call and
- * re-persisted every `batchSize` new entries.
+ * Ensures the cache directory exists and returns its absolute path.
+ *
+ * @returns {string}
+ */
+const ensureCacheDir = () => {
+    const dir = path.resolve(process.normalizedEnv.memorize_cache_dir)
+    fs.mkdirSync(dir, { recursive: true })
+    return dir
+}
+
+/**
+ * Memoizes `fn` into a plain in-process Map, keyed by `args.join()`.
+ *
+ * @template {(...args: any[]) => any} F
+ * @param {F} fn
+ * @returns {(...args: Parameters<F>) => ReturnType<F>}
+ */
+const memoInMemory = (fn) => {
+    const cache = new Map()
+
+    return (...args) => {
+        const key = args.join()
+        if (cache.has(key)) return cache.get(key)
+
+        const data = fn(...args)
+        cache.set(key, data)
+        return data
+    }
+}
+
+/**
+ * Memoizes `fn` through an {@link module:io} store at `{cache_dir}/{name}.json`.
+ *
+ * The store is created on the first call, not here: `memorize()` runs while
+ * Config is still bootstrapping, before `process.normalizedEnv` is populated.
+ * A background worker then loads the file and rewrites it after every
+ * `cache_idle_save_ms` of write-idle time (and on process exit). Calls made
+ * before the file has loaded simply recompute; once it arrives, missing keys
+ * are back-filled.
+ *
+ * @template {(...args: any[]) => any} F
+ * @param {F} fn
+ * @param {string} name  cache file name without extension
+ * @returns {(...args: Parameters<F>) => ReturnType<F>}
+ */
+const memoOnDisk = (fn, name) => {
+    /** @type {import('../io/index.js').Store} */
+    let store
+
+    return (...args) => {
+        store ??= createStore({
+            file: path.join(ensureCacheDir(), `${name}.json`),
+            codecUrl: CODEC_URL,
+            idleMs: process.normalizedEnv.cache_idle_save_ms,
+            debug: process.normalizedEnv.debug === true,
+        })
+
+        const key = args.join()
+        const hit = store.get(key)
+        if (hit !== undefined) return hit
+
+        const data = fn(...args)
+        store.set(key, data)
+        return data
+    }
+}
+
+/**
+ * Wraps a function with memoization keyed by its `args.join()`. With a `name`,
+ * the cache is disk-backed through {@link module:io}; without one it lives only
+ * in memory.
  *
  * @template {(...args: any[]) => any} F
  * @param {F} fn         the function to memoize
- * @param {string} name  cache file name (without extension), used as `{cache_dir}/{name}.json`
- * @param {number} [batchSize]  new entries between disk writes; defaults to `normalizedEnv.memorize_save_bach`
+ * @param {string} [name]  cache file name (without extension); omit for memory-only
  * @returns {(...args: Parameters<F>) => ReturnType<F>} a memoized version of fn
  */
-export default function memorize(fn, name, batchSize = undefined) {
-    const useDiskCache = isValidName(name)
+export default function memorize(fn, name) {
+    if (!isValidName(name)) return memoInMemory(fn)
 
-    if (useDiskCache) {
-        if (usedNames.has(name)) {
-            throw new Error(`memorize: cache file name "${name}" is already used by another memorized function`)
-        }
-        usedNames.add(name)
+    if (usedNames.has(name)) {
+        throw new Error(`memorize: cache file name "${name}" is already used by another memorized function`)
     }
+    usedNames.add(name)
 
-    /** @type {string|null} */
-    let fileName = null
-    let cache = useDiskCache ? null : new Map()
-    let setCounter = 0
-
-    // Deferred to the first call: for disk caches (e.g. baseDigits) `memorize()`
-    // runs while Config is still bootstrapping, before initConfig() has populated
-    // process.normalizedEnv. `cache === null` is only ever true here, once.
-    const loadCache = () => {
-        const cacheDir = path.resolve(process.normalizedEnv.memorize_cache_dir)
-        fs.mkdirSync(cacheDir, { recursive: true })
-        fileName = path.join(cacheDir, `${name}.json`)
-        cache = loadMapFromFileSync(fileName)
-    }
-
-    return function (...args) {
-        if (cache === null) loadCache()
-
-        const key = args.join()
-
-        let data = cache.get(key)
-        if (data !== undefined) return data
-
-        data = fn(...args)
-        cache.set(key, data)
-
-        if (useDiskCache) {
-            const saveBachSize = batchSize ?? process.normalizedEnv.memorize_save_bach
-
-            if (!(++setCounter % saveBachSize))
-                saveMapToFile(fileName, cache)
-        }
-
-        return data
-    }
+    return memoOnDisk(fn, name)
 }

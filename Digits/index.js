@@ -85,7 +85,7 @@ export const baseDigits = memorize(
 
         return sanitize(digitsString)
     },
-    'baseDigits', 1
+    'baseDigits'
 )
 
 /**
