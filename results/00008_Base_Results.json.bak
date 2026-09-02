@@ -1,0 +1,3366 @@
+{
+	"base": "8",
+	"iterations": {
+		"calculated": "807002194067744",
+		"count": 1003383944,
+		"found_nothing": 999754242,
+		"found_nothing_break_at": 1000000000
+	},
+	"last_number": "186723878202672620693567329126120741934688149256737839903207019180308343809952147703114445513417763597122688310785465180492244523579011368166042818568296190173869160220444514614554220796124247991716197323997789859432986220434756424372115484148373736894688917721354749013762964495067159085368782218654099848769475508261715346480794254710838656970933918633504845011071789840703682195925665572784655135574995015870037729186972993895430466478795342329448867886998360615449253723532945386406190686224686667119109593209390018740854577825050239904533434180793635229761956264139815852346258383108362560696865923837895729265885321307438087712291158252645727404870553245358288876132241225348232279172140472695089821661122014358221124316408654291456312385229299957689410014420494330169853562195621825938183781915746432940301162119167",
+	"number_lengths": {
+		"1": {
+			"found": 7,
+			"time": 491,
+			"steps": {
+				"0": {
+					"additionSum": "28",
+					"multiplySum": "28",
+					"count": 7,
+					"combinations": "7",
+					"first": {
+						"additionSum": "1",
+						"multiplySum": "1",
+						"currentNoValue": "1"
+					},
+					"last": {
+						"additionSum": "7",
+						"multiplySum": "7",
+						"currentNoValue": "7"
+					}
+				}
+			}
+		},
+		"2": {
+			"found": 9,
+			"time": 491,
+			"steps": {
+				"1": {
+					"additionSum": "9",
+					"multiplySum": "10",
+					"count": 2,
+					"combinations": "3",
+					"first": {
+						"additionSum": "4",
+						"multiplySum": "4",
+						"currentNoValue": "18"
+					},
+					"last": {
+						"additionSum": "5",
+						"multiplySum": "6",
+						"currentNoValue": "19"
+					}
+				},
+				"3": {
+					"additionSum": "78",
+					"multiplySum": "212",
+					"count": 7,
+					"combinations": "13",
+					"first": {
+						"additionSum": "10",
+						"multiplySum": "21",
+						"currentNoValue": "31"
+					},
+					"last": {
+						"additionSum": "13",
+						"multiplySum": "42",
+						"currentNoValue": "55"
+					}
+				}
+			}
+		},
+		"3": {
+			"found": 30,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "328",
+					"multiplySum": "2627",
+					"count": 23,
+					"combinations": "86",
+					"first": {
+						"additionSum": "9",
+						"multiplySum": "20",
+						"currentNoValue": "149"
+					},
+					"last": {
+						"additionSum": "21",
+						"multiplySum": "343",
+						"currentNoValue": "511"
+					}
+				},
+				"4": {
+					"additionSum": "102",
+					"multiplySum": "785",
+					"count": 7,
+					"combinations": "28",
+					"first": {
+						"additionSum": "13",
+						"multiplySum": "60",
+						"currentNoValue": "174"
+					},
+					"last": {
+						"additionSum": "19",
+						"multiplySum": "252",
+						"currentNoValue": "439"
+					}
+				}
+			}
+		},
+		"4": {
+			"found": 47,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "589",
+					"multiplySum": "17706",
+					"count": 31,
+					"combinations": "337",
+					"first": {
+						"additionSum": "10",
+						"multiplySum": "36",
+						"currentNoValue": "1179"
+					},
+					"last": {
+						"additionSum": "28",
+						"multiplySum": "2401",
+						"currentNoValue": "4095"
+					}
+				},
+				"4": {
+					"additionSum": "216",
+					"multiplySum": "3706",
+					"count": 13,
+					"combinations": "142",
+					"first": {
+						"additionSum": "12",
+						"multiplySum": "60",
+						"currentNoValue": "1181"
+					},
+					"last": {
+						"additionSum": "22",
+						"multiplySum": "735",
+						"currentNoValue": "1919"
+					}
+				},
+				"5": {
+					"additionSum": "72",
+					"multiplySum": "3283",
+					"count": 3,
+					"combinations": "20",
+					"first": {
+						"additionSum": "23",
+						"multiplySum": "686",
+						"currentNoValue": "1535"
+					},
+					"last": {
+						"additionSum": "26",
+						"multiplySum": "1715",
+						"currentNoValue": "3071"
+					}
+				}
+			}
+		},
+		"5": {
+			"found": 60,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "1018",
+					"multiplySum": "102441",
+					"count": 44,
+					"combinations": "1220",
+					"first": {
+						"additionSum": "15",
+						"multiplySum": "180",
+						"currentNoValue": "9437"
+					},
+					"last": {
+						"additionSum": "33",
+						"multiplySum": "12005",
+						"currentNoValue": "24575"
+					}
+				},
+				"4": {
+					"additionSum": "198",
+					"multiplySum": "15612",
+					"count": 9,
+					"combinations": "340",
+					"first": {
+						"additionSum": "13",
+						"multiplySum": "108",
+						"currentNoValue": "9435"
+					},
+					"last": {
+						"additionSum": "27",
+						"multiplySum": "3675",
+						"currentNoValue": "15231"
+					}
+				},
+				"5": {
+					"additionSum": "156",
+					"multiplySum": "13920",
+					"count": 7,
+					"combinations": "126",
+					"first": {
+						"additionSum": "22",
+						"multiplySum": "882",
+						"currentNoValue": "9983"
+					},
+					"last": {
+						"additionSum": "30",
+						"multiplySum": "6860",
+						"currentNoValue": "19455"
+					}
+				}
+			}
+		},
+		"6": {
+			"found": 88,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "1988",
+					"multiplySum": "981104",
+					"count": 71,
+					"combinations": "5477",
+					"first": {
+						"additionSum": "20",
+						"multiplySum": "756",
+						"currentNoValue": "75487"
+					},
+					"last": {
+						"additionSum": "42",
+						"multiplySum": "117649",
+						"currentNoValue": "262143"
+					}
+				},
+				"4": {
+					"additionSum": "309",
+					"multiplySum": "154613",
+					"count": 11,
+					"combinations": "651",
+					"first": {
+						"additionSum": "26",
+						"multiplySum": "2940",
+						"currentNoValue": "75647"
+					},
+					"last": {
+						"additionSum": "38",
+						"multiplySum": "60025",
+						"currentNoValue": "188415"
+					}
+				},
+				"5": {
+					"additionSum": "169",
+					"multiplySum": "72352",
+					"count": 6,
+					"combinations": "260",
+					"first": {
+						"additionSum": "30",
+						"multiplySum": "6860",
+						"currentNoValue": "76799"
+					},
+					"last": {
+						"additionSum": "36",
+						"multiplySum": "42875",
+						"currentNoValue": "187391"
+					}
+				}
+			}
+		},
+		"7": {
+			"found": 116,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "3351",
+					"multiplySum": "9228495",
+					"count": 99,
+					"combinations": "21442",
+					"first": {
+						"additionSum": "21",
+						"multiplySum": "1620",
+						"currentNoValue": "603869"
+					},
+					"last": {
+						"additionSum": "48",
+						"multiplySum": "705894",
+						"currentNoValue": "1835007"
+					}
+				},
+				"4": {
+					"additionSum": "455",
+					"multiplySum": "884096",
+					"count": 15,
+					"combinations": "1071",
+					"first": {
+						"additionSum": "19",
+						"multiplySum": "972",
+						"currentNoValue": "603867"
+					},
+					"last": {
+						"additionSum": "43",
+						"multiplySum": "300125",
+						"currentNoValue": "1499135"
+					}
+				},
+				"5": {
+					"additionSum": "53",
+					"multiplySum": "17577",
+					"count": 2,
+					"combinations": "147",
+					"first": {
+						"additionSum": "24",
+						"multiplySum": "3402",
+						"currentNoValue": "636639"
+					},
+					"last": {
+						"additionSum": "29",
+						"multiplySum": "14175",
+						"currentNoValue": "898927"
+					}
+				}
+			}
+		},
+		"8": {
+			"found": 129,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "4581",
+					"multiplySum": "55021986",
+					"count": 119,
+					"combinations": "63878",
+					"first": {
+						"additionSum": "22",
+						"multiplySum": "2916",
+						"currentNoValue": "4830939"
+					},
+					"last": {
+						"additionSum": "55",
+						"multiplySum": "4941258",
+						"currentNoValue": "14680063"
+					}
+				},
+				"4": {
+					"additionSum": "275",
+					"multiplySum": "7759529",
+					"count": 8,
+					"combinations": "624",
+					"first": {
+						"additionSum": "24",
+						"multiplySum": "4860",
+						"currentNoValue": "4830941"
+					},
+					"last": {
+						"additionSum": "54",
+						"multiplySum": "4117715",
+						"currentNoValue": "12582911"
+					}
+				},
+				"5": {
+					"additionSum": "73",
+					"multiplySum": "307125",
+					"count": 2,
+					"combinations": "1120",
+					"first": {
+						"additionSum": "34",
+						"multiplySum": "70875",
+						"currentNoValue": "7191407"
+					},
+					"last": {
+						"additionSum": "39",
+						"multiplySum": "236250",
+						"currentNoValue": "7265143"
+					}
+				}
+			}
+		},
+		"9": {
+			"found": 142,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "5688",
+					"multiplySum": "309781283",
+					"count": 130,
+					"combinations": "235115",
+					"first": {
+						"additionSum": "27",
+						"multiplySum": "14580",
+						"currentNoValue": "38647517"
+					},
+					"last": {
+						"additionSum": "60",
+						"multiplySum": "24706290",
+						"currentNoValue": "98566143"
+					}
+				},
+				"4": {
+					"additionSum": "346",
+					"multiplySum": "6335310",
+					"count": 9,
+					"combinations": "6075",
+					"first": {
+						"additionSum": "28",
+						"multiplySum": "21870",
+						"currentNoValue": "40744669"
+					},
+					"last": {
+						"additionSum": "45",
+						"multiplySum": "972405",
+						"currentNoValue": "57532415"
+					}
+				},
+				"5": {
+					"additionSum": "73",
+					"multiplySum": "343413",
+					"count": 2,
+					"combinations": "2556",
+					"first": {
+						"additionSum": "38",
+						"multiplySum": "236250",
+						"currentNoValue": "40754031"
+					},
+					"last": {
+						"additionSum": "35",
+						"multiplySum": "107163",
+						"currentNoValue": "57521919"
+					}
+				},
+				"6": {
+					"additionSum": "43",
+					"multiplySum": "826875",
+					"count": 1,
+					"combinations": "1260",
+					"first": {
+						"additionSum": "43",
+						"multiplySum": "826875",
+						"currentNoValue": "57596799"
+					},
+					"last": {
+						"additionSum": "43",
+						"multiplySum": "826875",
+						"currentNoValue": "57596799"
+					}
+				}
+			}
+		},
+		"10": {
+			"found": 172,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "7789",
+					"multiplySum": "2538647922",
+					"count": 161,
+					"combinations": "997960",
+					"first": {
+						"additionSum": "30",
+						"multiplySum": "43740",
+						"currentNoValue": "309180125"
+					},
+					"last": {
+						"additionSum": "69",
+						"multiplySum": "242121642",
+						"currentNoValue": "939524095"
+					}
+				},
+				"4": {
+					"additionSum": "474",
+					"multiplySum": "173012404",
+					"count": 10,
+					"combinations": "13523",
+					"first": {
+						"additionSum": "39",
+						"multiplySum": "357210",
+						"currentNoValue": "325957503"
+					},
+					"last": {
+						"additionSum": "64",
+						"multiplySum": "86472015",
+						"currentNoValue": "503316479"
+					}
+				},
+				"5": {
+					"additionSum": "38",
+					"multiplySum": "321489",
+					"count": 1,
+					"combinations": "45",
+					"first": {
+						"additionSum": "38",
+						"multiplySum": "321489",
+						"currentNoValue": "460175103"
+					},
+					"last": {
+						"additionSum": "38",
+						"multiplySum": "321489",
+						"currentNoValue": "460175103"
+					}
+				}
+			}
+		},
+		"11": {
+			"found": 174,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "9006",
+					"multiplySum": "18696033396",
+					"count": 168,
+					"combinations": "2628352",
+					"first": {
+						"additionSum": "31",
+						"multiplySum": "78732",
+						"currentNoValue": "2473440987"
+					},
+					"last": {
+						"additionSum": "77",
+						"multiplySum": "1977326743",
+						"currentNoValue": "8589934591"
+					}
+				},
+				"4": {
+					"additionSum": "257",
+					"multiplySum": "572159439",
+					"count": 5,
+					"combinations": "13058",
+					"first": {
+						"additionSum": "58",
+						"multiplySum": "31765230",
+						"currentNoValue": "2608332799"
+					},
+					"last": {
+						"additionSum": "70",
+						"multiplySum": "518832090",
+						"currentNoValue": "4009754623"
+					}
+				},
+				"5": {
+					"additionSum": "41",
+					"multiplySum": "1366875",
+					"count": 1,
+					"combinations": "330",
+					"first": {
+						"additionSum": "41",
+						"multiplySum": "1366875",
+						"currentNoValue": "3681401709"
+					},
+					"last": {
+						"additionSum": "41",
+						"multiplySum": "1366875",
+						"currentNoValue": "3681401709"
+					}
+				}
+			}
+		},
+		"12": {
+			"found": 184,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "10474",
+					"multiplySum": "60917543748",
+					"count": 181,
+					"combinations": "8139678",
+					"first": {
+						"additionSum": "34",
+						"multiplySum": "236196",
+						"currentNoValue": "19787527899"
+					},
+					"last": {
+						"additionSum": "74",
+						"multiplySum": "2573571875",
+						"currentNoValue": "49085939711"
+					}
+				},
+				"4": {
+					"additionSum": "191",
+					"multiplySum": "780214554",
+					"count": 3,
+					"combinations": "12276",
+					"first": {
+						"additionSum": "69",
+						"multiplySum": "518832090",
+						"currentNoValue": "20904411135"
+					},
+					"last": {
+						"additionSum": "64",
+						"multiplySum": "200120949",
+						"currentNoValue": "29452402687"
+					}
+				}
+			}
+		},
+		"13": {
+			"found": 218,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "13063",
+					"multiplySum": "358792286345",
+					"count": 212,
+					"combinations": "28036086",
+					"first": {
+						"additionSum": "37",
+						"multiplySum": "708588",
+						"currentNoValue": "158300223195"
+					},
+					"last": {
+						"additionSum": "83",
+						"multiplySum": "25221004375",
+						"currentNoValue": "392721072127"
+					}
+				},
+				"4": {
+					"additionSum": "345",
+					"multiplySum": "5025563895",
+					"count": 6,
+					"combinations": "63661",
+					"first": {
+						"additionSum": "45",
+						"multiplySum": "6200145",
+						"currentNoValue": "235609634543"
+					},
+					"last": {
+						"additionSum": "72",
+						"multiplySum": "3376406250",
+						"currentNoValue": "255243775999"
+					}
+				}
+			}
+		},
+		"14": {
+			"found": 240,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "15684",
+					"multiplySum": "2870803056712",
+					"count": 236,
+					"combinations": "101353234",
+					"first": {
+						"additionSum": "44",
+						"multiplySum": "4960116",
+						"currentNoValue": "1266401785567"
+					},
+					"last": {
+						"additionSum": "98",
+						"multiplySum": "678223072849",
+						"currentNoValue": "4398046511103"
+					}
+				},
+				"4": {
+					"additionSum": "237",
+					"multiplySum": "5375307969",
+					"count": 4,
+					"combinations": "616045",
+					"first": {
+						"additionSum": "71",
+						"multiplySum": "3376406250",
+						"currentNoValue": "1337575530495"
+					},
+					"last": {
+						"additionSum": "68",
+						"multiplySum": "1823259375",
+						"currentNoValue": "1884915425279"
+					}
+				}
+			}
+		},
+		"15": {
+			"found": 237,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "16417",
+					"multiplySum": "19351679145699",
+					"count": 234,
+					"combinations": "294621032",
+					"first": {
+						"additionSum": "53",
+						"multiplySum": "57868020",
+						"currentNoValue": "10131214284671"
+					},
+					"last": {
+						"additionSum": "104",
+						"multiplySum": "4069338437094",
+						"currentNoValue": "30786325577727"
+					}
+				},
+				"4": {
+					"additionSum": "190",
+					"multiplySum": "55238958282",
+					"count": 3,
+					"combinations": "1576",
+					"first": {
+						"additionSum": "45",
+						"multiplySum": "14348907",
+						"currentNoValue": "15079016609499"
+					},
+					"last": {
+						"additionSum": "78",
+						"multiplySum": "51269531250",
+						"currentNoValue": "25131694349175"
+					}
+				}
+			}
+		},
+		"16": {
+			"found": 233,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "17358",
+					"multiplySum": "107050561098664",
+					"count": 230,
+					"combinations": "745399424",
+					"first": {
+						"additionSum": "50",
+						"multiplySum": "44641044",
+						"currentNoValue": "81049714276063"
+					},
+					"last": {
+						"additionSum": "110",
+						"multiplySum": "23737807549715",
+						"currentNoValue": "211106232532991"
+					}
+				},
+				"4": {
+					"additionSum": "217",
+					"multiplySum": "72375284100",
+					"count": 3,
+					"combinations": "483840",
+					"first": {
+						"additionSum": "77",
+						"multiplySum": "51269531250",
+						"currentNoValue": "86704345504623"
+					},
+					"last": {
+						"additionSum": "76",
+						"multiplySum": "19297377225",
+						"currentNoValue": "120632137744383"
+					}
+				}
+			}
+		},
+		"17": {
+			"found": 221,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "17966",
+					"multiplySum": "625818434134225",
+					"count": 221,
+					"combinations": "2369026704",
+					"first": {
+						"additionSum": "49",
+						"multiplySum": "57395628",
+						"currentNoValue": "648397714208475"
+					},
+					"last": {
+						"additionSum": "113",
+						"multiplySum": "84777884106125",
+						"currentNoValue": "1609685023064063"
+					}
+				}
+			}
+		},
+		"18": {
+			"found": 220,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "18871",
+					"multiplySum": "4902713659724525",
+					"count": 220,
+					"combinations": "5718844258",
+					"first": {
+						"additionSum": "66",
+						"multiplySum": "5166787500",
+						"currentNoValue": "5187181713742703"
+					},
+					"last": {
+						"additionSum": "125",
+						"multiplySum": "1395783083923242",
+						"currentNoValue": "15762598695796735"
+					}
+				}
+			}
+		},
+		"19": {
+			"found": 227,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "20022",
+					"multiplySum": "14538439332743600",
+					"count": 226,
+					"combinations": "13932913237",
+					"first": {
+						"additionSum": "55",
+						"multiplySum": "516560652",
+						"currentNoValue": "41497453709342427"
+					},
+					"last": {
+						"additionSum": "119",
+						"multiplySum": "1081350562578125",
+						"currentNoValue": "102939439688318975"
+					}
+				},
+				"4": {
+					"additionSum": "65",
+					"multiplySum": "6327867987",
+					"count": 1,
+					"combinations": "171",
+					"first": {
+						"additionSum": "65",
+						"multiplySum": "6327867987",
+						"currentNoValue": "61763652032509695"
+					},
+					"last": {
+						"additionSum": "65",
+						"multiplySum": "6327867987",
+						"currentNoValue": "61763652032509695"
+					}
+				}
+			}
+		},
+		"20": {
+			"found": 226,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "21024",
+					"multiplySum": "45365034875550688",
+					"count": 226,
+					"combinations": "43092034259",
+					"first": {
+						"additionSum": "58",
+						"multiplySum": "1549681956",
+						"currentNoValue": "331979629674739419"
+					},
+					"last": {
+						"additionSum": "132",
+						"multiplySum": "20770581606000625",
+						"currentNoValue": "823595781855379455"
+					}
+				}
+			}
+		},
+		"21": {
+			"found": 221,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "22062",
+					"multiplySum": "1359240463986930317",
+					"count": 221,
+					"combinations": "132439947980",
+					"first": {
+						"additionSum": "63",
+						"multiplySum": "7748409780",
+						"currentNoValue": "2655837037397915357"
+					},
+					"last": {
+						"additionSum": "145",
+						"multiplySum": "398961331488060005",
+						"currentNoValue": "6917529027641081855"
+					}
+				}
+			}
+		},
+		"22": {
+			"found": 248,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "25932",
+					"multiplySum": "12449864197108086624",
+					"count": 248,
+					"combinations": "408382191747",
+					"first": {
+						"additionSum": "68",
+						"multiplySum": "32543321076",
+						"currentNoValue": "21246696299183322847"
+					},
+					"last": {
+						"additionSum": "152",
+						"multiplySum": "2872521586714032036",
+						"currentNoValue": "63410682753376583679"
+					}
+				}
+			}
+		},
+		"23": {
+			"found": 240,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "26293",
+					"multiplySum": "50475312260676978622",
+					"count": 240,
+					"combinations": "1477301669879",
+					"first": {
+						"additionSum": "67",
+						"multiplySum": "41841412812",
+						"currentNoValue": "169973570393466582747"
+					},
+					"last": {
+						"additionSum": "158",
+						"multiplySum": "16756375922498520210",
+						"currentNoValue": "433498485732174462975"
+					}
+				}
+			}
+		},
+		"24": {
+			"found": 237,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "26764",
+					"multiplySum": "404681453585606740384",
+					"count": 237,
+					"combinations": "5284144209661",
+					"first": {
+						"additionSum": "78",
+						"multiplySum": "813583026900",
+						"currentNoValue": "1359788563147732662127"
+					},
+					"last": {
+						"additionSum": "166",
+						"multiplySum": "136843736700404581715",
+						"currentNoValue": "3541774862152233910271"
+					}
+				}
+			}
+		},
+		"25": {
+			"found": 245,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "28474",
+					"multiplySum": "1747682678263134533981",
+					"count": 244,
+					"combinations": "14810765789865",
+					"first": {
+						"additionSum": "77",
+						"multiplySum": "878669669052",
+						"currentNoValue": "10878308505181861295839"
+					},
+					"last": {
+						"additionSum": "170",
+						"multiplySum": "586473157287448207350",
+						"currentNoValue": "27079820300205621772287"
+					}
+				},
+				"4": {
+					"additionSum": "136",
+					"multiplySum": "1615663146972656250",
+					"count": 1,
+					"combinations": "60568200",
+					"first": {
+						"additionSum": "136",
+						"multiplySum": "1615663146972656250",
+						"currentNoValue": "17540218364944396845055"
+					},
+					"last": {
+						"additionSum": "136",
+						"multiplySum": "1615663146972656250",
+						"currentNoValue": "17540218364944396845055"
+					}
+				}
+			}
+		},
+		"26": {
+			"found": 268,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "32313",
+					"multiplySum": "10662239159782351735462",
+					"count": 266,
+					"combinations": "46109685534068",
+					"first": {
+						"additionSum": "78",
+						"multiplySum": "1882863576540",
+						"currentNoValue": "87026468041454890366685"
+					},
+					"last": {
+						"additionSum": "162",
+						"multiplySum": "333812918667867187500",
+						"currentNoValue": "215879610972181522022399"
+					}
+				},
+				"4": {
+					"additionSum": "241",
+					"multiplySum": "1617324212319243750",
+					"count": 2,
+					"combinations": "14172958800",
+					"first": {
+						"additionSum": "135",
+						"multiplySum": "1615663146972656250",
+						"currentNoValue": "91917490470141308698623"
+					},
+					"last": {
+						"additionSum": "106",
+						"multiplySum": "1661065346587500",
+						"currentNoValue": "129527766387282004078079"
+					}
+				}
+			}
+		},
+		"27": {
+			"found": 265,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "33207",
+					"multiplySum": "48863289852646391433317",
+					"count": 263,
+					"combinations": "141899862680121",
+					"first": {
+						"additionSum": "79",
+						"multiplySum": "3389154437772",
+						"currentNoValue": "696211744331639122933467"
+					},
+					"last": {
+						"additionSum": "177",
+						"multiplySum": "8727279126301312609375",
+						"currentNoValue": "1727039520412909350944767"
+					}
+				},
+				"4": {
+					"additionSum": "209",
+					"multiplySum": "3322130693175000",
+					"count": 2,
+					"combinations": "44881036200",
+					"first": {
+						"additionSum": "105",
+						"multiplySum": "1661065346587500",
+						"currentNoValue": "733990676194596322991615"
+					},
+					"last": {
+						"additionSum": "104",
+						"multiplySum": "1661065346587500",
+						"currentNoValue": "1036222131098253599890431"
+					}
+				}
+			}
+		},
+		"28": {
+			"found": 246,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "31358",
+					"multiplySum": "121409004388453663893221",
+					"count": 245,
+					"combinations": "325978244333980",
+					"first": {
+						"additionSum": "84",
+						"multiplySum": "16945772188860",
+						"currentNoValue": "5569693954653112983467741"
+					},
+					"last": {
+						"additionSum": "153",
+						"multiplySum": "336596488952636718750",
+						"currentNoValue": "13816295081310047711264767"
+					}
+				},
+				"4": {
+					"additionSum": "104",
+					"multiplySum": "1661065346587500",
+					"count": 1,
+					"combinations": "33070237200",
+					"first": {
+						"additionSum": "104",
+						"multiplySum": "1661065346587500",
+						"currentNoValue": "5569693954653112988261375"
+					},
+					"last": {
+						"additionSum": "104",
+						"multiplySum": "1661065346587500",
+						"currentNoValue": "5569693954653112988261375"
+					}
+				}
+			}
+		},
+		"29": {
+			"found": 197,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "26961",
+					"multiplySum": "3535307091993657149702198",
+					"count": 197,
+					"combinations": "817157845465133",
+					"first": {
+						"additionSum": "95",
+						"multiplySum": "276780945751380",
+						"currentNoValue": "44557551637224903867742079"
+					},
+					"last": {
+						"additionSum": "193",
+						"multiplySum": "598691348064270045003125",
+						"currentNoValue": "110531709898046915871768575"
+					}
+				}
+			}
+		},
+		"30": {
+			"found": 196,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "27720",
+					"multiplySum": "24795121181072359222865772",
+					"count": 196,
+					"combinations": "2970327578162640",
+					"first": {
+						"additionSum": "90",
+						"multiplySum": "152511949699740",
+						"currentNoValue": "356460413097799230941935325"
+					},
+					"last": {
+						"additionSum": "207",
+						"multiplySum": "13799596096342198829304030",
+						"currentNoValue": "909112216350201139379044351"
+					}
+				}
+			}
+		},
+		"31": {
+			"found": 214,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "31433",
+					"multiplySum": "93706244046579319959484892",
+					"count": 214,
+					"combinations": "9563424240275923",
+					"first": {
+						"additionSum": "95",
+						"multiplySum": "640550188738908",
+						"currentNoValue": "2851683304782393847535482591"
+					},
+					"last": {
+						"additionSum": "182",
+						"multiplySum": "443522691682434082031250",
+						"currentNoValue": "7073943081630745134823899135"
+					}
+				}
+			}
+		},
+		"32": {
+			"found": 194,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "28681",
+					"multiplySum": "224560797725377379043177779",
+					"count": 194,
+					"combinations": "28086633307735552",
+					"first": {
+						"additionSum": "100",
+						"multiplySum": "3812798742493500",
+						"currentNoValue": "22813466438259150780283860845"
+					},
+					"last": {
+						"additionSum": "203",
+						"multiplySum": "32727296723629922285156250",
+						"currentNoValue": "56591544664904576614201819135"
+					}
+				}
+			}
+		},
+		"33": {
+			"found": 166,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "25020",
+					"multiplySum": "4688572096800060451662130980",
+					"count": 166,
+					"combinations": "67409414124505816",
+					"first": {
+						"additionSum": "111",
+						"multiplySum": "62275712794060500",
+						"currentNoValue": "182507731506073206242270894975"
+					},
+					"last": {
+						"additionSum": "226",
+						"multiplySum": "3380901043603838713179487350",
+						"currentNoValue": "454323994417734560887978590207"
+					}
+				}
+			}
+		},
+		"34": {
+			"found": 174,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "27389",
+					"multiplySum": "26686850079764127483728538799",
+					"count": 174,
+					"combinations": "220454456219437356",
+					"first": {
+						"additionSum": "106",
+						"multiplySum": "34315188682441500",
+						"currentNoValue": "1460061852048585649938167084909"
+					},
+					"last": {
+						"additionSum": "226",
+						"multiplySum": "7187289633511561890262515625",
+						"currentNoValue": "3621864384312973671152522100735"
+					}
+				}
+			}
+		},
+		"35": {
+			"found": 166,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "26648",
+					"multiplySum": "149017907334459052263496117134",
+					"count": 166,
+					"combinations": "671768255716942413",
+					"first": {
+						"additionSum": "119",
+						"multiplySum": "659126144212336332",
+						"currentNoValue": "11680494816388685199505336680447"
+					},
+					"last": {
+						"additionSum": "231",
+						"multiplySum": "36963203829488032578492937500",
+						"currentNoValue": "28974893313839036305895032094719"
+					}
+				}
+			}
+		},
+		"36": {
+			"found": 159,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "26672",
+					"multiplySum": "2004157903211187713460513310238",
+					"count": 159,
+					"combinations": "1290087857594654274",
+					"first": {
+						"additionSum": "112",
+						"multiplySum": "308836698141973500",
+						"currentNoValue": "93443958531109481596042693425005"
+					},
+					"last": {
+						"additionSum": "249",
+						"multiplySum": "1623508681138563350068789825470",
+						"currentNoValue": "238318312842907127481380202610687"
+					}
+				}
+			}
+		},
+		"37": {
+			"found": 158,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "27919",
+					"multiplySum": "6783440394461005379725118578577",
+					"count": 158,
+					"combinations": "3590766181143356403",
+					"first": {
+						"additionSum": "113",
+						"multiplySum": "555906056655552300",
+						"currentNoValue": "747551668248875852768341547398893"
+					},
+					"last": {
+						"additionSum": "248",
+						"multiplySum": "2958288413153358874032051431250",
+						"currentNoValue": "1854404468288556802672290508570623"
+					}
+				}
+			}
+		},
+		"38": {
+			"found": 149,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "26905",
+					"multiplySum": "12444343697233704958600766011001",
+					"count": 149,
+					"combinations": "10468407467193603997",
+					"first": {
+						"additionSum": "146",
+						"multiplySum": "879201040141010851740",
+						"currentNoValue": "5980413345991006822146732422332415"
+					},
+					"last": {
+						"additionSum": "243",
+						"multiplySum": "2750238380170240519233105468750",
+						"currentNoValue": "14835133881916662237820406032498687"
+					}
+				}
+			}
+		},
+		"39": {
+			"found": 129,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "23274",
+					"multiplySum": "200354411644733754327064073436062",
+					"count": 129,
+					"combinations": "15818967888946613160",
+					"first": {
+						"additionSum": "137",
+						"multiplySum": "294252742951935862500",
+						"currentNoValue": "47843306767928054577173859038321663"
+					},
+					"last": {
+						"additionSum": "263",
+						"multiplySum": "173947358693417501793084624157500",
+						"currentNoValue": "118686956572868548288632579361341439"
+					}
+				}
+			}
+		},
+		"40": {
+			"found": 109,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "19831",
+					"multiplySum": "615734094023097990482220550229916",
+					"count": 109,
+					"combinations": "30438469594007158321",
+					"first": {
+						"additionSum": "144",
+						"multiplySum": "1453373147988201612060",
+						"currentNoValue": "382746454143424436617390872268898303"
+					},
+					"last": {
+						"additionSum": "200",
+						"multiplySum": "9094947017729282379150390625",
+						"currentNoValue": "949448568417797052074147900200246125"
+					}
+				}
+			}
+		},
+		"41": {
+			"found": 109,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "20350",
+					"multiplySum": "1642220059635151974490051809970427",
+					"count": 109,
+					"combinations": "102855662299624790467",
+					"first": {
+						"additionSum": "127",
+						"multiplySum": "63039746824739630820",
+						"currentNoValue": "3061971633147395492939126978145793775"
+					},
+					"last": {
+						"additionSum": "217",
+						"multiplySum": "342403654940426349639892578125",
+						"currentNoValue": "7595588547342376416593183201602043903"
+					}
+				}
+			}
+		},
+		"42": {
+			"found": 118,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "22782",
+					"multiplySum": "52195387663190991528422132513610942",
+					"count": 118,
+					"combinations": "396286809626008772172",
+					"first": {
+						"additionSum": "136",
+						"multiplySum": "875552039232494872500",
+						"currentNoValue": "24495773065179163943513015825166359407"
+					},
+					"last": {
+						"additionSum": "282",
+						"multiplySum": "41433294466557085496547240337515625",
+						"currentNoValue": "60764801098325770883238832228821630975"
+					}
+				}
+			}
+		},
+		"43": {
+			"found": 122,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "23663",
+					"multiplySum": "30936040273946252059876097449876371",
+					"count": 122,
+					"combinations": "1480738355931703561126",
+					"first": {
+						"additionSum": "141",
+						"multiplySum": "3677318564776478464500",
+						"currentNoValue": "195966184521433311548104126601330809727"
+					},
+					"last": {
+						"additionSum": "268",
+						"multiplySum": "7219375747946881362986901855468750",
+						"currentNoValue": "315976483569445967596669715947376869375"
+					}
+				}
+			}
+		},
+		"44": {
+			"found": 112,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "21640",
+					"multiplySum": "1200710537964188369512872584364502610",
+					"count": 112,
+					"combinations": "3724347983292202837879",
+					"first": {
+						"additionSum": "140",
+						"multiplySum": "5628548823637467037500",
+						"currentNoValue": "1567729476171466492384833012810646412141"
+					},
+					"last": {
+						"additionSum": "249",
+						"multiplySum": "757973350043222308158874511718750",
+						"currentNoValue": "3888941336239296725295709804874839359487"
+					}
+				}
+			}
+		},
+		"45": {
+			"found": 105,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "21059",
+					"multiplySum": "49265444779807459463394509311807474296",
+					"count": 105,
+					"combinations": "15451247865370496896932",
+					"first": {
+						"additionSum": "149",
+						"multiplySum": "55159778471647176967500",
+						"currentNoValue": "12541835809371731939078664102485171297151"
+					},
+					"last": {
+						"additionSum": "309",
+						"multiplySum": "40110876293726876310171041377111206300",
+						"currentNoValue": "31210273341029824695781389775382490644479"
+					}
+				}
+			}
+		},
+		"46": {
+			"found": 106,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "21902",
+					"multiplySum": "93467842747105752217745430472745190707",
+					"count": 106,
+					"combinations": "60151142285555838473926",
+					"first": {
+						"additionSum": "148",
+						"multiplySum": "59572560749378951124900",
+						"currentNoValue": "100334686474973855512629312819881369779071"
+					},
+					"last": {
+						"additionSum": "263",
+						"multiplySum": "37140694152117893099784851074218750",
+						"currentNoValue": "248892245519314990418925427511989719007231"
+					}
+				}
+			}
+		},
+		"47": {
+			"found": 93,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "20263",
+					"multiplySum": "136501176243243495335411407359115148358",
+					"count": 93,
+					"combinations": "129440148683665257062584",
+					"first": {
+						"additionSum": "159",
+						"multiplySum": "1954357230429676054687500",
+						"currentNoValue": "802677491799790844101034502559051265006445"
+					},
+					"last": {
+						"additionSum": "295",
+						"multiplySum": "17196151955179029913225745391845703125",
+						"currentNoValue": "1991137964154520277048557498737967962783743"
+					}
+				}
+			}
+		},
+		"48": {
+			"found": 85,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "18291",
+					"multiplySum": "694945892153751290769934207564702080693",
+					"count": 85,
+					"combinations": "602621221586740147188570",
+					"first": {
+						"additionSum": "148",
+						"multiplySum": "137867926305705572603340",
+						"currentNoValue": "6421419934398326752808276020472407665784559"
+					},
+					"last": {
+						"additionSum": "260",
+						"multiplySum": "86321673428756184875965118408203125",
+						"currentNoValue": "10353917413603503601427297769443884582043647"
+					}
+				}
+			}
+		},
+		"49": {
+			"found": 83,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "18360",
+					"multiplySum": "1338417644960914749286681563976927222949",
+					"count": 83,
+					"combinations": "3255643947462725125548780",
+					"first": {
+						"additionSum": "153",
+						"multiplySum": "579045290483963404934028",
+						"currentNoValue": "51371359475186614022466208163779261326276351"
+					},
+					"last": {
+						"additionSum": "257",
+						"multiplySum": "133751427711104042828083038330078125",
+						"currentNoValue": "127432829705889275094489818700847780034248703"
+					}
+				}
+			}
+		},
+		"50": {
+			"found": 84,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "18932",
+					"multiplySum": "826709963931626246994231960138952998696",
+					"count": 84,
+					"combinations": "6914819957401880043959565",
+					"first": {
+						"additionSum": "152",
+						"multiplySum": "744486802050810092058036",
+						"currentNoValue": "410970875801492912179729665310234090610210527"
+					},
+					"last": {
+						"additionSum": "270",
+						"multiplySum": "1864548146061133593320846557617187500",
+						"currentNoValue": "618049224073562984208275620699111812929421311"
+					}
+				}
+			}
+		},
+		"51": {
+			"found": 77,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "17446",
+					"multiplySum": "123894447140832001964844559454912182389780",
+					"count": 77,
+					"combinations": "6784107740639371653801920",
+					"first": {
+						"additionSum": "159",
+						"multiplySum": "5211407614355670644406252",
+						"currentNoValue": "3287767006411943297437837322481872724881684223"
+					},
+					"last": {
+						"additionSum": "329",
+						"multiplySum": "116531140687191802959039113449262695312500",
+						"currentNoValue": "8155701101179926992617033787888672942378188799"
+					}
+				}
+			}
+		},
+		"52": {
+			"found": 84,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "19410",
+					"multiplySum": "522744208331024843951707352183492452207932",
+					"count": 84,
+					"combinations": "16058490544408530376210780",
+					"first": {
+						"additionSum": "172",
+						"multiplySum": "201057392529153960046537500",
+						"currentNoValue": "26302136051295546379502698579854981799054072703"
+					},
+					"last": {
+						"additionSum": "327",
+						"multiplySum": "116531140687191802959039113449262695312500",
+						"currentNoValue": "39376744379119878723784113529055330646565584895"
+					}
+				}
+			}
+		},
+		"53": {
+			"found": 92,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "21745",
+					"multiplySum": "8510518738910659972678305569458821082077443",
+					"count": 92,
+					"combinations": "97664704499677094259769926",
+					"first": {
+						"additionSum": "167",
+						"multiplySum": "93060850256351261507254500",
+						"currentNoValue": "210417088410364371036021588638839854392427789167"
+					},
+					"last": {
+						"additionSum": "313",
+						"multiplySum": "35684785131470563709922134876251220703125",
+						"currentNoValue": "521964870475322470787030298747920073554160254975"
+					}
+				}
+			}
+		},
+		"54": {
+			"found": 82,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "19662",
+					"multiplySum": "82802873591394981199644371366264035264839687",
+					"count": 82,
+					"combinations": "386817939128366092469950092",
+					"first": {
+						"additionSum": "180",
+						"multiplySum": "3590310580877749286545312500",
+						"currentNoValue": "1683336707282914968288172709110718835139460651887"
+					},
+					"last": {
+						"additionSum": "358",
+						"multiplySum": "74324320640020604018491177339868161882322025",
+						"currentNoValue": "2505845534978091999921802519424405788980995424255"
+					}
+				}
+			}
+		},
+		"55": {
+			"found": 69,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "17078",
+					"multiplySum": "59966855768963590080512178782436285977370665",
+					"count": 69,
+					"combinations": "573165920735787424063366755",
+					"first": {
+						"additionSum": "205",
+						"multiplySum": "618163124005044948282794360820",
+						"currentNoValue": "13466693658263319746305381672885750681118139482111"
+					},
+					"last": {
+						"additionSum": "323",
+						"multiplySum": "892119628286764092748053371906280517578125",
+						"currentNoValue": "33405751710420638130369939034864288015812642471935"
+					}
+				}
+			}
+		},
+		"56": {
+			"found": 57,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "14622",
+					"multiplySum": "68282966481189821691023170023856997937763317",
+					"count": 57,
+					"combinations": "166307097984495671163944676",
+					"first": {
+						"additionSum": "182",
+						"multiplySum": "13848340811957032962389062500",
+						"currentNoValue": "107733549266106557970443053383086005448923032247149"
+					},
+					"last": {
+						"additionSum": "309",
+						"multiplySum": "185052087412896071327850222587585449218750",
+						"currentNoValue": "267246013683365105042959512268120323599882296229887"
+					}
+				}
+			}
+		},
+		"57": {
+			"found": 50,
+			"time": 491,
+			"steps": {
+				"3": {
+					"additionSum": "13074",
+					"multiplySum": "901980453198544580887942339272626982779203031",
+					"count": 50,
+					"combinations": "2158077471932786051607296352",
+					"first": {
+						"additionSum": "179",
+						"multiplySum": "8973724846148157359628112500",
+						"currentNoValue": "861868394128852463763544427064688043591384219638637"
+					},
+					"last": {
+						"additionSum": "289",
+						"multiplySum": "13600232051658167620189487934112548828125",
+						"currentNoValue": "2137968109466920840343676098144962588753821320010623"
+					}
+				}
+			}
+		},
+		"58": {
+			"found": 48,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "12736",
+					"multiplySum": "841044964281126860158842548902684318889398065",
+					"count": 48,
+					"combinations": "12750375475958040727212786264",
+					"first": {
+						"additionSum": "190",
+						"multiplySum": "146570839153753236873925837500",
+						"currentNoValue": "6894947153030819710108355416517504348731073757633407"
+					},
+					"last": {
+						"additionSum": "298",
+						"multiplySum": "94043972609370030113495886325836181640625",
+						"currentNoValue": "10369145330914566075666829076003068555456033402126335"
+					}
+				}
+			}
+		},
+		"59": {
+			"found": 47,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "11879",
+					"multiplySum": "12156237294255876843600397785837381676800492",
+					"count": 47,
+					"combinations": "24301431684927939703201822288",
+					"first": {
+						"additionSum": "213",
+						"multiplySum": "103061807073439948196411132812500",
+						"currentNoValue": "55159577224246557680866843332140034831024358077946733"
+					},
+					"last": {
+						"additionSum": "288",
+						"multiplySum": "6687299773855920648202300071716308593750",
+						"currentNoValue": "82097975404326215454858970138107124775027037335191551"
+					}
+				}
+			}
+		},
+		"60": {
+			"found": 47,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "12242",
+					"multiplySum": "1316071480222325640684357676495087145746810404",
+					"count": 47,
+					"combinations": "33010632967602321670750240230",
+					"first": {
+						"additionSum": "196",
+						"multiplySum": "1869526009614199449922523437500",
+						"currentNoValue": "441276617793972461446934746657120278318788720488536941"
+					},
+					"last": {
+						"additionSum": "334",
+						"multiplySum": "222155030939181733629084192216396331787109375",
+						"currentNoValue": "711515786830591255666375405462643549542418706302238719"
+					}
+				}
+			}
+		},
+		"61": {
+			"found": 44,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "11226",
+					"multiplySum": "1456050321527785417269169848930971636305980597",
+					"count": 44,
+					"combinations": "109006947868877649755710555650",
+					"first": {
+						"additionSum": "209",
+						"multiplySum": "25337994106187629564869307380300",
+						"currentNoValue": "3530212942351779691575477973256962226550309763606380543"
+					},
+					"last": {
+						"additionSum": "327",
+						"multiplySum": "87437111302593393702409230172634124755859375",
+						"currentNoValue": "5255125613069691425564755849240318043156902857263808511"
+					}
+				}
+			}
+		},
+		"62": {
+			"found": 46,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "11879",
+					"multiplySum": "3332740864044673670867676908255634442945046902557",
+					"count": 46,
+					"combinations": "360698905977266798347728522449",
+					"first": {
+						"additionSum": "192",
+						"multiplySum": "923185224660263987644634323044",
+						"currentNoValue": "28241703538814237532603823786055697812402478108812097279"
+					},
+					"last": {
+						"additionSum": "386",
+						"multiplySum": "3331474637481905107597702215940730562319335937500",
+						"currentNoValue": "42035018593851024816106293424454885775697684703597297663"
+					}
+				}
+			}
+		},
+		"63": {
+			"found": 40,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "10923",
+					"multiplySum": "6663612821290528949684346480383507750353360222902",
+					"count": 40,
+					"combinations": "553167703466483069437632725370",
+					"first": {
+						"additionSum": "207",
+						"multiplySum": "59361189857270060933939964187500",
+						"currentNoValue": "225933628310513900260830590288445582499219824870501571455"
+					},
+					"last": {
+						"additionSum": "384",
+						"multiplySum": "3331474637481905107597702215940730562319335937500",
+						"currentNoValue": "336273367383210976844086094260653708579940036614067060735"
+					}
+				}
+			}
+		},
+		"64": {
+			"found": 33,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "9301",
+					"multiplySum": "1231897833741746066026468327950734127821044884113715",
+					"count": 33,
+					"combinations": "3539011144217082275762816810784",
+					"first": {
+						"additionSum": "208",
+						"multiplySum": "75393460013921558990978469715260",
+						"currentNoValue": "1807469026484111202086644722307564659993758598963974234111"
+					},
+					"last": {
+						"additionSum": "408",
+						"multiplySum": "1224596837123085403705859760874989907917022705078125",
+						"currentNoValue": "2914368662858101795654085936740737499850936385291539185663"
+					}
+				}
+			}
+		},
+		"65": {
+			"found": 32,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "8865",
+					"multiplySum": "10468545588593422519964970904935322314699806985",
+					"count": 32,
+					"combinations": "34257467802229288074790791728880",
+					"first": {
+						"additionSum": "221",
+						"multiplySum": "3462736075007420221146497910937500",
+						"currentNoValue": "14459752211872889616693157778460517279950068791714248055807"
+					},
+					"last": {
+						"additionSum": "331",
+						"multiplySum": "771019048472487704173545353114604949951171875",
+						"currentNoValue": "21521491664209003719532187003108493512935152372506253328383"
+					}
+				}
+			}
+		},
+		"66": {
+			"found": 35,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "10117",
+					"multiplySum": "17987698786970675124795261419163503436316003187987835",
+					"count": 35,
+					"combinations": "99705621797227210548613953991472",
+					"first": {
+						"additionSum": "218",
+						"multiplySum": "1884836500348038974774461742881500",
+						"currentNoValue": "115678017694983116933545262227684138239600550333694350909439"
+					},
+					"last": {
+						"additionSum": "380",
+						"multiplySum": "62727161363913100271347502712160348892211914062500",
+						"currentNoValue": "286953222189105406346778945060921893351386794802145426145279"
+					}
+				}
+			}
+		},
+		"67": {
+			"found": 32,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "9153",
+					"multiplySum": "125823608209115005864387817789808621638353718730480",
+					"count": 32,
+					"combinations": "84303247432249839585529943148572",
+					"first": {
+						"additionSum": "229",
+						"multiplySum": "25859956784775094733905615112334180",
+						"currentNoValue": "925424141559864935468362097821473105916804402669554807865343"
+					},
+					"last": {
+						"additionSum": "378",
+						"multiplySum": "62727161363913100271347502712160348892211914062500",
+						"currentNoValue": "1385446025881774540018042094122263516126797699237524658978815"
+					}
+				}
+			}
+		},
+		"68": {
+			"found": 33,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "9284",
+					"multiplySum": "280047113843083239970283227398545049884461951631440330785",
+					"count": 33,
+					"combinations": "45723839871326550572780964936740",
+					"first": {
+						"additionSum": "232",
+						"multiplySum": "109948795853635606861843601668087500",
+						"currentNoValue": "7403393132478919483746896782571784847334435221356438726574079"
+					},
+					"last": {
+						"additionSum": "463",
+						"multiplySum": "280047050732717380133856243955784346602054531815845551250",
+						"currentNoValue": "11937380145557004725737777601375441987034902867205657884360703"
+					}
+				}
+			}
+		},
+		"69": {
+			"found": 23,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "6656",
+					"multiplySum": "280047050774671960917510956908894825142094288625674682575",
+					"count": 23,
+					"combinations": "58644050707302744877079268740788",
+					"first": {
+						"additionSum": "211",
+						"multiplySum": "1716841910146256242328924544640500",
+						"currentNoValue": "59227145059831355869975174260574278778675481770851507358250861"
+					},
+					"last": {
+						"additionSum": "316",
+						"multiplySum": "475879991586282358184689655900001525878906250",
+						"currentNoValue": "88152029856493181237515546981560885926442555501654674503036927"
+					}
+				}
+			}
+		},
+		"70": {
+			"found": 14,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "4337",
+					"multiplySum": "120072561977988681789912229712803902109059856960546875",
+					"count": 14,
+					"combinations": "3939981776351642153363305582884480",
+					"first": {
+						"additionSum": "226",
+						"multiplySum": "110393641341708863318475086460937500",
+						"currentNoValue": "473817160478650846959801394084594230229403854166812058904353645"
+					},
+					"last": {
+						"additionSum": "382",
+						"multiplySum": "559935926134195715483416279312223196029663085937500",
+						"currentNoValue": "705216463034150281876442643802772473837830916949008552933982207"
+					}
+				}
+			}
+		},
+		"71": {
+			"found": 13,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "4409",
+					"multiplySum": "3811000898882393667211313449573143785713970527722346648638",
+					"count": 13,
+					"combinations": "22103876165453659956569955553392520",
+					"first": {
+						"additionSum": "309",
+						"multiplySum": "43331942562258145095855742692947387695312500",
+						"currentNoValue": "3790537283829206775678411152724226270256120685938203866244841471"
+					},
+					"last": {
+						"additionSum": "470",
+						"multiplySum": "3810880266370818108861515767750313388560758068950026261410",
+						"currentNoValue": "5641745267296594786946763009895754935839005218291843309565378559"
+					}
+				}
+			}
+		},
+		"72": {
+			"found": 25,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "7538",
+					"multiplySum": "3810881231962659301450672343022389975879446340050863373881",
+					"count": 25,
+					"combinations": "28781770219345569827985756426415800",
+					"first": {
+						"additionSum": "236",
+						"multiplySum": "2318266468175886129687976815679687500",
+						"currentNoValue": "30324298270633654205427289221414030734681846666675971767731149679"
+					},
+					"last": {
+						"additionSum": "356",
+						"multiplySum": "27545647512949855695296719204634428024291992187500",
+						"currentNoValue": "45133841079982147266730801531798591910288302629479746098714869759"
+					}
+				}
+			}
+		},
+		"73": {
+			"found": 25,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "7678",
+					"multiplySum": "23747035077866075014442921314583049350397142418189433",
+					"count": 25,
+					"combinations": "69490870997906370755397326629924068",
+					"first": {
+						"additionSum": "321",
+						"multiplySum": "110934209776035484851479997035510267914137228",
+						"currentNoValue": "242594386165069233643418313771312245877454946037096290514991316991"
+					},
+					"last": {
+						"additionSum": "387",
+						"multiplySum": "21956863887369992838216603558976203203201293945312500",
+						"currentNoValue": "361129482312100397465795915243389959039961139082798192991760547839"
+					}
+				}
+			}
+		},
+		"74": {
+			"found": 24,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "7490",
+					"multiplySum": "46704474771988160070327160907427660379778648775896415",
+					"count": 24,
+					"combinations": "859610218294338618622915131238745221",
+					"first": {
+						"additionSum": "254",
+						"multiplySum": "131963359472707308427120353918241320540",
+						"currentNoValue": "1940755089320553869147346510170497967019638186667262193115202584575"
+					},
+					"last": {
+						"additionSum": "385",
+						"multiplySum": "21956863887369992838216603558976203203201293945312500",
+						"currentNoValue": "2888569846463968072546460152940340735164957673794188208556405161983"
+					}
+				}
+			}
+		},
+		"75": {
+			"found": 26,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "8421",
+					"multiplySum": "1936308290677977466093002679092469257064124727606466972812",
+					"count": 26,
+					"combinations": "2747524779114503899950242543755685250",
+					"first": {
+						"additionSum": "301",
+						"multiplySum": "8875689725081700275367335385302306789062500",
+						"currentNoValue": "15526040714564430953178772081363983736157105494687345121508137631743"
+					},
+					"last": {
+						"additionSum": "444",
+						"multiplySum": "1750340905974646469693056141687285853549838066101074218750",
+						"currentNoValue": "23138614940891564734485418082497878324542360018966980213766252134399"
+					}
+				}
+			}
+		},
+		"76": {
+			"found": 29,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "9196",
+					"multiplySum": "1937517225452940676349705900224762580612519637878081514750",
+					"count": 29,
+					"combinations": "2874679089521287988856788749879367580",
+					"first": {
+						"additionSum": "236",
+						"multiplySum": "10429814604138506672148216608691037500",
+						"currentNoValue": "124208325716515447625430176650911869889256843946704780359370204371821"
+					},
+					"last": {
+						"additionSum": "351",
+						"multiplySum": "82971286091693130515523080248385667800903320312500",
+						"currentNoValue": "184868205717620149974708438310677724760076822077595432615681501617005"
+					}
+				}
+			}
+		},
+		"77": {
+			"found": 19,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "6325",
+					"multiplySum": "17643303096656469609204381862819203828399882858998246268000",
+					"count": 19,
+					"combinations": "2046547627675067006886634164504398920",
+					"first": {
+						"additionSum": "251",
+						"multiplySum": "333893131527154060264371574366229080500",
+						"currentNoValue": "993666605732123581003441413207294959114054751573638242874961635500031"
+					},
+					"last": {
+						"additionSum": "386",
+						"multiplySum": "622569216231910749215217037999536842107772827148437500",
+						"currentNoValue": "1548271222884936742493734294997413075828876008265901448200521617169279"
+					}
+				}
+			}
+		},
+		"78": {
+			"found": 10,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "3376",
+					"multiplySum": "17641448111620340680190537490382425793040709204444512404515",
+					"count": 10,
+					"combinations": "2149071371518101935619765422560668480",
+					"first": {
+						"additionSum": "258",
+						"multiplySum": "3943371262367182306599248563471148437500",
+						"currentNoValue": "7949332845856988648027531305658359672912438012589105942999695533464447"
+					},
+					"last": {
+						"additionSum": "348",
+						"multiplySum": "3853176613705398407010103530677804946899414062500",
+						"currentNoValue": "11831565165926680778459581478189186869695614176553769212551469247496191"
+					}
+				}
+			}
+		},
+		"79": {
+			"found": 8,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "2647",
+					"multiplySum": "80921552756497442642183936223821832841082759964787023",
+					"count": 8,
+					"combinations": "1915491253905131292957667348177478199",
+					"first": {
+						"additionSum": "266",
+						"multiplySum": "69858476161550140068722515651062011718750",
+						"currentNoValue": "67045535940251191077937628376405390109525058586798040821588859423218541"
+					},
+					"last": {
+						"additionSum": "385",
+						"multiplySum": "66394859698492392730459532685927115380764007568359375",
+						"currentNoValue": "94652521327413446228531839069300260255466964914737572078373803544018943"
+					}
+				}
+			}
+		},
+		"80": {
+			"found": 10,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "3319",
+					"multiplySum": "624647761947518988248456358000789221621259669163311005055",
+					"count": 10,
+					"combinations": "2435935590299131537284072846514828120",
+					"first": {
+						"additionSum": "342",
+						"multiplySum": "580120011370076086498162022636350606348007812500",
+						"currentNoValue": "508757302134847273473762003562135019066396035635280015639527281653710847"
+					},
+					"last": {
+						"additionSum": "406",
+						"multiplySum": "6943367865482605788751852054192568175494670867919921875",
+						"currentNoValue": "757220170619307570259269083422933323457020820703925203170559652236623871"
+					}
+				}
+			}
+		},
+		"81": {
+			"found": 14,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "4321",
+					"multiplySum": "557734055412897240012336994200251270122199458163107500",
+					"count": 14,
+					"combinations": "1718347530512119461752103993831986640",
+					"first": {
+						"additionSum": "271",
+						"multiplySum": "268306980691463084141012872258576939687500",
+						"currentNoValue": "4290914300176076228988008216089944967009603749555074612581043634164915711"
+					},
+					"last": {
+						"additionSum": "344",
+						"multiplySum": "16318290027798349552073888713493943214416503906250",
+						"currentNoValue": "6057761364954460558571305716832863507142970997926298103800836078151139327"
+					}
+				}
+			}
+		},
+		"82": {
+			"found": 15,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "4914",
+					"multiplySum": "7629246293667076891349324180167530251728479321328429298272500",
+					"count": 15,
+					"combinations": "609532009312543153786190015869763152440",
+					"first": {
+						"additionSum": "270",
+						"multiplySum": "268306980691463084141012872258576939687500",
+						"currentNoValue": "32560467336630225502320768227976641220249346099564977942526742852699347967"
+					},
+					"last": {
+						"additionSum": "464",
+						"multiplySum": "7627702553954597904413154362913473960361443459987640380859375",
+						"currentNoValue": "48463076883399511691968650699786090294904194209649619339204604051356385279"
+					}
+				}
+			}
+		},
+		"83": {
+			"found": 11,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "3924",
+					"multiplySum": "2687233406793908539292816026475745726748219020480195185901",
+					"count": 11,
+					"combinations": "5037209142982652858263288765344638254368",
+					"first": {
+						"additionSum": "329",
+						"multiplySum": "652582405317394111458479444414377212524414062500",
+						"currentNoValue": "260483738693041804018566145823813129761994770245263366658190401672516206591"
+					},
+					"last": {
+						"additionSum": "415",
+						"multiplySum": "653451551265396596380341520671208854764699935913085937500",
+						"currentNoValue": "387696727357086393998874571014603572594197804321622972640966363334427279359"
+					}
+				}
+			}
+		},
+		"84": {
+			"found": 15,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "5297",
+					"multiplySum": "10872973061688896524550805224085038269426684990887055498401",
+					"count": 15,
+					"combinations": "9201823841183899766519634229733891683608",
+					"first": {
+						"additionSum": "264",
+						"multiplySum": "190083371160424284099901247693394158437500",
+						"currentNoValue": "2083869909544334432148529166590505038095958150372158588321711542553124723565"
+					},
+					"last": {
+						"additionSum": "424",
+						"multiplySum": "9075715989797174949726965564877900760620832443237304687500",
+						"currentNoValue": "3101573818857153950147743157316184665836176689402510175589938064027799257087"
+					}
+				}
+			}
+		},
+		"85": {
+			"found": 13,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "4871",
+					"multiplySum": "2036265070141161064943308813676706346092869189829375000000000",
+					"count": 13,
+					"combinations": "7096344939497461235488463525927776560",
+					"first": {
+						"additionSum": "369",
+						"multiplySum": "117584915338281303931466936774086207151412963867187500",
+						"currentNoValue": "16670959276354675457188240174221990598914354302740782770453976352653217028973"
+					},
+					"last": {
+						"additionSum": "445",
+						"multiplySum": "1906336091821251596950537177121987042482942342758178710937500",
+						"currentNoValue": "24812591536817234275131466421112532008132918492795688318510439648768829685759"
+					}
+				}
+			}
+		},
+		"86": {
+			"found": 11,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "4224",
+					"multiplySum": "21713521337893769758142201310505921216084802900927415446630859375",
+					"count": 11,
+					"combinations": "23964788013261313331396326693593861305640",
+					"first": {
+						"additionSum": "288",
+						"multiplySum": "142595121540956145908276398946947778320312500",
+						"currentNoValue": "133367674210837403657505866661792322438141321623818149652589538733452621699951"
+					},
+					"last": {
+						"additionSum": "495",
+						"multiplySum": "21709697049416786994411686957365117352310335263609886169433593750",
+						"currentNoValue": "198500787508508648525562030846947154281267181177165177915512507897064384888831"
+					}
+				}
+			}
+		},
+		"87": {
+			"found": 9,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "3726",
+					"multiplySum": "10092021021949026689164135134274787852170411603573339353538611449671875",
+					"count": 9,
+					"combinations": "65148414036554814088012309143425293892100",
+					"first": {
+						"additionSum": "373",
+						"multiplySum": "157390914619968649229107722931075841188430786132812500",
+						"currentNoValue": "1066941393686699229260046933294338630478262455346255235016643790126311570145279"
+					},
+					"last": {
+						"additionSum": "478",
+						"multiplySum": "5383915446045092605992579692930632973002502694725990295410156250",
+						"currentNoValue": "1590073511133859897870108704851446448913653896569242745476480223015210913366015"
+					}
+				}
+			}
+		},
+		"88": {
+			"found": 7,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "2717",
+					"multiplySum": "10091999310379676786682812343504422181126567758283581378227576176862800",
+					"count": 7,
+					"combinations": "3453370171764231312230369023629756",
+					"first": {
+						"additionSum": "296",
+						"multiplySum": "2138926823114342188624145984204216674804687500",
+						"currentNoValue": "8535531149493593834080375466354708636041044583924361577765730478378017835375471"
+					},
+					"last": {
+						"additionSum": "442",
+						"multiplySum": "36574096143656148494294477626678353564439014113874198472500",
+						"currentNoValue": "12704046362036976869328930926667473319555317960200345303420180580844388531306495"
+					}
+				}
+			}
+		},
+		"89": {
+			"found": 8,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "3278",
+					"multiplySum": "30396913219502625147466295422076800232170504482387476515806220200",
+					"count": 8,
+					"combinations": "21055809670231216935946165624651483842",
+					"first": {
+						"additionSum": "270",
+						"multiplySum": "5387631832152908904871233012022671197556450",
+						"currentNoValue": "71989596051542868926197275251115682139632996180695390671388486514633991456143085"
+					},
+					"last": {
+						"additionSum": "485",
+						"multiplySum": "24317471553205110228792374040367008092289324849843978881835937500",
+						"currentNoValue": "101632370959397495839573744898457554433745773534652372819370707838390650340900863"
+					}
+				}
+			}
+		},
+		"90": {
+			"found": 5,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "2153",
+					"multiplySum": "48634980069422083510288435712746909295905304697946227521659410000",
+					"count": 5,
+					"combinations": "367377690344804115881202176146822837800",
+					"first": {
+						"additionSum": "440",
+						"multiplySum": "36574096143656148494294477626678353564439014113874198472500",
+						"currentNoValue": "546273993567590005381144029846701352706639301021670525663478263519676955768127487"
+					},
+					"last": {
+						"additionSum": "483",
+						"multiplySum": "24317471553205110228792374040367008092289324849843978881835937500",
+						"currentNoValue": "813058967174803356574274084598640635454881842974513570621667274068074653684858879"
+					}
+				}
+			}
+		},
+		"91": {
+			"found": 4,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "1685",
+					"multiplySum": "24317662882850522412775109913689396913325146011410040763644531250",
+					"count": 4,
+					"combinations": "1940662386613222000613877381335970308485200",
+					"first": {
+						"additionSum": "483",
+						"multiplySum": "24317471553205110228792374040367008092289324849843978881835937500",
+						"currentNoValue": "4370191948541706006812979462171815786776197259176766143427719061513584734111793151"
+					},
+					"last": {
+						"additionSum": "432",
+						"multiplySum": "191289100355708967514486984710466792015358805656433105468750",
+						"currentNoValue": "6504471737362932157096412634453853237609960530368377187996244200403418035758563327"
+					}
+				}
+			}
+		},
+		"92": {
+			"found": 5,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "1965",
+					"multiplySum": "191370190468658997957259660067175279626964326467330511718750",
+					"count": 5,
+					"combinations": "4979149549391906888612949571056324959055600",
+					"first": {
+						"additionSum": "376",
+						"multiplySum": "237831088342518981373888072392596847710890678195312500",
+						"currentNoValue": "36858673178389948890213004928571229255492094044516040024104602251056468495725232127"
+					},
+					"last": {
+						"additionSum": "391",
+						"multiplySum": "40307225386672702404963790281851208955049514770507812500",
+						"currentNoValue": "52035773898903457256771301075629970713635898349622680687372452738112499434842488831"
+					}
+				}
+			}
+		},
+		"93": {
+			"found": 4,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "1583",
+					"multiplySum": "22620043226504832774020258127287962438822630529864486022722734218750",
+					"count": 4,
+					"combinations": "60445246326736920749419911174818028802008",
+					"first": {
+						"additionSum": "375",
+						"multiplySum": "237831088342518981373888072392596847710890678195312500",
+						"currentNoValue": "279692284706606082755145743281511092585792948926033480180271668457445237573044666367"
+					},
+					"last": {
+						"additionSum": "497",
+						"multiplySum": "22620043226464287714828124004062814833559968974441289901733398437500",
+						"currentNoValue": "693810318652046096756950681008399609515145299661478400447075860621037571428172431359"
+					}
+				}
+			}
+		},
+		"94": {
+			"found": 6,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "2622",
+					"multiplySum": "45251906638733489475801549386047679213233770481712577820643171718750",
+					"count": 6,
+					"combinations": "607858417833047405898613353075115332644846328",
+					"first": {
+						"additionSum": "319",
+						"multiplySum": "2717118901838809926908417749620435715540632656250",
+						"currentNoValue": "2358955083416956728973632315428558672351494018849026561520057926111526632191969198079"
+					},
+					"last": {
+						"additionSum": "495",
+						"multiplySum": "22620043226464287714828124004062814833559968974441289901733398437500",
+						"currentNoValue": "3349802944741910060904652506743679364690310899928075402158538139560945457197819625471"
+					}
+				}
+			}
+		},
+		"95": {
+			"found": 9,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "3941",
+					"multiplySum": "22644015697221074779797390231232581391260828240774571895599365234375",
+					"count": 9,
+					"combinations": "4518534858918581153546979651785048078382041580",
+					"first": {
+						"additionSum": "495",
+						"multiplySum": "22620043226464287714828124004062814833559968974441289901733398437500",
+						"currentNoValue": "17904642535714364584434058511773012423050218389389026971537351428151642406508717670399"
+					},
+					"last": {
+						"additionSum": "456",
+						"multiplySum": "882325440211996562769622383584078306739684194326400756835937500",
+						"currentNoValue": "26642316236238570115466910282848944528499430900617579454442976676369819356966867173375"
+					}
+				}
+			}
+		},
+		"96": {
+			"found": 6,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "2670",
+					"multiplySum": "152047420026274088617412155684942093542449540403717018151336669921875",
+					"count": 6,
+					"combinations": "7582153017326473664752806271906199039665440000",
+					"first": {
+						"additionSum": "378",
+						"multiplySum": "45341973348554637290908999602834228426218032836914062500",
+						"currentNoValue": "143202449769782314370634620560133679403925989949686040060002453799752258169449840302957"
+					},
+					"last": {
+						"additionSum": "503",
+						"multiplySum": "152035267739650599366172398566043888479271117830649018287658691406250",
+						"currentNoValue": "213138538359272802281719828758400977821368181895182185875622959840251828589402169278463"
+					}
+				}
+			}
+		},
+		"97": {
+			"found": 2,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "947",
+					"multiplySum": "152035671299813701089078703608536979885457185446284711360931396484375",
+					"count": 2,
+					"combinations": "2466779933784913915271950400345933856",
+					"first": {
+						"additionSum": "502",
+						"multiplySum": "152035267739650599366172398566043888479271117830649018287658691406250",
+						"currentNoValue": "1207785003768152375404247817943499617466254380880598602155554815101285301992840547532799"
+					},
+					"last": {
+						"additionSum": "445",
+						"multiplySum": "403560163101722906305042493091406186067615635693073272705078125",
+						"currentNoValue": "1705108239119268487389881994564493191349558388757741941133683693646377129061710643068927"
+					}
+				}
+			}
+		},
+		"98": {
+			"found": 5,
+			"time": 1377,
+			"steps": {
+				"3": {
+					"additionSum": "2157",
+					"multiplySum": "1441363924110726078807647754505850383425045490632576965714967244661814",
+					"count": 5,
+					"combinations": "35301754461048595129090777175605654471887456",
+					"first": {
+						"additionSum": "386",
+						"multiplySum": "82237501279578154152604776696448256753346945190429687500",
+						"currentNoValue": "13640865912954147899119055949169943042755368707584394535509891717115950279302475616878591"
+					},
+					"last": {
+						"additionSum": "529",
+						"multiplySum": "1441363913334931671608650074171313629597954848469128770637512207031250",
+						"currentNoValue": "13640865912954147899119056007937962947084155956077109167811759726141722041233803927617535"
+					}
+				}
+			}
+		},
+		"99": {
+			"found": 9,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "3810",
+					"multiplySum": "1460350455043300983430661146647925025273961084816909836758337396179878",
+					"count": 9,
+					"combinations": "294906229068820277499982590125688743712576384",
+					"first": {
+						"additionSum": "385",
+						"multiplySum": "82237501279578154152604776696448256753346945190429687500",
+						"currentNoValue": "77298240173406838095007983711963010575613756009644902367889260952399737330817951252611071"
+					},
+					"last": {
+						"additionSum": "505",
+						"multiplySum": "18986530873983572687553631947986431578053552291852653026580810546875",
+						"currentNoValue": "109126927303633183192952447593361337799681631569464824032265010772936705418536330492641279"
+					}
+				}
+			}
+		},
+		"100": {
+			"found": 3,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "1192",
+					"multiplySum": "60376253489738939075410266047707366850067549216291707552439",
+					"count": 3,
+					"combinations": "8495069425726280091688285942692873600",
+					"first": {
+						"additionSum": "384",
+						"multiplySum": "82237501279578154152604776696448256753346945190429687500",
+						"currentNoValue": "586557234257028359662119405814307550838480854426128965026924370815114983700891028244398079"
+					},
+					"last": {
+						"additionSum": "386",
+						"multiplySum": "1784932122839201851593923678365172236226499080657958984375",
+						"currentNoValue": "873015418429065465543619580746876354736343597285401444719698433116713964684062835089005421"
+					}
+				}
+			}
+		},
+		"101": {
+			"found": 3,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "1094",
+					"multiplySum": "33724397107260094773978128666906335952326104598474190903772",
+					"count": 3,
+					"combinations": "689112528286602621697456096850360178840",
+					"first": {
+						"additionSum": "327",
+						"multiplySum": "501176033011286611955482589641827702728942579296875",
+						"currentNoValue": "6984123347432523724348956645975010837890748778283210002181052969215021599188582992935574399"
+					},
+					"last": {
+						"additionSum": "404",
+						"multiplySum": "33723885043813740305976779307392815459683537483215332031250",
+						"currentNoValue": "6984123347432523724348956645975010837890748778283210002228525397635911451792290398683004927"
+					}
+				}
+			}
+		},
+		"102": {
+			"found": 2,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "909",
+					"multiplySum": "158861242620380629804165349319220781250855705388985574245452880859375",
+					"count": 2,
+					"combinations": "25485644616519252177077067644798410614126486720",
+					"first": {
+						"additionSum": "403",
+						"multiplySum": "33723885043813740305976779307392815459683537483215332031250",
+						"currentNoValue": "39576698968784301104644087660525061414714243076938190012365234212437733626977433718393667583"
+					},
+					"last": {
+						"additionSum": "506",
+						"multiplySum": "158861242586656744760351609013244001943462889929302036762237548828125",
+						"currentNoValue": "55872986779460189794791653167800101050787099681535997356395688389763183114132779257252806655"
+					}
+				}
+			}
+		},
+		"103": {
+			"found": 2,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "954",
+					"multiplySum": "146436974353127508872656541856230600033750447730067677783966064453125",
+					"count": 2,
+					"combinations": "644082290470356773949138290174629833803925204000",
+					"first": {
+						"additionSum": "447",
+						"multiplySum": "2928759285094684593924661566005976283122436143457889556884765625",
+						"currentNoValue": "446983894235681518358333225342400693625008028708530913485629407213566289596198749376381714431"
+					},
+					"last": {
+						"additionSum": "507",
+						"multiplySum": "146434045593842414188062617194664594057467325293924219894409179687500",
+						"currentNoValue": "446983894235681518358333225342400693625445777678944265527882631635121335712448655426808971263"
+					}
+				}
+			}
+		},
+		"104": {
+			"found": 4,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "1684",
+					"multiplySum": "292868091187685005040390484563282024358572937852318321625232451478125",
+					"count": 4,
+					"combinations": "3112408897367666659428986069105711597815813394440",
+					"first": {
+						"additionSum": "506",
+						"multiplySum": "146434045593842414188062617194664594057467325293924219894409179687500",
+						"currentNoValue": "2532908734002195270697221610273603930541766288907646513964534711517747094890087781895526940671"
+					},
+					"last": {
+						"additionSum": "505",
+						"multiplySum": "146434045593842414188062617194664594057467325293924219894409179687500",
+						"currentNoValue": "3575871153885452146866665802739205549000094161221779844776806003227456957477408010677325398015"
+					}
+				}
+			}
+		},
+		"105": {
+			"found": 2,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "851",
+					"multiplySum": "146434045593842589599674171144978778476373699933620175024311933593750",
+					"count": 2,
+					"combinations": "3552205806778315209130908013657250861241588700800",
+					"first": {
+						"additionSum": "505",
+						"multiplySum": "146434045593842414188062617194664594057467325293924219894409179687500",
+						"currentNoValue": "19220307452134305289408328689723229825875347479333344220148952805096806116078839871367033126911"
+					},
+					"last": {
+						"additionSum": "346",
+						"multiplySum": "175411611553950314184418906374639695955129902753906250",
+						"currentNoValue": "20263269872017562165577772882188831444333692455392353286327961681349182666445808789437405387775"
+					}
+				}
+			}
+		},
+		"106": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "600",
+					"multiplySum": "1663153856449668579552919531557364542015584922950210966519080102443695068359375",
+					"count": 1,
+					"combinations": "12396239631490837663929015735886375738596000",
+					"first": {
+						"additionSum": "600",
+						"multiplySum": "1663153856449668579552919531557364542015584922950210966519080102443695068359375",
+						"currentNoValue": "228855753848946461526927429814011935408407415810590289842974820349880412830950837442735683665919"
+					},
+					"last": {
+						"additionSum": "600",
+						"multiplySum": "1663153856449668579552919531557364542015584922950210966519080102443695068359375",
+						"currentNoValue": "228855753848946461526927429814011935408407415810590289842974820349880412830950837442735683665919"
+					}
+				}
+			}
+		},
+		"107": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "555",
+					"multiplySum": "14012691128376207568775509503744706171366303245891830197746930816650390625",
+					"count": 1,
+					"combinations": "180759495987337176953405449817703345740047680",
+					"first": {
+						"additionSum": "555",
+						"multiplySum": "14012691128376207568775509503744706171366303245891830197746930816650390625",
+						"currentNoValue": "1830846030789351499195732891002473241202813736609919227630901998351713798360065141278764437602303"
+					},
+					"last": {
+						"additionSum": "555",
+						"multiplySum": "14012691128376207568775509503744706171366303245891830197746930816650390625",
+						"currentNoValue": "1830846030789351499195732891002473241202813736609919227630901998351713798360065141278764437602303"
+					}
+				}
+			}
+		},
+		"108": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "361",
+					"multiplySum": "28191151856884871922495895667352808278503020085449218750",
+					"count": 1,
+					"combinations": "8551122736875922879200",
+					"first": {
+						"additionSum": "361",
+						"multiplySum": "28191151856884871922495895667352808278503020085449218750",
+						"currentNoValue": "14646768246314811993565863128019785928704259581874190422493999596495220976781535200237875732339647"
+					},
+					"last": {
+						"additionSum": "361",
+						"multiplySum": "28191151856884871922495895667352808278503020085449218750",
+						"currentNoValue": "14646768246314811993565863128019785928704259581874190422493999596495220976781535200237875732339647"
+					}
+				}
+			}
+		},
+		"109": {
+			"found": 2,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "741",
+					"multiplySum": "1761699209624583715055042688617231597790209566129371796875",
+					"count": 2,
+					"combinations": "644719188874439108913840",
+					"first": {
+						"additionSum": "360",
+						"multiplySum": "28191151856884871922495895667352808278503020085449218750",
+						"currentNoValue": "82998353395783934630206557725445453595990804297287079060799331046806252201762032800902293770132351"
+					},
+					"last": {
+						"additionSum": "381",
+						"multiplySum": "1733508057767698843132546792949878789511706546043922578125",
+						"currentNoValue": "117174145970518495948526905024158287429634076654993523379951996771961767814252281601903006165499903"
+					}
+				}
+			}
+		},
+		"110": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "456",
+					"multiplySum": "2092195547577350207026806866439372356580861378461122512817382812500",
+					"count": 1,
+					"combinations": "5554068013692115557597704433590046000",
+					"first": {
+						"additionSum": "456",
+						"multiplySum": "2092195547577350207026806866439372356580861378461122512817382812500",
+						"currentNoValue": "937393167764147967588215240193266299437072616742795137590219078994773061714724958224337926572399543"
+					},
+					"last": {
+						"additionSum": "456",
+						"multiplySum": "2092195547577350207026806866439372356580861378461122512817382812500",
+						"currentNoValue": "937393167764147967588215240193266299437072616742795137590219078994773061714724958224337926572399543"
+					}
+				}
+			}
+		},
+		"111": {
+			"found": 5,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "2073",
+					"multiplySum": "730807263676421717831774287487576619624954563122074359645520339496995",
+					"count": 5,
+					"combinations": "25866084056034928367982622924312050855",
+					"first": {
+						"additionSum": "455",
+						"multiplySum": "2092195547577350207026806866439372356580861378461122512817382812500",
+						"currentNoValue": "5311894617330171816333219694428509030143411475464228928709982575097985005812858437433886036251302775"
+					},
+					"last": {
+						"additionSum": "478",
+						"multiplySum": "726622872581265174559127803868840977941090386593714356422424316406250",
+						"currentNoValue": "7499145342113183740705721921546130395966725065154215794075490416993367570107213412661639425035787199"
+					}
+				}
+			}
+		},
+		"112": {
+			"found": 5,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "2120",
+					"multiplySum": "489334421151309380228651754241090748967320260286677076036219284829839725",
+					"count": 5,
+					"combinations": "2798485925596232932774259909487732909840",
+					"first": {
+						"additionSum": "454",
+						"multiplySum": "2092195547577350207026806866439372356580861378461122512817382812500",
+						"currentNoValue": "40307906213858362606293255328310450875794122369372504026305840063067646236215295913105412088074263407"
+					},
+					"last": {
+						"additionSum": "506",
+						"multiplySum": "488605706083180535675050451516719662858889705603360198438167572021484375",
+						"currentNoValue": "59993162736905469925645775372370029127736474470754888935658604779451918136464621092209956073240526847"
+					}
+				}
+			}
+		},
+		"113": {
+			"found": 2,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "835",
+					"multiplySum": "59340867927469990270079678039439916077588823289492356834056221394412050",
+					"count": 2,
+					"combinations": "459433728539651602525899485199595649340",
+					"first": {
+						"additionSum": "341",
+						"multiplySum": "1014417574056817902879066441717672351059558235554568300",
+						"currentNoValue": "322463249710866900850346042626483607006352978954542176341627895116438785024822278966666514098255935213"
+					},
+					"last": {
+						"additionSum": "494",
+						"multiplySum": "59340867927469989255662103982622013198522381571820005774497985839843750",
+						"currentNoValue": "479945301895243759405166202978952345552494987506984184216667442054916389124651849211443145710912335871"
+					}
+				}
+			}
+		},
+		"114": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "493",
+					"multiplySum": "59340867927469989255662103982622013198522381571820005774497985839843750",
+					"count": 1,
+					"combinations": "1277449879354153236291525397871939022600",
+					"first": {
+						"additionSum": "493",
+						"multiplySum": "59340867927469989255662103982622013198522381571820005774497985839843750",
+						"currentNoValue": "2719690044073047969962608483547396623463515901404519345720820487651367395667022603791222416473897492479"
+					},
+					"last": {
+						"additionSum": "493",
+						"multiplySum": "59340867927469989255662103982622013198522381571820005774497985839843750",
+						"currentNoValue": "2719690044073047969962608483547396623463515901404519345720820487651367395667022603791222416473897492479"
+					}
+				}
+			}
+		},
+		"115": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "463",
+					"multiplySum": "5578135981568651994193892849017143352974214302308857440948486328125",
+					"count": 1,
+					"combinations": "20967252049605938880130599086540490237234300",
+					"first": {
+						"additionSum": "463",
+						"multiplySum": "5578135981568651994193892849017143352974214302308857440948486328125",
+						"currentNoValue": "30716499321295600601930636990652950099953995390646622192914136241983592728711314944345391192393044197375"
+					},
+					"last": {
+						"additionSum": "463",
+						"multiplySum": "5578135981568651994193892849017143352974214302308857440948486328125",
+						"currentNoValue": "30716499321295600601930636990652950099953995390646622192914136241983592728711314944345391192393044197375"
+					}
+				}
+			}
+		},
+		"116": {
+			"found": 2,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "966",
+					"multiplySum": "218936508657738368726787393415272787825505101939446050733749622837367848375",
+					"count": 2,
+					"combinations": "875807804179108078370401329865425153066527695200",
+					"first": {
+						"additionSum": "438",
+						"multiplySum": "5484338946928095686553834667837886702575944424097294346156910875",
+						"currentNoValue": "245731994570364804815445095925223600799631963125172977543313089934313165295194800865996727791772466413567"
+					},
+					"last": {
+						"additionSum": "528",
+						"multiplySum": "218936508652254029779859297728718953157667215236870106309652328491210937500",
+						"currentNoValue": "245731994570364804815445095925223601785595726952396375748278213116745372788210368317557209999940750671871"
+					}
+				}
+			}
+		},
+		"117": {
+			"found": 3,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "1478",
+					"multiplySum": "437873017307250007992928456813927423204693218950226325226805496215820312500",
+					"count": 3,
+					"combinations": "5248438475288844830351129695002086414308890990000",
+					"first": {
+						"additionSum": "527",
+						"multiplySum": "218936508652254029779859297728718953157667215236870106309652328491210937500",
+						"currentNoValue": "1392481302565400560620855543576267071321159928187716464187728150025578629276064150831268167159138310160383"
+					},
+					"last": {
+						"additionSum": "526",
+						"multiplySum": "218936508652254029779859297728718953157667215236870106309652328491210937500",
+						"currentNoValue": "1965855956562918438523560767401788806466381282145485465532791329698270086950911064003691660474393791823871"
+					}
+				}
+			}
+		},
+		"118": {
+			"found": 3,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "1373",
+					"multiplySum": "218936508657737926646279020441697986936384792189842331524654006958007812500",
+					"count": 3,
+					"combinations": "7372806429573538860916622702263916283633821489760",
+					"first": {
+						"additionSum": "526",
+						"multiplySum": "218936508652254029779859297728718953157667215236870106309652328491210937500",
+						"currentNoValue": "10566475766525686607064139124784614834399580098192238399959415447225191610935454805421180089675157895905279"
+					},
+					"last": {
+						"additionSum": "423",
+						"multiplySum": "2741948433209861356489516889358788476486112607500839233398437500",
+						"currentNoValue": "15726847652503347508188486139214310451176445640011070562772037755796042578892467258445936471764194014789631"
+					}
+				}
+			}
+		},
+		"119": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "423",
+					"multiplySum": "2741948433209861356489516889358788476486112607500839233398437500",
+					"count": 1,
+					"combinations": "1530000815058718687937584704346294320",
+					"first": {
+						"additionSum": "423",
+						"multiplySum": "2741948433209861356489516889358788476486112607500839233398437500",
+						"currentNoValue": "84531806132205492856513112998276918675073395315059504274899702937403728861547011498128641425838706262015999"
+					},
+					"last": {
+						"additionSum": "423",
+						"multiplySum": "2741948433209861356489516889358788476486112607500839233398437500",
+						"currentNoValue": "84531806132205492856513112998276918675073395315059504274899702937403728861547011498128641425838706262015999"
+					}
+				}
+			}
+		},
+		"124": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "499",
+					"multiplySum": "2041923605810317801654300765027685818440230337000684812664985656738281250",
+					"count": 1,
+					"combinations": "1344898997869200557632375268481193231774184588400",
+					"first": {
+						"additionSum": "499",
+						"multiplySum": "2041923605810317801654300765027685818440230337000684812664985656738281250",
+						"currentNoValue": "4122698751017837529186562510478196198913198165855062081607313065458660066241657701625552266809032820808145174527"
+					},
+					"last": {
+						"additionSum": "499",
+						"multiplySum": "2041923605810317801654300765027685818440230337000684812664985656738281250",
+						"currentNoValue": "4122698751017837529186562510478196198913198165855062081607313065458660066241657701625552266809032820808145174527"
+					}
+				}
+			}
+		},
+		"125": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "498",
+					"multiplySum": "2041923605810317801654300765027685818440230337000684812664985656738281250",
+					"count": 1,
+					"combinations": "2271788847752027968973606872434448026645582075000",
+					"first": {
+						"additionSum": "498",
+						"multiplySum": "2041923605810317801654300765027685818440230337000684812664985656738281250",
+						"currentNoValue": "23361959589101079332057187559376445127174789606512018462441440704247661904595118150718057889638159045704271527935"
+					},
+					"last": {
+						"additionSum": "498",
+						"multiplySum": "2041923605810317801654300765027685818440230337000684812664985656738281250",
+						"currentNoValue": "23361959589101079332057187559376445127174789606512018462441440704247661904595118150718057889638159045704271527935"
+					}
+				}
+			}
+		},
+		"131": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "447",
+					"multiplySum": "38384159975726524857850129468985583862654892099202317379740509990125",
+					"count": 1,
+					"combinations": "8687172925769966628000",
+					"first": {
+						"additionSum": "447",
+						"multiplySum": "38384159975726524857850129468985583862654892099202317379740509990125",
+						"currentNoValue": "8645925931094560010008657941974370114943211359919275154566939809845918377288530785590330423929032917754150157042057215"
+					},
+					"last": {
+						"additionSum": "447",
+						"multiplySum": "38384159975726524857850129468985583862654892099202317379740509990125",
+						"currentNoValue": "8645925931094560010008657941974370114943211359919275154566939809845918377288530785590330423929032917754150157042057215"
+					}
+				}
+			}
+		},
+		"133": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "572",
+					"multiplySum": "41238284528439760188947729696187005562222141485939630456414306536316871643066406250",
+					"count": 1,
+					"combinations": "204135988116047005400854999428684182400",
+					"first": {
+						"additionSum": "572",
+						"multiplySum": "41238284528439760188947729696187005562222141485939630456414306536316871643066406250",
+						"currentNoValue": "553339259590051840640554108286359687356365659368649881110793203339835928932646374014906479292102723259218117323451194222"
+					},
+					"last": {
+						"additionSum": "572",
+						"multiplySum": "41238284528439760188947729696187005562222141485939630456414306536316871643066406250",
+						"currentNoValue": "553339259590051840640554108286359687356365659368649881110793203339835928932646374014906479292102723259218117323451194222"
+					}
+				}
+			}
+		},
+		"134": {
+			"found": 1,
+			"time": 3492,
+			"steps": {
+				"3": {
+					"additionSum": "571",
+					"multiplySum": "41238284528439760188947729696187005562222141485939630456414306536316871643066406250",
+					"count": 1,
+					"combinations": "569879633490631223410720206738410009200",
+					"first": {
+						"additionSum": "571",
+						"multiplySum": "41238284528439760188947729696187005562222141485939630456414306536316871643066406250",
+						"currentNoValue": "3135589137676960430296473280289371561686071336405784156625257136309498542261579715374567166931676515237537281383069047661"
+					},
+					"last": {
+						"additionSum": "571",
+						"multiplySum": "41238284528439760188947729696187005562222141485939630456414306536316871643066406250",
+						"currentNoValue": "3135589137676960430296473280289371561686071336405784156625257136309498542261579715374567166931676515237537281383069047661"
+					}
+				}
+			}
+		},
+		"139": {
+			"found": 1,
+			"time": 6154,
+			"steps": {
+				"3": {
+					"additionSum": "454",
+					"multiplySum": "6117126105953876580519002945310937411477837787882702499140694288278490",
+					"count": 1,
+					"combinations": "47941500835246590",
+					"first": {
+						"additionSum": "454",
+						"multiplySum": "6117126105953876580519002945310937411477837787882702499140694288278490",
+						"currentNoValue": "145054566865974549712877416162619473882347084719019421831602935648783899334139175312498661033628953932271443095776554379116543"
+					},
+					"last": {
+						"additionSum": "454",
+						"multiplySum": "6117126105953876580519002945310937411477837787882702499140694288278490",
+						"currentNoValue": "145054566865974549712877416162619473882347084719019421831602935648783899334139175312498661033628953932271443095776554379116543"
+					}
+				}
+			}
+		},
+		"140": {
+			"found": 1,
+			"time": 6154,
+			"steps": {
+				"3": {
+					"additionSum": "453",
+					"multiplySum": "6117126105953876580519002945310937411477837787882702499140694288278490",
+					"count": 1,
+					"combinations": "51629308591804020",
+					"first": {
+						"additionSum": "453",
+						"multiplySum": "6117126105953876580519002945310937411477837787882702499140694288278490",
+						"currentNoValue": "821975878907189115039638691588177018666633480074443390379083302009775429560121993437492412523897405616204844209400472997462015"
+					},
+					"last": {
+						"additionSum": "453",
+						"multiplySum": "6117126105953876580519002945310937411477837787882702499140694288278490",
+						"currentNoValue": "821975878907189115039638691588177018666633480074443390379083302009775429560121993437492412523897405616204844209400472997462015"
+					}
+				}
+			}
+		}
+	},
+	"up_time": 3566075,
+	"steps": [
+		{
+			"additionSum": "28",
+			"multiplySum": "28",
+			"atRunTime": 229,
+			"combinations": "7",
+			"count": 7,
+			"first": {
+				"additionSum": "1",
+				"multiplySum": "1",
+				"currentNoValue": "1"
+			},
+			"iteration": "7",
+			"last": {
+				"additionSum": "7",
+				"multiplySum": "7",
+				"currentNoValue": "7"
+			},
+			"step": 0
+		},
+		{
+			"additionSum": "9",
+			"multiplySum": "10",
+			"atRunTime": 229,
+			"combinations": "3",
+			"count": 2,
+			"first": {
+				"additionSum": "4",
+				"multiplySum": "4",
+				"currentNoValue": "18"
+			},
+			"iteration": "9",
+			"last": {
+				"additionSum": "5",
+				"multiplySum": "6",
+				"currentNoValue": "19"
+			},
+			"step": 1
+		},
+		null,
+		{
+			"additionSum": "1333347",
+			"multiplySum": "82478233105223795342108663811832893809212681144666991839829417509259707744413750052",
+			"atRunTime": 3553,
+			"combinations": "24461183161834618806323513570131031225480372082819",
+			"count": 9215,
+			"first": {
+				"additionSum": "10",
+				"multiplySum": "21",
+				"currentNoValue": "31"
+			},
+			"iteration": "12088680308",
+			"last": {
+				"additionSum": "453",
+				"multiplySum": "6117126105953876580519002945310937411477837787882702499140694288278490",
+				"currentNoValue": "821975878907189115039638691588177018666633480074443390379083302009775429560121993437492412523897405616204844209400472997462015"
+			},
+			"step": 3
+		},
+		{
+			"additionSum": "4567",
+			"multiplySum": "3237970701215184781",
+			"atRunTime": 294,
+			"combinations": "92186013481",
+			"count": 113,
+			"first": {
+				"additionSum": "13",
+				"multiplySum": "60",
+				"currentNoValue": "174"
+			},
+			"iteration": "1250534",
+			"last": {
+				"additionSum": "104",
+				"multiplySum": "1661065346587500",
+				"currentNoValue": "5569693954653112988261375"
+			},
+			"step": 4
+		},
+		{
+			"additionSum": "675",
+			"multiplySum": "2446034",
+			"atRunTime": 249,
+			"combinations": "4604",
+			"count": 24,
+			"first": {
+				"additionSum": "23",
+				"multiplySum": "686",
+				"currentNoValue": "1535"
+			},
+			"iteration": "11067",
+			"last": {
+				"additionSum": "41",
+				"multiplySum": "1366875",
+				"currentNoValue": "3681401709"
+			},
+			"step": 5
+		},
+		{
+			"additionSum": "43",
+			"multiplySum": "826875",
+			"atRunTime": 245,
+			"combinations": "1260",
+			"count": 1,
+			"first": {
+				"additionSum": "43",
+				"multiplySum": "826875",
+				"currentNoValue": "57596799"
+			},
+			"iteration": "4478",
+			"last": {
+				"additionSum": "43",
+				"multiplySum": "826875",
+				"currentNoValue": "57596799"
+			},
+			"step": 6
+		}
+	]
+}
