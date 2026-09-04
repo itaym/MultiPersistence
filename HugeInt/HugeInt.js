@@ -1,5 +1,17 @@
 import { digitsObj as baseDigits, digitsValue, toBigInt } from '../Digits/index.js'
 import { testDigitCellFactory } from './utils.js'
+import {
+    addRuns,
+    bigIntToRuns,
+    BudgetExceededError,
+    mulRuns,
+    mulSmallRuns,
+    runsToBigInt,
+} from './multiply.js'
+
+/**
+ * @typedef {import('./multiply.js').Runs} Runs
+ */
 
 /**
  * A single digit-cell in the HugeInt linked list.
@@ -344,97 +356,191 @@ export class HugeInt {
     static minBigInt = (...args) => args.reduce((a, b) => (a < b ? a : b))
 
     /**
-     * A single digit-cell in the HugeInt linked list.
+     * Whether this HugeInt represents zero.
      *
-     * Each cell tracks whether it was changed, the number of consecutive occurrences
-     * of its digit, the digit value itself, links to neighboring cells, and an
-     * optional cached result used by multiplicative persistence algorithms.
-     *
-     * @typedef {Object} DigitCell
-     * @property {boolean} changed
-     *     Indicates whether the cell was modified since the last persistence calculation.
-     *
-     * @property {BigInt} count
-     *     Number of consecutive occurrences of this digit.
-     *
-     * @property {BigInt} digit
-     *     The digit value (0 ≤ digit < base).
-     *
-     * @property {DigitCell|null} next
-     *     Pointer to the next cell (more significant digit).
-     *
-     * @property {DigitCell|null} prev
-     *     Pointer to the previous cell (less significant digit).
-     *
-     * @property {BigInt} result
-     *     Cached result used by multiplicative persistence algorithms.
+     * @returns {boolean}
      */
-    add(hugeInt) {
+    isZero() {
+        return !this.firstCell.next && this.firstCell.digit === 0n
+    }
 
-        if (this.#base !== hugeInt.base) {
-            throw new Error('Base is incompatible.')
+    /**
+     * Snapshots the digit-cells as a runs array (`[[digit, count], …]`,
+     * least-significant run first).
+     *
+     * @returns {Runs}
+     */
+    #runs() {
+        const runs = []
+        for (let cell = this.firstCell; cell; cell = cell.next) {
+            runs.push([cell.digit, cell.count])
         }
-        const newCell = this.#digitCellFactory()
-        newCell.digit = -1n
-        const firstLength = HugeInt.maxBigInt(this.length, hugeInt.length)
-        const firstHugeInt = this.length >= hugeInt.length ? this : hugeInt
-        const secondHugeInt = this.length >= hugeInt.length ? hugeInt : this
-        const base = this.#base
+        return runs
+    }
 
-        let carry = 0n
+    /**
+     * Rebuilds the digit-cell list from a runs array, merging equal neighbours,
+     * trimming most-significant zero runs, and guaranteeing at least one cell.
+     *
+     * @param {Runs} runs
+     * @returns {this}
+     */
+    #adoptRuns(runs) {
+        const factory = this.#digitCellFactory
+        let first = null
+        let last = null
 
-        let firstCell = firstHugeInt.firstCell
-        let secondCell = secondHugeInt.firstCell
-        let firstIndex = 0n
-        let secondIndex = 0n
-        let aNewCell = /*** @type {DigitCell} */ { ...newCell }
-        const aNewFirstCell = aNewCell
-
-        for (let index = 0; index < firstLength; index++) {
-
-            firstIndex++
-            secondIndex++
-
-            let secondDigit = secondCell ? secondCell.digit : 0n
-            let sum = firstCell.digit + secondDigit + carry
-            let digit = sum % base
-            carry = sum / base
-
-            if (aNewCell.digit === -1n) {
-                aNewCell.count = 1n
-                aNewCell.digit = digit
+        for (const [digit, count] of runs) {
+            if (count <= 0n) continue
+            if (last && last.digit === digit) {
+                last.count += count
+                continue
             }
-            else if (aNewCell.digit === digit) {
-                aNewCell.count++
-            }
-            else {
-                aNewCell.next = /*** @type {DigitCell} */ { ...newCell }
-                aNewCell.next.prev = aNewCell
-                aNewCell = aNewCell.next
-                aNewCell.count = 1n
-                aNewCell.digit = digit
-            }
-
-            if (firstIndex === firstCell.count) {
-                firstIndex = 0n
-                firstCell = firstCell.next
-            }
-            if (secondCell && secondIndex === secondCell.count) {
-                secondIndex = 0n
-                secondCell = secondCell.next
-            }
+            const cell = factory()
+            cell.digit = digit
+            cell.count = count
+            cell.prev = last
+            cell.next = null
+            if (last) last.next = cell
+            else first = cell
+            last = cell
         }
-        if (carry > 0n) {
-            aNewCell.next = /*** @type {DigitCell} */ { ...newCell }
-            aNewCell.next.prev = aNewCell
-            aNewCell = aNewCell.next
-            aNewCell.count = 1n
-            aNewCell.digit = carry
-        }
-        this.firstCell = aNewFirstCell
-        this.lastCell = aNewCell
 
+        while (last && last.prev && last.digit === 0n) {
+            last = last.prev
+            last.next = null
+        }
+        if (!first) first = last = factory()
+        else if (first === last && first.digit === 0n) first.count = 1n
+
+        this.firstCell = first
+        this.lastCell = last
         return this
+    }
+
+    /**
+     * Coerces an operand to a runs array in this HugeInt's base.
+     *
+     * @param {HugeInt | bigint | number} other
+     * @returns {Runs}
+     */
+    #runsOf(other) {
+        if (other instanceof HugeInt) {
+            if (other.#base !== this.#base) throw new Error('Base is incompatible.')
+            return other.#runs()
+        }
+        if (typeof other === 'bigint') return bigIntToRuns(other, this.#base)
+        if (typeof other === 'number') {
+            if (!Number.isInteger(other)) throw new RangeError('HugeInt: expected an integer')
+            return bigIntToRuns(BigInt(other), this.#base)
+        }
+        throw new TypeError('HugeInt: expected a HugeInt, bigint, or integer')
+    }
+
+    /**
+     * Whether {@link value} (with `extraDigits` more digits) fits V8's BigInt
+     * size limit, i.e. whether the `bigint` fast path is safe.
+     *
+     * @param {bigint} [extraDigits]
+     * @returns {boolean}
+     */
+    #fitsBigInt(extraDigits = 0n) {
+        const bitsPerDigit = BigInt(Math.ceil(Math.log2(Number(this.#base))) || 1)
+        return (this.length + extraDigits) * bitsPerDigit < HugeInt.maxBigIntBits
+    }
+
+    /**
+     * Builds a HugeInt directly from a runs array (`[[digit, count], …]`,
+     * least-significant run first). Counts may be arbitrarily large.
+     *
+     * @param {Runs} runs
+     * @param {BigInt} [base=10n]
+     * @returns {HugeInt}
+     */
+    static fromRuns(runs, base = 10n) {
+        const hugeInt = new HugeInt(0n, base)
+        return hugeInt.#adoptRuns(runs.map(([digit, count]) => [BigInt(digit), BigInt(count)]))
+    }
+
+    /** Approximate V8 BigInt ceiling in bits; lowered by tests to force the RLE path. */
+    static maxBigIntBits = 1n << 30n
+
+    /**
+     * Adds another value to this HugeInt in place. Runs run-wise, so its cost is
+     * `O(runs)` regardless of digit count.
+     *
+     * @param {HugeInt | bigint | number} other
+     * @returns {this}
+     */
+    add(other) {
+        return this.#adoptRuns(addRuns(this.#runs(), this.#runsOf(other), this.#base))
+    }
+
+    /**
+     * Multiplies this HugeInt in place by a single digit (`0 ≤ d < base`).
+     *
+     * @param {bigint} d
+     * @returns {this}
+     */
+    mulSmall(d) {
+        if (typeof d !== 'bigint' || d < 0n || d >= this.#base) {
+            throw new RangeError('HugeInt.mulSmall: expected a bigint digit in [0, base)')
+        }
+        return this.#adoptRuns(mulSmallRuns(this.#runs(), d, this.#base))
+    }
+
+    /**
+     * Multiplies this HugeInt in place by `baseᵏ` (a left digit shift).
+     *
+     * @param {bigint} k
+     * @returns {this}
+     */
+    shiftLeft(k) {
+        if (typeof k !== 'bigint' || k < 0n) {
+            throw new RangeError('HugeInt.shiftLeft: expected a non-negative bigint')
+        }
+        if (k === 0n || this.isZero()) return this
+        if (this.firstCell.digit === 0n) {
+            this.firstCell.count += k
+            return this
+        }
+        const cell = this.#digitCellFactory()
+        cell.digit = 0n
+        cell.count = k
+        this.addCellBefore(this.firstCell, cell)
+        return this
+    }
+
+    /**
+     * Multiplies this HugeInt in place by another value.
+     *
+     * Takes the `bigint` fast path when the product fits V8's BigInt limit;
+     * otherwise falls back to run-length-native multiplication
+     * ({@link module:HugeInt/multiply}), which throws {@link BudgetExceededError}
+     * for products whose carry pattern cannot stay compressed.
+     *
+     * @param {HugeInt | bigint | number} other
+     * @param {{ maxCells?: bigint }} [options]
+     * @returns {this}
+     */
+    mul(other, options) {
+        const otherRuns = this.#runsOf(other)
+
+        if (this.isZero() || otherRuns.every(([digit]) => digit === 0n)) {
+            return this.#adoptRuns([[0n, 1n]])
+        }
+
+        let otherDigits = 0n
+        for (const [, count] of otherRuns) otherDigits += count
+
+        if (this.#fitsBigInt(otherDigits)) {
+            try {
+                return this.#adoptRuns(bigIntToRuns(this.value * runsToBigInt(otherRuns, this.#base), this.#base))
+            } catch (err) {
+                if (err.name !== 'RangeError') throw err
+            }
+        }
+        return this.#adoptRuns(mulRuns(this.#runs(), otherRuns, this.#base, options))
     }
 
     /**
@@ -882,4 +988,5 @@ export class HugeInt {
     }
 }
 
+export { BudgetExceededError }
 export default HugeInt
