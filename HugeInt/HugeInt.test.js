@@ -104,7 +104,7 @@ test('length is the total digit count', () => {
     assert.equal(hi(0n).length, 1n)
     assert.equal(hi(9n).length, 1n)
     assert.equal(hi(1_000n).length, 4n)
-    assert.equal(HugeInt.fromRuns([[3n, 10n ** 15n]], 10n).length, 10n ** 15n)
+    assert.equal(HugeInt.fromGroups([[3n, 10n ** 15n]], 10n).length, 10n ** 15n)
 })
 
 test('cellsLength counts runs, not digits', () => {
@@ -328,8 +328,8 @@ test('factorCountOf — factors other than 2', () => {
 })
 
 test('factorCountOf — scales with the run count', () => {
-    assert.equal(HugeInt.fromRuns([[8n, 10n ** 12n]], 10n).factorCountOf(2n), 3n * 10n ** 12n)
-    assert.equal(HugeInt.fromRuns([[4n, 5n], [8n, 3n]], 10n).factorCountOf(2n), 2n * 5n + 3n * 3n)
+    assert.equal(HugeInt.fromGroups([[8n, 10n ** 12n]], 10n).factorCountOf(2n), 3n * 10n ** 12n)
+    assert.equal(HugeInt.fromGroups([[4n, 5n], [8n, 3n]], 10n).factorCountOf(2n), 2n * 5n + 3n * 3n)
 })
 
 test('factorCountOf — cell arg scans from there', () => {
@@ -350,24 +350,24 @@ test('maxBigInt / minBigInt', () => {
     assert.equal(HugeInt.minBigInt(3n, 7n, 2n, 5n), 2n)
 })
 
-test('fromRuns builds the list and normalizes', () => {
-    assert.equal(HugeInt.fromRuns([[5n, 3n]], 10n).value, 555n)
-    assert.equal(HugeInt.fromRuns([[0n, 4n]], 10n).isZero(), true)          // all-zero -> [0,1]
-    assert.equal(HugeInt.fromRuns([[1n, 1n], [0n, 3n]], 10n).cellsLength, 1) // trailing zeros trimmed away? no: leading
-    assert.equal(HugeInt.fromRuns([[3n, 2n], [3n, 4n]], 10n).cellsLength, 1) // equal neighbours merged
+test('fromGroups builds the list and normalizes', () => {
+    assert.equal(HugeInt.fromGroups([[5n, 3n]], 10n).value, 555n)
+    assert.equal(HugeInt.fromGroups([[0n, 4n]], 10n).isZero(), true)          // all-zero -> [0,1]
+    assert.equal(HugeInt.fromGroups([[1n, 1n], [0n, 3n]], 10n).cellsLength, 1) // trailing zeros trimmed away? no: leading
+    assert.equal(HugeInt.fromGroups([[3n, 2n], [3n, 4n]], 10n).cellsLength, 1) // equal neighbours merged
 })
 
 // ---------------------------------------------------------------------------
 // arithmetic (light — exhaustively fuzzed in multiply.test.js)
 // ---------------------------------------------------------------------------
 
-test('add / mul / mulSmall / shiftLeft return this and mutate in place', () => {
+test('add / multiply / multiplyByDigit / shiftLeft return this and mutate in place', () => {
     const n = hi(12n, 10n)
     assert.equal(n.add(3n), n)
     assert.equal(n.value, 15n)
-    assert.equal(n.mul(2n), n)
+    assert.equal(n.multiply(2n), n)
     assert.equal(n.value, 30n)
-    assert.equal(n.mulSmall(3n), n)
+    assert.equal(n.multiplyByDigit(3n), n)
     assert.equal(n.value, 90n)
     assert.equal(n.shiftLeft(2n), n)
     assert.equal(n.value, 9000n)
@@ -381,10 +381,10 @@ test('shiftLeft edge cases', () => {
     assert.throws(() => hi(1n, 10n).shiftLeft(/** @type BigInt (Only for the inspections) */ 3), RangeError) // number, not bigint
 })
 
-test('mulSmall rejects out-of-range digits', () => {
-    assert.throws(() => hi(5n, 10n).mulSmall(10n), RangeError)
-    assert.throws(() => hi(5n, 10n).mulSmall(-1n), RangeError)
-    assert.throws(() => hi(5n, 10n).mulSmall(/** @type BigInt (Only for the inspections) */ 3), RangeError)
+test('multiplyByDigit rejects out-of-range digits', () => {
+    assert.throws(() => hi(5n, 10n).multiplyByDigit(10n), RangeError)
+    assert.throws(() => hi(5n, 10n).multiplyByDigit(-1n), RangeError)
+    assert.throws(() => hi(5n, 10n).multiplyByDigit(/** @type BigInt (Only for the inspections) */ 3), RangeError)
 })
 
 test('add accepts HugeInt | bigint | number', () => {

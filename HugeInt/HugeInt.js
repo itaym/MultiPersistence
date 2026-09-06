@@ -1,16 +1,17 @@
 import { digitsObj as baseDigits, digitsValue, toBigInt } from '../Digits/index.js'
 import { testDigitCellFactory } from './utils.js'
 import {
-    addRuns,
-    bigIntToRuns,
+    addGroups,
+    bigIntToGroups,
     BudgetExceededError,
-    mulRuns,
-    mulSmallRuns,
-    runsToBigInt,
+    groupsToBigInt,
+    multiplyGroups,
+    multiplyGroupsByDigit,
 } from './multiply.js'
 
 /**
- * @typedef {import('./multiply.js').Runs} Runs
+ * @typedef {import('./multiply.js').DigitGroup} DigitGroup
+ * @typedef {import('./multiply.js').DigitGroups} DigitGroups
  */
 
 /**
@@ -357,32 +358,33 @@ export class HugeInt {
     }
 
     /**
-     * Snapshots the digit-cells as a runs array (`[[digit, count], …]`,
-     * least-significant run first).
+     * Snapshots the digit-cells as {@link DigitGroups} (`[[digit, repeatCount], …]`,
+     * least-significant group first).
      *
-     * @returns {Runs}
+     * @returns {DigitGroups}
      */
-    #runs() {
-        const runs = []
+    #toGroups() {
+        const groups = []
         for (let cell = this.firstCell; cell; cell = cell.next) {
-            runs.push([cell.digit, cell.count])
+            groups.push([cell.digit, cell.count])
         }
-        return runs
+        return groups
     }
 
     /**
-     * Rebuilds the digit-cell list from a runs array, merging equal neighbours,
-     * trimming most-significant zero runs, and guaranteeing at least one cell.
+     * Rebuilds the digit-cell list from {@link DigitGroups}, merging equal
+     * neighbours, trimming most-significant zero groups, and guaranteeing at
+     * least one cell.
      *
-     * @param {Runs} runs
+     * @param {DigitGroups} groups
      * @returns {this}
      */
-    #adoptRuns(runs) {
+    #groupsToDigitCells(groups) {
         const factory = this.#digitCellFactory
         let first = null
         let last = null
 
-        for (const [digit, count] of runs) {
+        for (const [digit, count] of groups) {
             if (count <= 0n) continue
             if (last && last.digit === digit) {
                 last.count += count
@@ -411,20 +413,20 @@ export class HugeInt {
     }
 
     /**
-     * Coerces an operand to a runs array in this HugeInt's base.
+     * Coerces an operand to {@link DigitGroups} in this HugeInt's base.
      *
      * @param {HugeInt | bigint | number} other
-     * @returns {Runs}
+     * @returns {DigitGroups}
      */
-    #runsOf(other) {
+    #coerceToGroups(other) {
         if (other instanceof HugeInt) {
             if (other.#base !== this.#base) throw new Error('Base is incompatible.')
-            return other.#runs()
+            return other.#toGroups()
         }
-        if (typeof other === 'bigint') return bigIntToRuns(other, this.#base)
+        if (typeof other === 'bigint') return bigIntToGroups(other, this.#base)
         if (typeof other === 'number') {
             if (!Number.isInteger(other)) throw new RangeError('HugeInt: expected an integer')
-            return bigIntToRuns(BigInt(other), this.#base)
+            return bigIntToGroups(BigInt(other), this.#base)
         }
         throw new TypeError('HugeInt: expected a HugeInt, bigint, or integer')
     }
@@ -442,43 +444,43 @@ export class HugeInt {
     }
 
     /**
-     * Builds a HugeInt directly from a runs array (`[[digit, count], …]`,
-     * least-significant run first). Counts may be arbitrarily large.
+     * Builds a HugeInt directly from {@link DigitGroups} (`[[digit, repeatCount], …]`,
+     * least-significant group first). Repeat counts may be arbitrarily large.
      *
-     * @param {Runs} runs
+     * @param {DigitGroups} groups
      * @param {BigInt} [base=10n]
      * @returns {HugeInt}
      */
-    static fromRuns(runs, base = 10n) {
+    static fromGroups(groups, base = 10n) {
         const hugeInt = new HugeInt(0n, base)
-        return hugeInt.#adoptRuns(runs.map(([digit, count]) => [BigInt(digit), BigInt(count)]))
+        return hugeInt.#groupsToDigitCells(groups.map(([digit, count]) => [BigInt(digit), BigInt(count)]))
     }
 
-    /** Approximate V8 BigInt ceiling in bits; lowered by tests to force the RLE path. */
+    /** Approximate V8 BigInt ceiling in bits; lowered by tests to force the digit-group path. */
     static maxBigIntBits = 1n << 30n
 
     /**
-     * Adds another value to this HugeInt in place. Runs run-wise, so its cost is
-     * `O(runs)` regardless of digit count.
+     * Adds another value to this HugeInt in place. Works group-wise, so its cost
+     * is `O(groupCount)` regardless of digit count.
      *
      * @param {HugeInt | bigint | number} other
      * @returns {this}
      */
     add(other) {
-        return this.#adoptRuns(addRuns(this.#runs(), this.#runsOf(other), this.#base))
+        return this.#groupsToDigitCells(addGroups(this.#toGroups(), this.#coerceToGroups(other), this.#base))
     }
 
     /**
-     * Multiplies this HugeInt in place by a single digit (`0 ≤ d < base`).
+     * Multiplies this HugeInt in place by a single digit (`0 ≤ digit < base`).
      *
-     * @param {bigint} d
+     * @param {bigint} digit
      * @returns {this}
      */
-    mulSmall(d) {
-        if (typeof d !== 'bigint' || d < 0n || d >= this.#base) {
-            throw new RangeError('HugeInt.mulSmall: expected a bigint digit in [0, base)')
+    multiplyByDigit(digit) {
+        if (typeof digit !== 'bigint' || digit < 0n || digit >= this.#base) {
+            throw new RangeError('HugeInt.multiplyByDigit: expected a bigint digit in [0, base)')
         }
-        return this.#adoptRuns(mulSmallRuns(this.#runs(), d, this.#base))
+        return this.#groupsToDigitCells(multiplyGroupsByDigit(this.#toGroups(), digit, this.#base))
     }
 
     /**
@@ -507,7 +509,7 @@ export class HugeInt {
      * Multiplies this HugeInt in place by another value.
      *
      * Takes the `bigint` fast path when the product fits V8's BigInt limit;
-     * otherwise falls back to run-length-native multiplication
+     * otherwise falls back to digit-group-native multiplication
      * ({@link module:HugeInt/multiply}), which throws {@link BudgetExceededError}
      * for products whose carry pattern cannot stay compressed.
      *
@@ -515,24 +517,24 @@ export class HugeInt {
      * @param {{ maxCells?: bigint }} [options]
      * @returns {this}
      */
-    mul(other, options) {
-        const otherRuns = this.#runsOf(other)
+    multiply(other, options) {
+        const otherGroups = this.#coerceToGroups(other)
 
-        if (this.isZero() || otherRuns.every(([digit]) => digit === 0n)) {
-            return this.#adoptRuns([[0n, 1n]])
+        if (this.isZero() || otherGroups.every(([digit]) => digit === 0n)) {
+            return this.#groupsToDigitCells([[0n, 1n]])
         }
 
         let otherDigits = 0n
-        for (const [, count] of otherRuns) otherDigits += count
+        for (const [, count] of otherGroups) otherDigits += count
 
         if (this.#fitsBigInt(otherDigits)) {
             try {
-                return this.#adoptRuns(bigIntToRuns(this.value * runsToBigInt(otherRuns, this.#base), this.#base))
+                return this.#groupsToDigitCells(bigIntToGroups(this.value * groupsToBigInt(otherGroups, this.#base), this.#base))
             } catch (err) {
                 if (err.name !== 'RangeError') throw err
             }
         }
-        return this.#adoptRuns(mulRuns(this.#runs(), otherRuns, this.#base, options))
+        return this.#groupsToDigitCells(multiplyGroups(this.#toGroups(), otherGroups, this.#base, options))
     }
 
     /**

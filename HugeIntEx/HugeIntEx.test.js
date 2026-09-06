@@ -34,7 +34,7 @@ const fs = (str, base = 10n) => new HugeIntEx(0n, base).fromString(str, base)
 
 test('HugeIntEx is a HugeInt and inherits the base surface', () => {
     assert.ok(ex(12n, 10n) instanceof HugeInt)
-    assert.equal(ex(12n, 10n).mul(3n).value, 36n)
+    assert.equal(ex(12n, 10n).multiply(3n).value, 36n)
     assert.equal(ex(12n, 10n).add(4n).value, 16n)
     assert.equal(fs('88').factorCountOf(2n), 6n) // inherited: 8·8 = 2⁶
 })
