@@ -15,7 +15,8 @@ import { HugeInt } from './HugeInt.js'
 let passed = 0
 let failed = 0
 
-/** @param {string} name @param {() => void} fn */
+/** @param {string} name
+ * @param {() => void} fn */
 function test(name, fn) {
     try {
         fn()
@@ -82,11 +83,11 @@ test('zero is a single [0,1] cell', () => {
 })
 
 test('constructor rejects a bad digitCellFactory', () => {
-    assert.throws(() => new HugeInt(1n, 10n, () => ({ nope: true })), /valid DigitCell/)
+    assert.throws(() => new HugeInt(1n, 10n, () => (/** @type DigitCell */{ nope: true })), /valid DigitCell/)
 })
 
 test('constructor accepts a custom digitCellFactory', () => {
-    const factory = () => ({ changed: true, count: 1n, digit: 0n, next: null, prev: null, tag: 'x' })
+    const factory = () => (/** @type DigitCell */{ changed: true, count: 1n, digit: 0n, next: null, prev: null, tag: 'x' })
     const n = new HugeInt(123n, 10n, factory)
     assert.equal([...n].every((cell) => cell.tag === 'x'), true)
 })
@@ -181,7 +182,7 @@ test('Symbol.iterator yields cells LSB->MSB', () => {
 
 test('addCellAfter / addCellBefore wire pointers and endpoints', () => {
     const n = hi(5n, 10n)
-    const factory = () => ({ changed: true, count: 1n, digit: 0n, next: null, prev: null })
+    const factory = () => (/** @type DigitCell */{ changed: true, count: 1n, digit: 0n, next: null, prev: null })
 
     const hiCell = factory()
     hiCell.digit = 9n
@@ -250,7 +251,7 @@ test('addOne == +1 unless the most-significant digit rolls over', () => {
 
 test('QUIRK: addOne on all-(base-1) digits leads with 2', () => {
     const n = hi(999n, 10n)
-    assert.equal(n.addOne(), undefined) // returns void
+    assert.equal(/** @type any */n.addOne(), undefined) // returns void
     assert.equal(n.value, 2000n)
     assert.equal(n.toString(), '2000')
 })
@@ -326,22 +327,44 @@ test('hasEvenDigits (0 counts as even)', () => {
     assert.equal(hi(2n, 10n).hasEvenDigits(), true)
 })
 
-test('countTwoComponents sums log2 of power-of-two digits', () => {
-    assert.equal(new HugeInt(0n, 10n).fromString('248', 10n).countTwoComponents(), 1 + 2 + 3)
-    assert.equal(new HugeInt(0n, 10n).fromString('222', 10n).countTwoComponents(), 3)
-    assert.equal(new HugeInt(0n, 10n).fromString('357', 10n).countTwoComponents(), 0)
+const fs = (str, base = 10n) => new HugeInt(0n, base).fromString(str, base)
+
+test('factorCountOf — exponent of a factor in the digit product', () => {
+    assert.equal(hi(4n, 10n).factorCountOf(2n), 2n)
+    assert.equal(fs('44').factorCountOf(2n), 4n)
+    assert.equal(fs('38').factorCountOf(2n), 3n)
+    assert.equal(hi(6n, 10n).factorCountOf(2n), 1n)   // 6 = 2·3, not a pure power
+    assert.equal(fs('248').factorCountOf(2n), 1n + 2n + 3n)
+    assert.equal(fs('13579').factorCountOf(2n), 0n)
 })
 
-test('countTwoComponentsNoFirstCell skips the least-significant run', () => {
-    const n = new HugeInt(0n, 10n).fromString('842', 10n) // LSB run = 2
-    assert.equal(n.countTwoComponentsNoFirstCell(), 3 + 2) // 8 and 4, not the 2
-    // QUIRK: on a single-cell number `firstCell.next` is null, and
-    // countTwoComponents(null) falls back to firstCell — so it is NOT excluded.
-    assert.equal(hi(4n, 10n).countTwoComponentsNoFirstCell(), 2)
+test('factorCountOf — factors other than 2', () => {
+    assert.equal(fs('39').factorCountOf(3n), 3n) // 3·9 = 3³
+    assert.equal(fs('26').factorCountOf(3n), 1n) // only the 6
+    assert.equal(fs('55').factorCountOf(5n), 2n)
+    assert.equal(fs('77').factorCountOf(7n), 2n)
 })
 
-test('QUIRK: countTwoComponents is poisoned by a 0 digit (log2(0) = -Infinity)', () => {
-    assert.equal(Number.isFinite(new HugeInt(0n, 10n).fromString('204', 10n).countTwoComponents()), false)
+test('factorCountOf — scales with the run count', () => {
+    assert.equal(HugeInt.fromRuns([[8n, 10n ** 12n]], 10n).factorCountOf(2n), 3n * 10n ** 12n)
+    assert.equal(HugeInt.fromRuns([[4n, 5n], [8n, 3n]], 10n).factorCountOf(2n), 2n * 5n + 3n * 3n)
+})
+
+test('factorCountOf — cell arg scans from there', () => {
+    const n = fs('842') // cells LSB: [2][4][8]
+    assert.equal(n.factorCountOf(2n, n.firstCell.next), 2n + 3n) // 4 and 8, not the 2
+})
+
+test('factorCountOf — a 0 digit contributes nothing', () => {
+    assert.equal(fs('204').factorCountOf(2n), 1n + 2n) // the 0 adds 0
+})
+
+test('countTwoComponents / …NoFirstCell delegate to factorCountOf(2n, …)', () => {
+    assert.equal(fs('248').countTwoComponents(), 6n)
+    assert.equal(fs('842').countTwoComponentsNoFirstCell(), 5n)
+    // QUIRK: on a lone cell, firstCell.next is null and countTwoComponents
+    // falls back to firstCell — so nothing is excluded.
+    assert.equal(hi(4n, 10n).countTwoComponentsNoFirstCell(), 2n)
 })
 
 // ---------------------------------------------------------------------------
@@ -381,13 +404,13 @@ test('shiftLeft edge cases', () => {
     assert.equal(hi(7n, 10n).shiftLeft(0n).value, 7n)
     assert.equal(hi(100n, 10n).shiftLeft(2n).value, 10_000n)
     assert.throws(() => hi(1n, 10n).shiftLeft(-1n), RangeError)
-    assert.throws(() => hi(1n, 10n).shiftLeft(3), RangeError) // number, not bigint
+    assert.throws(() => hi(1n, 10n).shiftLeft(/** @type BigInt (Only for the inspections) */ 3), RangeError) // number, not bigint
 })
 
 test('mulSmall rejects out-of-range digits', () => {
     assert.throws(() => hi(5n, 10n).mulSmall(10n), RangeError)
     assert.throws(() => hi(5n, 10n).mulSmall(-1n), RangeError)
-    assert.throws(() => hi(5n, 10n).mulSmall(3), RangeError)
+    assert.throws(() => hi(5n, 10n).mulSmall(/** @type BigInt (Only for the inspections) */ 3), RangeError)
 })
 
 test('add accepts HugeInt | bigint | number', () => {
@@ -395,7 +418,7 @@ test('add accepts HugeInt | bigint | number', () => {
     assert.equal(hi(10n, 10n).add(5n).value, 15n)
     assert.equal(hi(10n, 10n).add(5).value, 15n)
     assert.throws(() => hi(10n, 10n).add(2.5), RangeError)
-    assert.throws(() => hi(10n, 10n).add('5'), TypeError)
+    assert.throws(() => hi(10n, 10n).add(/** @type BigInt (Only for the inspections) */ '5'), TypeError)
 })
 
 // ---------------------------------------------------------------------------

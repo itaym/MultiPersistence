@@ -54,17 +54,18 @@ function toString(constructor) {
 /**
  * Computes logarithm with an arbitrary base.
  *
- * @param {number} base
- *     Logarithmic base.
- *
- * @param {number} number
- *     Value to evaluate.
+ * @param {number} base - Logarithmic base.
+ * @param {number} number - Value to evaluate.
  *
  * @returns {number}
  *     Logarithm of number in the given base.
  */
 function logX(base, number) {
     return Math.log(number) / Math.log(base)
+}
+
+function rootX(root, number) {
+    return number ** (1 / number);
 }
 
 /**
@@ -79,4 +80,5 @@ export const initPollyFill = () => {
 
     toString(BigInt)
     Math.logX = logX
+    Math.rootX = rootX
 }

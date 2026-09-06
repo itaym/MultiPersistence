@@ -833,38 +833,55 @@ export class HugeInt {
     }
 
     /**
-     * Counts the total number of factors of 2 contributed by all digits in the HugeInt.
+     * Counts how many times `factor` is multiplied into the product of this
+     * HugeInt's digits — the exponent of `factor` in `∏ digitᵢ`.
      *
-     * For each digit-cell, computes log2(digit). If the digit is a power of two,
-     * multiplies that exponent by the cell's count and adds it to the total.
+     * Each digit contributes the number of times `factor` divides it, scaled by
+     * the cell's repeat count. Trial division is used, so any `factor ≥ 2` works
+     * (not just powers of two): with `factor === 2n`, `"4"` → `2`, `"44"` → `4`,
+     * `"38"` → `3`, `"6"` → `1`. Digits `factor` does not divide (including `0`)
+     * contribute nothing.
      *
-     * @method countTwoComponents
-     * @param {DigitCell|null} [cell=this.firstCell]
-     *     Starting cell for the scan.
-     *
-     * @returns {number}
-     *     Total exponent of 2 contributed by all digits.
+     * @method factorCountOf
+     * @param {BigInt} factor - The factor to count. Must be `≥ 2`.
+     * @param {DigitCell|null} [cell=this.firstCell] - First cell to scan from (least-significant); pass `firstCell.next` to skip the least-significant run.
+     * @returns {BigInt} - The total exponent of `factor` in the digit product.
      */
-    countTwoComponents(cell) {
-        cell ??= this.firstCell
-        let count = 0
+    factorCountOf(factor, cell = this.firstCell) {
+
+        let total = 0n
+
         while (cell) {
-            let log2 = Math.log2(Number(cell.digit))
-            if (log2 === Math.floor(log2)) {
-                count += log2 * Number(cell.count)
+            let count = 0n
+            let digit = cell.digit
+            while (digit !== 0n && digit % factor === 0n) {
+                digit /= factor;
+                count++
             }
+            total += count * cell.count
             cell = cell.next
         }
-        return count
+
+        return total
     }
 
     /**
-     * Counts the total number of factors of 2 contributed by all digits,
-     * excluding the least-significant digit-cell.
+     * `factorCountOf(2n, …)` — kept for the base-12/24 accommodate code.
+     *
+     * @method countTwoComponents
+     * @param {DigitCell|null} [cell=this.firstCell] - Starting cell for the scan.
+     * @returns {BigInt} - Exponent of 2 in the digit product.
+     */
+    countTwoComponents(cell) {
+        cell ??= this.firstCell
+        return this.factorCountOf(2n, cell)
+    }
+
+    /**
+     * `countTwoComponents` starting past the least-significant run.
      *
      * @method countTwoComponentsNoFirstCell
-     * @returns {number}
-     *     Total exponent of 2 contributed by all digits except the first cell.
+     * @returns {BigInt} - Exponent of 2 in the digit product, excluding the first cell.
      */
     countTwoComponentsNoFirstCell() {
         return this.countTwoComponents(this.firstCell.next)
@@ -877,11 +894,8 @@ export class HugeInt {
      * and is inserted immediately after the original cell.
      *
      * @method splitCellAfter
-     * @param {DigitCell} cell
-     *     The cell to split.
-     *
-     * @param {BigInt} countToSplit
-     *     Number of digits to keep in the original cell.
+     * @param {DigitCell} cell - The cell to split.
+     * @param {BigInt} countToSplit - Number of digits to keep in the original cell.
      *
      * @returns {DigitCell}
      *     The newly created cell containing the remainder of the digits.
