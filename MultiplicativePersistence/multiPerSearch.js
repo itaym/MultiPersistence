@@ -7,31 +7,44 @@ import waitShowLog from '../utils/waitShowLog.js'
 import { multiPer, multiPerNBC } from './index.js'
 
 /**
- * Executes the multiplicative‑persistence search loop.
+ * @typedef {import('../Config/computationStateIO.js').ComputationState} ComputationState
+ * @typedef {import('../HugeInt/HugeInt.js').DigitCell} DigitCell
+ * @typedef {import('../jsdoc-types.d.ts.js').ReduceResults} ReduceResults
+ * @typedef {import('worker_threads').Worker} Worker
+ */
+
+/**
+ * Search-style digit cell — carries the `reduceHI` caches
+ * (`changed` / `additionSum` / `multiplySum`).
  *
- * Iterates HugeInt values, applies pruning rules, computes persistence,
- * batches results, sends messages to a worker, and performs periodic logging.
+ * @returns {DigitCell}
+ */
+const cellFactory = () => ({
+    additionSum: 0n,
+    changed: true,
+    count: 1n,
+    digit: 0n,
+    multiplySum: 0n,
+    next: null,
+    prev: null,
+})
+
+/**
+ * Runs the multiplicative-persistence search for one session.
  *
- * @async
- * @function multiPerSearch
+ * `computationState.last_number` is the last number that was fully checked
+ * (`0` on a fresh start). The session advances one step past it and checks
+ * forward, until a number reaches `goal_power_of10` digits or the not-found
+ * tolerance is exhausted. Every message sent to the worker carries
+ * `currentNo.value` — always the last number checked — so a resume picks up on
+ * exactly the next one.
  *
- * @param {ComputationState} computationState
- *     Initial state for continuing a search session.
- *
- * @param {number} log_interval
- *     Interval in milliseconds between log outputs.
- *
- * @param {number} startSessionTime
- *     Timestamp marking the start of the session.
- *
- * @param {number} startTime
- *     Adjusted timestamp including previous uptime.
- *
- * @param {Worker} worker
- *     Worker receiving search results and logs.
- *
+ * @param {ComputationState} computationState  state to continue from
+ * @param {number} log_interval                ms between log outputs
+ * @param {number} startSessionTime            wall-clock start of this session
+ * @param {number} startTime                   virtual start (`now - total up_time`)
+ * @param {Worker} worker                      receives results and log ticks
  * @returns {Promise<void>}
- *     Resolves when the search loop finishes.
  */
 export const multiPerSearch = async (
     computationState,
@@ -40,153 +53,104 @@ export const multiPerSearch = async (
     startTime,
     worker,
 ) => {
-
-    const {
-        base,
-        iterations,
-        last_number,
-        up_time,
-    } = computationState
+    const { base, iterations, last_number, up_time } = computationState
+    const numBase = Number(base)
+    const goalLength = process.normalizedEnv.goal_power_of10
 
     let calcIterations = iterations.calculated
     let countIterations = iterations.count
-
-    let currentNo = new HugeIntEx(last_number, base, () => ({
-        additionSum: 0n,
-        changed: true,
-        count: 1n,
-        digit: 0n,
-        next: null,
-        prev: null,
-        multiplySum: 0n}))
-    let endTime
-    let iterationsPerLog = countIterations
-    let logAfter = (countIterations + countIterations / up_time * log_interval) || 250_000
-
-    let messages = []
     let notFound = iterations.found_nothing
     let notFoundLimit = iterations.found_nothing_break_at
-    let notToBreak = notFoundLimit > notFound
 
-    let startTimeLog = startSessionTime
+    const currentNo = new HugeIntEx(last_number, base, cellFactory)
+    const message = prepareMessage.bind(currentNo)
+
     /** @type {ReduceResults} */
     let reduceResults
+    let messages = []
 
     /**
-     * Bound persistence functions for the current HugeInt and base.
+     * `calcIterations += createPermutations` runs `baseAccommodate(currentNo)`:
+     * it counts the permutations the pruning skips **and** advances `currentNo`
+     * past those digit ranges. `1n` when the base has no accommodate rules.
      *
-     * @type {Function}
+     * @type {ToPrimitive | BigInt}
      */
-    const multiPerNBB = multiPerNBC.bind(null, currentNo, Number(base))
-    let multiPerFn = multiPer.bind(null, currentNo, Number(base))
-
-    /**
-     * Bound message creator for the current HugeInt.
-     *
-     * @type {Function}
-     */
-    const prepareBindMessage = prepareMessage.bind(currentNo)
-
-    /**
-     * Optional permutation generator for base‑accommodation rules.
-     *
-     * @type {ToPrimitive|BigInt}
-     */
-    const createPermutations = baseAccommodate
-        .supported.includes(process.normalizedEnv.base)
+    const createPermutations = baseAccommodate.supported.includes(base)
         ? new ToPrimitive(currentNo, baseAccommodate)
         : 1n
 
-    /**
-     * Creates a formatted message containing persistence results.
-     *
-     * @returns {FoundMessage}
-     */
-    const createMessage = () =>
-        prepareBindMessage(startTime, calcIterations, reduceResults)
+    /** Records one found number and flushes the batch at 100. */
+    const recordFound = () => {
+        notFound = 0
+        if (countIterations > notFoundLimit) notFoundLimit = countIterations
+        messages.push(message(startTime, calcIterations, reduceResults))
+        if (messages.length >= 100 && postMessages(worker, 'stack', { messages })) {
+            messages = []
+        }
+    }
 
-    currentNo.addOneToSorted()
+    // ---- periodic log tick + final save ----
+    let iterationsAtLastLog = countIterations
+    let startTimeLog = startSessionTime
+    let logAfter = (countIterations + countIterations / up_time * log_interval) || 250_000
 
-    while (notToBreak) {
+    /** Sends a `found` tick and re-estimates the next log point. */
+    const checkpoint = async () => {
+        const endTime = Date.now()
+        const iterationsPerLog = countIterations - iterationsAtLastLog
+        const perIteration = (endTime - startTimeLog) / iterationsPerLog
 
+        logAfter = Math.floor(log_interval / perIteration) + countIterations
+        if (!Number.isFinite(logAfter)) logAfter = countIterations + 100_000
+
+        await waitShowLog()
+        if (postMessages(worker, 'found', {
+            calcIterations,
+            countIterations,
+            currentNo: currentNo.value, // = last number checked
+            endTime,
+            notFoundLimit,
+            iterationsPerLog,
+            length: currentNo.length,
+            messages,
+            notFound,
+            startTimeLog,
+        })) {
+            messages = []
+        }
+
+        iterationsAtLastLog = countIterations
+        startTimeLog = Date.now()
+    }
+
+    // ---- prologue: single-digit numbers need the base-case-aware multiPer ----
+    // (only runs on a fresh start, or a resume that died mid-prologue)
+    while (currentNo.length === 1n) {
+        currentNo.addOneToSorted()
+        calcIterations += 1n
+        countIterations++
+        reduceResults = multiPer(currentNo, numBase)
+        if (reduceResults.steps !== 2) recordFound()
+        else notFound++
+    }
+    // currentNo is now the first multi-digit number, already checked
+
+    // ---- main loop: every number is multi-digit, so skip the base-case check ----
+    while (true) {
+        currentNo.addOneToSorted()
         calcIterations += createPermutations
         countIterations++
 
-        reduceResults = multiPerFn()
+        reduceResults = multiPerNBC(currentNo, numBase)
+        if (reduceResults.steps !== 2) recordFound()
+        else notFound++
 
-        if (reduceResults.steps !== 2) {
+        if (countIterations > logAfter) await checkpoint()
 
-            notFoundLimit = Math.max(countIterations, notFoundLimit)
-            notFound = 0
-
-            messages.push(createMessage())
-
-            if (messages.length >= 100) {
-                if (postMessages(worker, 'stack', { messages })) {
-                    messages = []
-                }
-            }
-        }
-        else {
-            notFound++
-            notToBreak = (notFoundLimit > notFound) &&
-                (currentNo.length < process.normalizedEnv.goal_power_of10)
-        }
-
-        if (countIterations > logAfter) {
-            endTime = Date.now()
-            const currentNoValue = currentNo.value
-
-            if (multiPerFn !== multiPerNBB) {
-                multiPerFn = multiPerNBB
-            }
-
-            iterationsPerLog = countIterations - iterationsPerLog
-            const timeIteration = (endTime - startTimeLog) / iterationsPerLog
-
-            logAfter = Math.floor(log_interval / timeIteration) + countIterations
-            if (logAfter === Infinity) logAfter = countIterations + 100_000
-
-            await waitShowLog()
-
-            if (postMessages(worker, 'found', {
-                calcIterations,
-                countIterations,
-                currentNo: currentNoValue,
-                endTime,
-                notFoundLimit,
-                iterationsPerLog,
-                messages,
-                notFound,
-                startTimeLog,
-            })) {
-                messages = []
-            }
-
-            iterationsPerLog = countIterations
-            startTimeLog = Date.now()
-        }
-
-        currentNo.addOneToSorted()
+        if (notFound >= notFoundLimit || currentNo.length >= goalLength) break
     }
 
-    endTime = Date.now()
-    await waitShowLog()
-
-    currentNo.subtractOne()
-
-    postMessages(worker, 'found', {
-        calcIterations,
-        countIterations,
-        currentNo: currentNo.value,
-        endTime,
-        notFoundLimit,
-        iterationsPerLog,
-        length: currentNo.length,
-        messages,
-        notFound,
-        startTimeLog,
-    })
-
+    await checkpoint()
     await waitShowLog()
 }
