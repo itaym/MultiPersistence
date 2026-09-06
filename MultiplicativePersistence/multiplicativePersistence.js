@@ -1,6 +1,21 @@
 import { digitsValue } from '../Digits/index.js'
 
 const arrayWithZero = [0n]
+
+/**
+ * Digit values of a base-`base` string, or `[0n]` if it contains a zero digit.
+ *
+ * @param {string} str
+ * @returns {BigInt[]}
+ */
+function strToDigits(str) {
+    if (str.includes('0')) return arrayWithZero
+
+    const result = []
+    for (let x = 0; x < str.length; x++) result[x] = digitsValue[str[x]]
+    return result
+}
+
 /**
  * Converts a BigInt into an array of digit values in the given base.
  *
@@ -17,17 +32,7 @@ const arrayWithZero = [0n]
  *     Array of digit values or `[0n]` if zero is present.
  */
 function BIStrArr(currentNo, base) {
-    let currentNoStr = currentNo.toString(base)
-    if (currentNoStr.includes('0')) return arrayWithZero
-
-    const strArray = currentNoStr.split('')
-    const result = []
-
-    for (var x = 0; x < strArray.length; x++) {
-        result[x] = digitsValue[strArray[x]]
-    }
-
-    return result
+    return strToDigits(currentNo.toString(base))
 }
 
 /**
@@ -105,6 +110,7 @@ export const multiPer = function (currentNo, base) {
         return {
             additionSum: currentNo.firstCell.digit,
             multiplySum: currentNo.firstCell.digit,
+            productLength: 1,
             steps: 0,
         }
     }
@@ -115,7 +121,9 @@ export const multiPer = function (currentNo, base) {
 /**
  * Computes multiplicative persistence for a HugeInt without base‑case checks.
  *
- * Uses reduceHI and recursively reduces the resulting BigInt.
+ * Runs step 1 here ({@link reduceHI}) so the string form of the step-1 product
+ * — built anyway to continue the reduction — can be measured for `productLength`
+ * without a second `toString`. Steps 2+ recurse through {@link multiPer2}.
  *
  * @param {HugeInt} currentNo
  *     HugeInt to reduce.
@@ -128,7 +136,16 @@ export const multiPer = function (currentNo, base) {
  */
 export const multiPerNBC = function (currentNo, base) {
     const reduceResult = reduceHI(currentNo)
-    reduceResult.steps += multiPer2(reduceResult.multiplySum, base)
+    const product = reduceResult.multiplySum
+
+    if (product < base) {
+        reduceResult.productLength = 1
+        return reduceResult
+    }
+
+    const str = product.toString(base)
+    reduceResult.productLength = str.length
+    reduceResult.steps += 1 + multiPer2(reduce(strToDigits(str)), base)
     return reduceResult
 }
 

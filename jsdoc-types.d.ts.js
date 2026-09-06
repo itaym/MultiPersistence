@@ -22,6 +22,7 @@
  * @typedef {Object} ReduceResults
  * @property {BigInt} additionSum - Sum of all digits (digit * count) in the HugeInt.
  * @property {BigInt} multiplySum - Product of all digits (digit ** count) in the HugeInt.
+ * @property {number} productLength - Digit count of the step-1 product (`multiplySum`) in the current base.
  *
  * @property {number} steps - Number of multiplicative steps performed so far.
  */

@@ -106,6 +106,38 @@ const computeRateStats = ({
 }
 
 /**
+ * @typedef {Object} ProductLengthSummary
+ * @property {number} min - smallest step-1 product length seen
+ * @property {number} max - largest step-1 product length seen
+ * @property {number} peak - the most common step-1 product length
+ */
+
+/**
+ * Reduces a step-1 product-length histogram to its min / max / most-common value.
+ *
+ * @param {Object<string, number>} [hist] - `{ length: count }`
+ * @returns {ProductLengthSummary | null} `null` when the histogram is empty
+ */
+const productLengthSummary = (hist) => {
+    const lens = hist ? Object.keys(hist).map(Number) : []
+    if (lens.length === 0) return null
+
+    let min = lens[0]
+    let max = lens[0]
+    let peak = lens[0]
+    let peakCount = -1
+    for (const len of lens) {
+        if (len < min) min = len
+        if (len > max) max = len
+        if (hist[len] > peakCount) {
+            peakCount = hist[len]
+            peak = len
+        }
+    }
+    return { min, max, peak }
+}
+
+/**
  * Builds the per-step "found" log lines and the running total across all steps.
  *
  * @param {CountStep[]} countSteps - per-step stats
@@ -126,8 +158,10 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
         const countCol = (cs.count.toLocaleString() + '').padStart(18, ' ')
         const combinationsCol = truncate(cs.combinations.toLocaleString(), 2, 44).padStart(45, ' ')
         const iterationCol = truncate(cs.iteration.toLocaleString(), 2, 18).padStart(18, ' ')
-        const elapsedCol = truncate(getTimeString(endTime - cs.atRunTime - startTime), 2, 48)
-        countLog.push(`${stepLabel}${countCol}, ${combinationsCol}, ${iterationCol}. ${elapsedCol}`)
+        const elapsedCol = truncate(getTimeString(endTime - cs.atRunTime - startTime), 2, 48).padEnd(49, ' ')
+        const pLen = productLengthSummary(cs.productLengths)
+        const pLenCol = pLen ? (pLen.min === pLen.max ? `productLength ${pLen.min}` : `productLength ${pLen.min}-${pLen.max} ~${pLen.peak}`) : ''
+        countLog.push(`${stepLabel}${countCol}, ${combinationsCol}, ${iterationCol}. ${elapsedCol}${pLenCol}`)
     }
 
     return { countLog, totalFound }
@@ -141,6 +175,7 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
  * @property {BigInt} combinations - combinations count
  * @property {BigInt} iteration - iteration count
  * @property {Number} atRunTime - timestamp when this step was reached
+ * @property {Object<string, number>} productLengths - histogram of step-1 product digit-lengths
  */
 
 /**

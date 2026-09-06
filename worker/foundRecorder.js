@@ -37,6 +37,17 @@ import factorial from '../utils/factorial.js'
 const snapshot = (additionSum, multiplySum, currentNoValue) => ({ additionSum, multiplySum, currentNoValue })
 
 /**
+ * Bumps a `{ value: count }` histogram.
+ *
+ * @param {Object<string, number>} hist
+ * @param {number} value
+ * @returns {void}
+ */
+const bumpHist = (hist, value) => {
+    hist[value] = (hist[value] || 0) + 1
+}
+
+/**
  * Fresh accumulator for a persistence step, seeded with its first number.
  *
  * @param {number} step
@@ -53,6 +64,7 @@ const createStepBucket = (step, atRunTime, first) => ({
     first,
     iteration: 0,
     last: first,
+    productLengths: {},
     step,
 })
 
@@ -69,6 +81,7 @@ const createLengthStepBucket = (first) => ({
     combinations: 0n,
     first,
     last: first,
+    productLengths: {},
 })
 
 /**
@@ -102,7 +115,7 @@ const createLengthsArray = (currentNo) => {
 export const createFoundRecorder = (computationState) => {
     const { steps: countSteps, number_lengths: numberLengths } = computationState
 
-    return ({ atRunTime, calcIterations, steps, additionSum, multiplySum }, currentNo, length, startTime, endTime) => {
+    return ({ atRunTime, calcIterations, steps, additionSum, multiplySum, productLength }, currentNo, length, startTime, endTime) => {
         const currentNoValue = currentNo.value
         const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(createLengthsArray(currentNo))
 
@@ -116,6 +129,7 @@ export const createFoundRecorder = (computationState) => {
         step.last = snapshot(additionSum, multiplySum, currentNoValue)
         step.atRunTime = atRunTime
         step.iteration = calcIterations
+        bumpHist(step.productLengths ??= {}, productLength) // ??= for buckets loaded from an older results file
 
         // ---- same totals, sliced by number length ----
         const lengthStats = (numberLengths[length] ??= {
@@ -130,6 +144,7 @@ export const createFoundRecorder = (computationState) => {
         lengthStep.last = snapshot(additionSum, multiplySum, currentNoValue)
         lengthStep.count++
         lengthStep.combinations += combinations
+        bumpHist(lengthStep.productLengths ??= {}, productLength)
         lengthStats.found++
     }
 }

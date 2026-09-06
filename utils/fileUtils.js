@@ -21,9 +21,12 @@ import fs from 'fs'
  * @param {ObjectEncodingOptions} [encoding={ encoding: 'utf8' }]
  *     File encoding.
  *
+ * @param {(json: string) => string} [transform]
+ *     Optional final pass over the serialized string before it is written.
+ *
  * @returns {Promise<void>}
  */
-export const writeJsonFile = async (filename, value, replacer, space, encoding = { encoding: 'utf8' }) => {
+export const writeJsonFile = async (filename, value, replacer, space, encoding = { encoding: 'utf8' }, transform) => {
     const { normalizedEnv } = process
     if (normalizedEnv.debug === true) return
 
@@ -31,7 +34,8 @@ export const writeJsonFile = async (filename, value, replacer, space, encoding =
         await fsPromises.rename(filename, `${filename}.bak`)
     } catch {}
     finally {
-        const json = JSON.stringify(value, replacer, space)
+        let json = JSON.stringify(value, replacer, space)
+        if (transform) json = transform(json)
         await fsPromises.writeFile(filename, json, encoding)
     }
 }

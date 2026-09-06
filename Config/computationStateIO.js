@@ -43,6 +43,10 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  * @property {BigInt} last
  *     Last number found at this step.
  *
+ * @property {Object<string, number>} productLengths
+ *     In memory: histogram of step-1 product digit-lengths, `{ length: count }`.
+ *     On disk: a sorted `[{ length, count }]` row array (see the replacer/reviver).
+ *
  * @property {number} [step]
  *     Persistence step index.
  */
@@ -90,13 +94,21 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
 /**
  * JSON reviver used when loading saved state.
  *
- * Converts specific fields into BigInt values.
+ * Converts specific fields into BigInt values, and turns each `productLengths`
+ * row array (`[{ length, count }]`, how it is stored) back into the
+ * `{ length: count }` map the recorder increments.
  *
  * @param {string} key
  * @param {*} value
  * @returns {BigInt|*}
  */
 const reviver = (key, value) => {
+    if (key === 'productLengths' && Array.isArray(value)) {
+        const map = {}
+        for (const row of value) map[row.length] = row.count
+        return map
+    }
+
     switch (key) {
         case 'additionSum':
         case 'base':
@@ -157,6 +169,12 @@ export const getComputationState = async () => {
  * @returns {string|*}
  */
 const replacer = (key, value) => {
+    if (key === 'productLengths' && value && !Array.isArray(value)) {
+        return Object.entries(value)
+            .map(([length, count]) => ({ length: Number(length), count }))
+            .sort((a, b) => a.length - b.length)
+    }
+
     const name = value?.constructor?.name
     if (name === 'BigInt') {
         return value.toString()
@@ -166,6 +184,16 @@ const replacer = (key, value) => {
     }
     return value
 }
+
+/**
+ * Puts each `productLengths` row (`{ length, count }`) back on a single line —
+ * the tab-indented printer otherwise spreads every row across four lines.
+ *
+ * @param {string} json
+ * @returns {string}
+ */
+const collapseHistograms = (json) =>
+    json.replace(/\{\s*"length":\s*(\d+),\s*"count":\s*(\d+)\s*}/g, '{ "length": $1, "count": $2 }')
 
 /**
  * Save computation state variables to disk.
@@ -192,7 +220,7 @@ export const setComputationState = async (computationState, base) => {
     const fileName = `./results/${base.toString().padStart(5, '0')}_${vars_file}`
 
     try {
-        await writeJsonFile(fileName, computationState, replacer, '\t')
+        await writeJsonFile(fileName, computationState, replacer, '\t', undefined, collapseHistograms)
     }
     catch {}
 }
