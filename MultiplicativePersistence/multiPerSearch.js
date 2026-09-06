@@ -1,7 +1,6 @@
-import HugeInt from '../HugeInt/index.js'
+import HugeIntEx from '../HugeInt/HugeIntEx.js'
 import ToPrimitive from '../ToPrimitive/index.js'
 import baseAccommodate from './BaseAccommodate/index.js'
-import onModuloBase from './onNotModuloBase.js'
 import postMessages from '../utils/postMessage.js'
 import prepareMessage from '../utils/prepareMessage.js'
 import waitShowLog from '../utils/waitShowLog.js'
@@ -52,7 +51,7 @@ export const multiPerSearch = async (
     let calcIterations = iterations.calculated
     let countIterations = iterations.count
 
-    let currentNo = new HugeInt(last_number, base, () => ({
+    let currentNo = new HugeIntEx(last_number, base, () => ({
         additionSum: 0n,
         changed: true,
         count: 1n,
@@ -89,13 +88,6 @@ export const multiPerSearch = async (
     const prepareBindMessage = prepareMessage.bind(currentNo)
 
     /**
-     * Bound modulo‑based pruning function.
-     *
-     * @type {Function}
-     */
-    const on_ModuloBase = onModuloBase.bind(currentNo)
-
-    /**
      * Optional permutation generator for base‑accommodation rules.
      *
      * @type {ToPrimitive|BigInt}
@@ -116,8 +108,6 @@ export const multiPerSearch = async (
     currentNo.addOneToSorted()
 
     while (notToBreak) {
-
-        on_ModuloBase()
 
         calcIterations += createPermutations
         countIterations++

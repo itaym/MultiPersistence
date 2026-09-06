@@ -17,24 +17,25 @@ import {
  * A single digit-cell in the HugeInt linked list.
  *
  * @typedef {Object} DigitCell
- * @property {boolean} changed
- *     Indicates whether the cell was modified since the last persistence calculation.
- *
- * @property {BigInt} count
- *     Number of consecutive occurrences of this digit.
- *
- * @property {BigInt} digit
- *     The digit value (0 ≤ digit < base).
- *
- * @property {DigitCell|null} next
- *     Pointer to the next cell (more significant digit).
- *
- * @property {DigitCell|null} prev
- *     Pointer to the previous cell (less significant digit).
- *
- * @property {BigInt} result
- *     Cached result used by multiplicative persistence algorithms.
+ * @property {boolean} changed - Whether the cell was touched since the last persistence pass (used by the search via HugeIntEx).
+ * @property {BigInt} count - Number of consecutive occurrences of this digit.
+ * @property {BigInt} digit - The digit value (0 ≤ digit < base).
+ * @property {DigitCell|null} next - Next cell (more significant digit).
+ * @property {DigitCell|null} prev - Previous cell (less significant digit).
  */
+
+/**
+ * Default {@link DigitCell} factory: a fresh, unlinked cell holding digit 0.
+ *
+ * @type {() => DigitCell}
+ */
+export const defaultDigitCellFactory = () => ({
+    changed: true,
+    count: 1n,
+    digit: 0n,
+    next: null,
+    prev: null,
+})
 
 /**
  * Represents a large integer using a compressed linked-list structure of digit cells.
@@ -74,16 +75,7 @@ export class HugeInt {
 
         this.#base = base
         this.#baseMinusOne = this.#base - 1n
-        this.#digitCellFactory = digitCellFactory || (() => (
-                /** @type {DigitCell} */
-                {
-                    changed: true,
-                    count: 1n,
-                    digit: 0n,
-                    next: null,
-                    prev: null,
-                })
-        )
+        this.#digitCellFactory = digitCellFactory || defaultDigitCellFactory
 
         if (!testDigitCellFactory(this.#digitCellFactory)) {
             throw new Error('digitCellFactory function must return a valid DigitCell object')
@@ -549,7 +541,8 @@ export class HugeInt {
      * The specified cell (or the least-significant cell by default) is incremented,
      * splitting the cell if it has a count greater than 1, handling rollover when the
      * digit reaches `base - 1`, and propagating carry to more significant cells as
-     * needed. A new cell is appended if rollover occurs at the most significant cell.
+     * needed. A new leading cell (digit 1) is appended when the most-significant
+     * digit rolls over.
      *
      * @method addOne
      * @param {DigitCell|null} [cell=this.firstCell]
@@ -584,56 +577,11 @@ export class HugeInt {
         }
         if (cell === this.lastCell) {
             cellToAdd = this.#digitCellFactory()
-            cellToAdd.digit = 2n //1n
+            cellToAdd.digit = 1n
             this.addCellAfter(cell, cellToAdd)
             return
         }
         this.addOne(cell.next)
-    }
-
-    /**
-     * Increments the HugeInt by 1, assuming digit-cells are sorted in ascending order.
-     *
-     * The specified cell (or the least-significant cell by default) is incremented.
-     * If the digit is below `base - 1`, it is increased directly, splitting the cell
-     * when needed. If the digit equals `base - 1`, it is set to 0 and carry is
-     * propagated to the next cell. If no next cell exists, a new cell with digit `2n`
-     * is appended.
-     *
-     * @method addOneToSorted
-     * @param {DigitCell} [cell=this.firstCell]
-     *     The cell to increment.
-     *
-     * @returns {void}
-     */
-    addOneToSorted(cell = this.firstCell) {
-        let cellToAdd
-        cell.changed = true
-
-        if (cell.digit !== this.#baseMinusOne) {
-            if (cell.count === 1n) {
-                cell.digit++
-                return
-            }
-            cellToAdd = this.#digitCellFactory()
-            cellToAdd.count = cell.count -1n
-            cellToAdd.digit = cell.digit
-
-            this.addCellAfter(cell, cellToAdd)
-            cell.count = 1n
-            cell.digit++
-            return
-        }
-
-        cell.digit = 0n
-
-        if (!cell.next) {
-            cellToAdd = this.#digitCellFactory()
-            cellToAdd.digit = 2n
-            this.addCellAfter(cell, cellToAdd)
-            return
-        }
-        this.addOneToSorted(cell.next)
     }
 
     /**
@@ -863,28 +811,6 @@ export class HugeInt {
         }
 
         return total
-    }
-
-    /**
-     * `factorCountOf(2n, …)` — kept for the base-12/24 accommodate code.
-     *
-     * @method countTwoComponents
-     * @param {DigitCell|null} [cell=this.firstCell] - Starting cell for the scan.
-     * @returns {BigInt} - Exponent of 2 in the digit product.
-     */
-    countTwoComponents(cell) {
-        cell ??= this.firstCell
-        return this.factorCountOf(2n, cell)
-    }
-
-    /**
-     * `countTwoComponents` starting past the least-significant run.
-     *
-     * @method countTwoComponentsNoFirstCell
-     * @returns {BigInt} - Exponent of 2 in the digit product, excluding the first cell.
-     */
-    countTwoComponentsNoFirstCell() {
-        return this.countTwoComponents(this.firstCell.next)
     }
 
     /**

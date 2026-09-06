@@ -229,43 +229,25 @@ test('splitCellAfter / splitCellBefore keep the value, split the run', () => {
 })
 
 // ---------------------------------------------------------------------------
-// addOne / addOneToSorted / subtractOne
+// addOne / subtractOne  (addOneToSorted lives in HugeIntEx.test.js)
 // ---------------------------------------------------------------------------
 
-test('addOne == +1 unless the most-significant digit rolls over', () => {
+test('addOne == +1', () => {
     for (const base of [2n, 10n, 16n]) {
         for (let i = 0; i < 400; i++) {
             const value = randBig(40, base)
             const n = hi(value, base)
-            const rollsOver = value + 1n === base ** n.length
-            n.addOne()
-            if (rollsOver) {
-                // QUIRK: a fresh most-significant cell gets digit 2n, not 1n
-                assert.equal(n.value, 2n * (value + 1n), `base ${base}: ${value}`)
-            } else {
-                assert.equal(n.value, value + 1n, `base ${base}: ${value}`)
-            }
+            assert.equal((/** @type any */ n.addOne()), undefined) // returns void
+            assert.equal(n.value, value + 1n, `base ${base}: ${value}`)
         }
     }
 })
 
-test('QUIRK: addOne on all-(base-1) digits leads with 2', () => {
+test('addOne rolls a full carry into a new leading 1', () => {
     const n = hi(999n, 10n)
-    assert.equal(/** @type any */n.addOne(), undefined) // returns void
-    assert.equal(n.value, 2000n)
-    assert.equal(n.toString(), '2000')
-})
-
-test('addOneToSorted == +1 unless the top rolls over', () => {
-    for (const base of [2n, 10n, 16n]) {
-        for (let i = 0; i < 400; i++) {
-            const value = randBig(40, base)
-            const n = hi(value, base)
-            const rollsOver = value + 1n === base ** n.length
-            n.addOneToSorted()
-            assert.equal(n.value, rollsOver ? 2n * (value + 1n) : value + 1n, `base ${base}: ${value}`)
-        }
-    }
+    n.addOne()
+    assert.equal(n.value, 1000n)
+    assert.equal(n.toString(), '1000')
 })
 
 test('subtractOne == -1, clamped at zero', () => {
@@ -357,14 +339,6 @@ test('factorCountOf — cell arg scans from there', () => {
 
 test('factorCountOf — a 0 digit contributes nothing', () => {
     assert.equal(fs('204').factorCountOf(2n), 1n + 2n) // the 0 adds 0
-})
-
-test('countTwoComponents / …NoFirstCell delegate to factorCountOf(2n, …)', () => {
-    assert.equal(fs('248').countTwoComponents(), 6n)
-    assert.equal(fs('842').countTwoComponentsNoFirstCell(), 5n)
-    // QUIRK: on a lone cell, firstCell.next is null and countTwoComponents
-    // falls back to firstCell — so nothing is excluded.
-    assert.equal(hi(4n, 10n).countTwoComponentsNoFirstCell(), 2n)
 })
 
 // ---------------------------------------------------------------------------

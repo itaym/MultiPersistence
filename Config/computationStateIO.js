@@ -161,7 +161,7 @@ const replacer = (key, value) => {
     if (name === 'BigInt') {
         return value.toString()
     }
-    if (name === 'HugeInt') {
+    if (name === 'HugeInt' || name === 'HugeIntEx') {
         return value.value.toString()
     }
     return value

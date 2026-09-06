@@ -1,5 +1,5 @@
 import { emptyFunction } from './utils.js'
-import HugeInt from '../../HugeInt/index.js'
+import HugeIntEx from '../../HugeInt/HugeIntEx.js'
 
 import { base00006 } from './base00006.js'
 import { base00008 } from './base00008.js'
@@ -21,12 +21,12 @@ import { base00016 } from './base00016.js'
  */
 const functionToExport = () => {
     /**
-     * Adds `cTCNFC` to HugeInt as an alias for
+     * Adds `cTCNFC` to HugeIntEx as an alias for
      * `countTwoComponentsNoFirstCell`.
      *
      * @type {Function}
      */
-    HugeInt.prototype.cTCNFC = HugeInt.prototype.countTwoComponentsNoFirstCell
+    HugeIntEx.prototype.cTCNFC = HugeIntEx.prototype.countTwoComponentsNoFirstCell
 
     let fn
 
