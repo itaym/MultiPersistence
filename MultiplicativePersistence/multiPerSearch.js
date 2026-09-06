@@ -1,4 +1,4 @@
-import HugeIntEx from '../HugeInt/HugeIntEx.js'
+import HugeIntEx from '../HugeIntEx/index.js'
 import ToPrimitive from '../ToPrimitive/index.js'
 import baseAccommodate from './BaseAccommodate/index.js'
 import postMessages from '../utils/postMessage.js'

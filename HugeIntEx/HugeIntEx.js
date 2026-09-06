@@ -18,10 +18,10 @@
  * @module HugeInt/HugeIntEx
  */
 
-import { HugeInt, defaultDigitCellFactory } from './HugeInt.js'
+import { HugeInt, defaultDigitCellFactory } from '../HugeInt/HugeInt.js'
 
 /**
- * @typedef {import('./HugeInt.js').DigitCell} DigitCell
+ * @typedef {import('../HugeInt/HugeInt.js').DigitCell} DigitCell
  */
 
 export class HugeIntEx extends HugeInt {
