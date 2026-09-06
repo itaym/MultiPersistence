@@ -6,17 +6,21 @@
 		"found_nothing": 984,
 		"found_nothing_break_at": 1000000000
 	},
-	"last_number": "881380546320537757926970173168096243976948021834765445109946912151219064897803266360518875900405374642606518464581721570633969721400412607910228483505302449351746816798880535918676516152643227516260266745059078694085965210415396292041044115369391116327004118750320229603698036264692597211643578836610757480553512375852388193485610932205258597945704269389932625072915494781230906625797011176679293725406040284059780959242735209566923765831443888007076244088115401845935236813333",
+	"last_number": "440690273160268878963485086584048121988474010917382722554973456075609532448901633180259437950202687321303259232290860785316984860700206303955114241752651224675873408399440267959338258076321613758130133372529539347042982605207698146020522057684695558163502059375160114801849018132346298605821789418305378740276756187926194096742805466102629298972852134694966312536457747390615453312898505588339646862703020142029890479621367604783461882915721944003538122044057700922967618406666",
 	"number_lengths": {
 		"1": {
 			"found": 2,
-			"time": 226,
+			"time": 227,
 			"steps": {
 				"0": {
 					"additionSum": "3",
 					"multiplySum": "3",
 					"count": 2,
 					"combinations": "2",
+					"digitSets": [
+						{ "digits": [1], "count": 1 },
+						{ "digits": [2], "count": 1 }
+					],
 					"first": {
 						"additionSum": "1",
 						"multiplySum": "1",
@@ -26,19 +30,25 @@
 						"additionSum": "2",
 						"multiplySum": "2",
 						"currentNoValue": "2"
-					}
+					},
+					"productLengths": [
+						{ "productLength": 1, "count": 2 }
+					]
 				}
 			}
 		},
 		"3": {
 			"found": 1,
-			"time": 226,
+			"time": 227,
 			"steps": {
 				"3": {
 					"additionSum": "6",
 					"multiplySum": "8",
 					"count": 1,
 					"combinations": "1",
+					"digitSets": [
+						{ "digits": [2], "count": 1 }
+					],
 					"first": {
 						"additionSum": "6",
 						"multiplySum": "8",
@@ -48,19 +58,25 @@
 						"additionSum": "6",
 						"multiplySum": "8",
 						"currentNoValue": "26"
-					}
+					},
+					"productLengths": [
+						{ "productLength": 2, "count": 1 }
+					]
 				}
 			}
 		},
 		"15": {
 			"found": 1,
-			"time": 226,
+			"time": 227,
 			"steps": {
 				"3": {
 					"additionSum": "30",
 					"multiplySum": "32768",
 					"count": 1,
 					"combinations": "1",
+					"digitSets": [
+						{ "digits": [2], "count": 1 }
+					],
 					"first": {
 						"additionSum": "30",
 						"multiplySum": "32768",
@@ -70,19 +86,26 @@
 						"additionSum": "30",
 						"multiplySum": "32768",
 						"currentNoValue": "14348906"
-					}
+					},
+					"productLengths": [
+						{ "productLength": 10, "count": 1 }
+					]
 				}
 			}
 		}
 	},
-	"up_time": 226,
+	"up_time": 227,
 	"steps": [
 		{
 			"additionSum": "3",
 			"multiplySum": "3",
-			"atRunTime": 222,
+			"atRunTime": 223,
 			"combinations": "2",
 			"count": 2,
+			"digitSets": [
+				{ "digits": [1], "count": 1 },
+				{ "digits": [2], "count": 1 }
+			],
 			"first": {
 				"additionSum": "1",
 				"multiplySum": "1",
@@ -94,6 +117,9 @@
 				"multiplySum": "2",
 				"currentNoValue": "2"
 			},
+			"productLengths": [
+				{ "productLength": 1, "count": 2 }
+			],
 			"step": 0
 		},
 		null,
@@ -101,9 +127,12 @@
 		{
 			"additionSum": "36",
 			"multiplySum": "32776",
-			"atRunTime": 222,
+			"atRunTime": 224,
 			"combinations": "2",
 			"count": 2,
+			"digitSets": [
+				{ "digits": [2], "count": 2 }
+			],
 			"first": {
 				"additionSum": "6",
 				"multiplySum": "8",
@@ -115,6 +144,10 @@
 				"multiplySum": "32768",
 				"currentNoValue": "14348906"
 			},
+			"productLengths": [
+				{ "productLength": 2, "count": 1 },
+				{ "productLength": 10, "count": 1 }
+			],
 			"step": 3
 		}
 	]
