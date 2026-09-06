@@ -149,21 +149,26 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
     const countLog = []
     let totalFound = 0
 
-    for (let index in countSteps) {
+    for (const index in countSteps) {
         const cs = countSteps[index]
         if (!cs?.count) continue
 
         totalFound += cs.count
-        const stepLabel = (index + '').padStart(2, '0').padEnd(5, ' =>')
-        const countCol = (cs.count.toLocaleString() + '').padStart(18, ' ')
-        const combinationsCol = truncate(cs.combinations.toLocaleString(), 2, 44).padStart(45, ' ')
+
+        const stepCol = `${index}`.padStart(2, '0')
+        const countCol = cs.count.toLocaleString().padStart(16, ' ')
         const iterationCol = truncate(cs.iteration.toLocaleString(), 2, 18).padStart(18, ' ')
-        const elapsedCol = truncate(getTimeString(endTime - cs.atRunTime - startTime), 2, 48).padEnd(49, ' ')
+        const elapsedCol = truncate(getTimeString(endTime - cs.atRunTime - startTime), 2, 30).padEnd(31, ' ')
+
         const pLen = productLengthSummary(cs.productLengths)
-        const pLenCol = (pLen ? (pLen.min === pLen.max ? `productLength ${pLen.min}` : `productLength ${pLen.min}-${pLen.max} ~${pLen.peak}`) : '').padEnd(28, ' ')
-        const digitSetCount = cs.digitSets ? Object.keys(cs.digitSets).length : 0
-        const digitSetCol = digitSetCount ? `digitSets ${digitSetCount}` : ''
-        countLog.push(`${stepLabel}${countCol}, ${combinationsCol}, ${iterationCol}. ${elapsedCol}${pLenCol}${digitSetCol}`)
+        const pLenCol = (pLen
+            ? (pLen.min === pLen.max ? `productLength ${pLen.min}` : `productLength ${pLen.min}-${pLen.max} ~${pLen.peak}`)
+            : ''
+        ).padEnd(26, ' ')
+
+        const digitSetCol = cs.digitSets ? `digitSets ${Object.keys(cs.digitSets).length}` : ''
+
+        countLog.push(`${stepCol} => ${countCol}  ${iterationCol}  ${elapsedCol}${pLenCol}${digitSetCol}`)
     }
 
     return { countLog, totalFound }
@@ -174,8 +179,7 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
  * @property {HugeInt} first - first number found at this step
  * @property {Number} step - step index
  * @property {Number} count - numbers found at this step
- * @property {BigInt} combinations - combinations count
- * @property {BigInt} iteration - iteration count
+ * @property {BigInt} iteration - iteration count when first reached
  * @property {Number} atRunTime - timestamp when this step was reached
  * @property {Object<string, number>} productLengths - histogram of step-1 product digit-lengths
  * @property {Object<string, number>} digitSets - histogram of digit sets, `{ "2,5,7": count }`
