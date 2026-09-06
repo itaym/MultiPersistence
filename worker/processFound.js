@@ -1,4 +1,4 @@
-import HugeInt from '../HugeInt/index.js'
+import HugeIntEx from '../HugeIntEx/index.js'
 import { setComputationState } from '../Config/computationStateIO.js'
 
 /**
@@ -21,7 +21,8 @@ import { setComputationState } from '../Config/computationStateIO.js'
 
 /**
  * Replays every stacked batch (plus the one carried on this message) through the
- * context's found-recorder, using a single scratch HugeInt.
+ * context's found-recorder, using a single scratch HugeIntEx (the recorder calls
+ * `getDigits()` on it).
  *
  * @param {WorkerContext} context
  * @param {number} endTime
@@ -29,7 +30,7 @@ import { setComputationState } from '../Config/computationStateIO.js'
  */
 const drainStackedMessages = (context, endTime) => {
     const { base, recordFound, startTime, stackMessages } = context
-    const scratch = new HugeInt(0n, base)
+    const scratch = new HugeIntEx(0n, base)
     let count = 0
 
     for (const batch of stackMessages) {

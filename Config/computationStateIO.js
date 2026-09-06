@@ -47,6 +47,10 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  *     In memory: histogram of step-1 product digit-lengths, `{ length: count }`.
  *     On disk: a sorted `[{ length, count }]` row array (see the replacer/reviver).
  *
+ * @property {Object<string, number>} digitSets
+ *     Histogram of the numbers' digit sets, `{ "2,5,7": count }` in memory,
+ *     `[{ digits, count }]` sorted by count on disk.
+ *
  * @property {number} [step]
  *     Persistence step index.
  */
@@ -94,9 +98,9 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
 /**
  * JSON reviver used when loading saved state.
  *
- * Converts specific fields into BigInt values, and turns each `productLengths`
- * row array (`[{ length, count }]`, how it is stored) back into the
- * `{ length: count }` map the recorder increments.
+ * Converts specific fields into BigInt values, and turns each `productLengths` /
+ * `digitSets` row array (how histograms are stored on disk) back into the
+ * `{ key: count }` map the recorder increments.
  *
  * @param {string} key
  * @param {*} value
@@ -106,6 +110,11 @@ const reviver = (key, value) => {
     if (key === 'productLengths' && Array.isArray(value)) {
         const map = {}
         for (const row of value) map[row.length] = row.count
+        return map
+    }
+    if (key === 'digitSets' && Array.isArray(value)) {
+        const map = {}
+        for (const row of value) map[row.digits] = row.count
         return map
     }
 
@@ -174,6 +183,11 @@ const replacer = (key, value) => {
             .map(([length, count]) => ({ length: Number(length), count }))
             .sort((a, b) => a.length - b.length)
     }
+    if (key === 'digitSets' && value && !Array.isArray(value)) {
+        return Object.entries(value)
+            .map(([digits, count]) => ({ digits, count }))
+            .sort((a, b) => b.count - a.count || (a.digits < b.digits ? -1 : 1))
+    }
 
     const name = value?.constructor?.name
     if (name === 'BigInt') {
@@ -186,14 +200,16 @@ const replacer = (key, value) => {
 }
 
 /**
- * Puts each `productLengths` row (`{ length, count }`) back on a single line —
- * the tab-indented printer otherwise spreads every row across four lines.
+ * Puts each histogram row (`{ length, count }` or `{ digits, count }`) back on a
+ * single line — the tab-indented printer otherwise spreads every row across
+ * several lines.
  *
  * @param {string} json
  * @returns {string}
  */
-const collapseHistograms = (json) =>
-    json.replace(/\{\s*"length":\s*(\d+),\s*"count":\s*(\d+)\s*}/g, '{ "length": $1, "count": $2 }')
+const collapseHistograms = (json) => json
+    .replace(/\{\s*"length":\s*(\d+),\s*"count":\s*(\d+)\s*}/g, '{ "length": $1, "count": $2 }')
+    .replace(/\{\s*"digits":\s*("[^"]*"),\s*"count":\s*(\d+)\s*}/g, '{ "digits": $1, "count": $2 }')
 
 /**
  * Save computation state variables to disk.

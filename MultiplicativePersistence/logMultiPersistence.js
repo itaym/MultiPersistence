@@ -160,8 +160,10 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
         const iterationCol = truncate(cs.iteration.toLocaleString(), 2, 18).padStart(18, ' ')
         const elapsedCol = truncate(getTimeString(endTime - cs.atRunTime - startTime), 2, 48).padEnd(49, ' ')
         const pLen = productLengthSummary(cs.productLengths)
-        const pLenCol = pLen ? (pLen.min === pLen.max ? `productLength ${pLen.min}` : `productLength ${pLen.min}-${pLen.max} ~${pLen.peak}`) : ''
-        countLog.push(`${stepLabel}${countCol}, ${combinationsCol}, ${iterationCol}. ${elapsedCol}${pLenCol}`)
+        const pLenCol = (pLen ? (pLen.min === pLen.max ? `productLength ${pLen.min}` : `productLength ${pLen.min}-${pLen.max} ~${pLen.peak}`) : '').padEnd(28, ' ')
+        const digitSetCount = cs.digitSets ? Object.keys(cs.digitSets).length : 0
+        const digitSetCol = digitSetCount ? `digitSets ${digitSetCount}` : ''
+        countLog.push(`${stepLabel}${countCol}, ${combinationsCol}, ${iterationCol}. ${elapsedCol}${pLenCol}${digitSetCol}`)
     }
 
     return { countLog, totalFound }
@@ -176,6 +178,7 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
  * @property {BigInt} iteration - iteration count
  * @property {Number} atRunTime - timestamp when this step was reached
  * @property {Object<string, number>} productLengths - histogram of step-1 product digit-lengths
+ * @property {Object<string, number>} digitSets - histogram of digit sets, `{ "2,5,7": count }`
  */
 
 /**

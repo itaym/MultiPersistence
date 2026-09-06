@@ -123,6 +123,21 @@ test('addOneToSorted — rollover merges into one cell', () => {
 })
 
 // ---------------------------------------------------------------------------
+// getDigits
+// ---------------------------------------------------------------------------
+
+test('getDigits — distinct digits, smallest first', () => {
+    assert.deepEqual(fs('25777').getDigits(), [2n, 5n, 7n])   // "25777" -> {2,5,7}
+    assert.deepEqual(fs('2').getDigits(), [2n])
+    assert.deepEqual(ex(0n, 10n).getDigits(), [0n])
+    // step through a few canonical candidates
+    const n = ex(2n, 9n)
+    n.addOneToSorted() // 3
+    n.addOneToSorted() // 4
+    assert.deepEqual(n.getDigits(), [4n])
+})
+
+// ---------------------------------------------------------------------------
 // countTwoComponents
 // ---------------------------------------------------------------------------
 

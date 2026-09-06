@@ -114,6 +114,20 @@ export class HugeIntEx extends HugeInt {
     countTwoComponentsNoFirstCell() {
         return this.countTwoComponents(this.firstCell.next)
     }
+
+    /**
+     * The digits of this number, smallest first — one entry per cell. The search
+     * keeps its numbers sorted with merged groups, so every cell is a distinct
+     * digit and this is the digit *set*.
+     *
+     * @method getDigits
+     * @returns {BigInt[]}
+     */
+    getDigits() {
+        const digits = []
+        for (let cell = this.lastCell; cell; cell = cell.prev) digits.push(cell.digit)
+        return digits
+    }
 }
 
 export default HugeIntEx
