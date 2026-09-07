@@ -1,5 +1,4 @@
 import HugeIntEx from '../HugeIntEx/index.js'
-import ToPrimitive from '../ToPrimitive/index.js'
 import baseAccommodate from './BaseAccommodate/index.js'
 import postMessages from '../utils/postMessage.js'
 import prepareMessage from '../utils/prepareMessage.js'
@@ -70,15 +69,13 @@ export const multiPerSearch = async (
     let messages = []
 
     /**
-     * `calcIterations += createPermutations` runs `baseAccommodate(currentNo)`:
-     * it counts the permutations the pruning skips **and** advances `currentNo`
-     * past those digit ranges. `1n` when the base has no accommodate rules.
+     * Prunes `currentNo` past digit ranges that can't reach persistence > 2 and
+     * returns how many permutations that skipped (`0n` if nothing, or for a base
+     * with no rules). The `1n +` at the call site counts `currentNo` itself.
      *
-     * @type {ToPrimitive | BigInt}
+     * @type {(currentNo: HugeIntEx) => BigInt}
      */
-    const createPermutations = baseAccommodate.supported.includes(base)
-        ? new ToPrimitive(currentNo, baseAccommodate)
-        : 1n
+    const createPermutations = baseAccommodate
 
     /** Records one found number and flushes the batch at 100. */
     const recordFound = () => {
@@ -139,7 +136,7 @@ export const multiPerSearch = async (
     // ---- main loop: every number is multi-digit, so skip the base-case check ----
     while (true) {
         currentNo.addOneToSorted()
-        calcIterations += createPermutations
+        calcIterations += 1n + createPermutations(currentNo)
         countIterations++
 
         reduceResults = multiPerNBC(currentNo, numBase)
