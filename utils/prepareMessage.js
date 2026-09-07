@@ -1,6 +1,6 @@
 /**
- * A single found number, ready to send to the worker. Carries the whole
- * {@link ReduceResults} (`...reduceResults`) plus timing/identity fields.
+ * A single found number, ready to send to the worker. Carries the four
+ * {@link ReduceResults} fields plus timing/identity fields.
  *
  * @typedef {Object} FoundMessage
  * @property {number} atRunTime - Milliseconds elapsed since the search session started.
@@ -34,13 +34,16 @@
  *     and persistence depth.
  */
 const prepareMessage = function (startTime, calcIterations, reduceResults) {
-    const currentNoStr = this.toString()
+    // Copy the four ReduceResults fields by name for performance.
     return {
-        ...reduceResults,
+        additionSum: reduceResults.additionSum,
         atRunTime: Date.now() - startTime,
         calcIterations,
-        currentNoStr: currentNoStr,
+        currentNoStr: this.toString(),
+        multiplySum: reduceResults.multiplySum,
         next: null,
+        productLength: reduceResults.productLength,
+        steps: reduceResults.steps,
     }
 }
 
