@@ -90,9 +90,16 @@ export const multiPerSearch = async (
         notFound = 0
         if (countIterations > notFoundLimit) notFoundLimit = countIterations
         messages.push(message(startTime, calcIterations, reduceResults))
-        if (messages.length >= 100 && postMessages(worker, 'stack', { messages })) {
-            messages = []
+        if (messages.length >= 100) {
+            if (messages.length >= 10_000 && process.env.isWorkerReady !== 'true') {
+                console.log(messages.length)
+                return false
+            }
+            if (postMessages(worker, 'stack', { messages })) {
+                messages = []
+            }
         }
+        return true
     }
 
     // ---- periodic log tick + final save ----
@@ -142,7 +149,11 @@ export const multiPerSearch = async (
         calcIterations += 1n + createPermutations(currentNo)
         countIterations++
         reduceResults = multiPerNBC(currentNo, numBase)
-        if (reduceResults.steps !== 2) recordFound()
+        if (reduceResults.steps !== 2) {
+            if (!recordFound()) {
+                await waitShowLog()
+            }
+        }
         else notFound++
 
         if (++iterationsCheckCount >= check_interval_count) {
@@ -161,5 +172,5 @@ export const multiPerSearch = async (
     }
 
     await checkpoint(Date.now())
-    await waitShowLog()
+    console.log(`\n${process.env.log}`)
 }

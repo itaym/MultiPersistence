@@ -60,7 +60,6 @@ const createStepBucket = (step, atRunTime, first) => ({
     atRunTime,
     combinations: 0n,
     count: 0,
-    digitSets: {},
     first,
     iteration: 0,
     last: first,
@@ -79,7 +78,6 @@ const createLengthStepBucket = (first) => ({
     additionSum: 0n,
     combinations: 0n,
     count: 0,
-    digitSets: {},
     first,
     last: first,
     multiplySum: 0n,
@@ -120,7 +118,6 @@ export const createFoundRecorder = (computationState) => {
     return ({ additionSum, atRunTime, calcIterations, multiplySum, productLength, steps }, currentNo, length, startTime, endTime) => {
         const currentNoValue = currentNo.value
         const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(createLengthsArray(currentNo))
-        const digitSet = currentNo.getDigits().join(',') // sorted distinct digits, e.g. "2,5,7"
 
         // ---- totals for this persistence step ----
         const step = (countSteps[steps] ??= createStepBucket(steps, atRunTime, snapshot(additionSum, multiplySum, currentNoValue)))
@@ -133,7 +130,6 @@ export const createFoundRecorder = (computationState) => {
         step.atRunTime = atRunTime
         step.iteration = calcIterations
         bumpHist(step.productLengths ??= {}, productLength) // ??= for buckets loaded from an older results file
-        bumpHist(step.digitSets ??= {}, digitSet)
 
         // ---- same totals, sliced by number length ----
         const lengthStats = (numberLengths[length] ??= {
@@ -149,7 +145,6 @@ export const createFoundRecorder = (computationState) => {
         lengthStep.count++
         lengthStep.combinations += combinations
         bumpHist(lengthStep.productLengths ??= {}, productLength)
-        bumpHist(lengthStep.digitSets ??= {}, digitSet)
         lengthStats.found++
     }
 }

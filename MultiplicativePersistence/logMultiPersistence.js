@@ -166,9 +166,7 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
             : ''
         ).padEnd(26, ' ')
 
-        const digitSetCol = cs.digitSets ? `digitSets ${Object.keys(cs.digitSets).length}` : ''
-
-        countLog.push(`${stepCol} => ${countCol}  ${iterationCol}  ${elapsedCol}${pLenCol}${digitSetCol}`)
+        countLog.push(`${stepCol} => ${countCol}  ${iterationCol}  ${elapsedCol}${pLenCol}`)
     }
 
     return { countLog, totalFound }
@@ -178,7 +176,6 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
  * @typedef {Object} CountStep
  * @property {Number} atRunTime - timestamp when this step was reached
  * @property {Number} count - numbers found at this step
- * @property {Object<string, number>} digitSets - histogram of digit sets, `{ "2,5,7": count }`
  * @property {HugeInt} first - first number found at this step
  * @property {BigInt} iteration - iteration count when first reached
  * @property {Object<string, number>} productLengths - histogram of step-1 product digit-lengths

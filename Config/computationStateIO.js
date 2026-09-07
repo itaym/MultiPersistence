@@ -34,10 +34,6 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  * @property {number} count
  *     Number of results found at this step.
  *
- * @property {Object<string, number>} digitSets
- *     In memory: histogram of digit sets, `{ "2,5,7": count }`.
- *     On disk: `[{ digits: [2, 5, 7], count }]` sorted by count.
- *
  * @property {BigInt} first
  *     First number found at this step.
  *
@@ -112,11 +108,6 @@ const reviver = (key, value) => {
         for (const row of value) map[row.productLength] = row.count
         return map
     }
-    if (key === 'digitSets' && Array.isArray(value)) {
-        const map = {}
-        for (const row of value) map[row.digits.join(',')] = row.count
-        return map
-    }
 
     switch (key) {
         case 'additionSum':
@@ -183,11 +174,6 @@ const replacer = (key, value) => {
             .map(([productLength, count]) => ({ productLength: Number(productLength), count }))
             .sort((a, b) => a.productLength - b.productLength)
     }
-    if (key === 'digitSets' && value && !Array.isArray(value)) {
-        return Object.entries(value)
-            .map(([digits, count]) => ({ digits: digits.split(',').map(Number), count }))
-            .sort((a, b) => b.count - a.count || (String(a.digits) < String(b.digits) ? -1 : 1))
-    }
 
     const name = value?.constructor?.name
     if (name === 'BigInt') {
@@ -200,19 +186,14 @@ const replacer = (key, value) => {
 }
 
 /**
- * Puts each histogram row (`{ productLength, count }` or `{ digits, count }`)
- * back on a single line — the tab-indented printer otherwise spreads every row,
- * and every digit inside a `digits` array, across its own line.
+ * Puts each `{ productLength, count }` row back on a single line — the
+ * tab-indented printer otherwise spreads every row across three lines.
  *
  * @param {string} json
  * @returns {string}
  */
 const collapseHistograms = (json) => json
     .replace(/\{\s*"productLength":\s*(\d+),\s*"count":\s*(\d+)\s*}/g, '{ "productLength": $1, "count": $2 }')
-    .replace(
-        /\{\s*"digits":\s*\[([^\]]*)],\s*"count":\s*(\d+)\s*}/g,
-        (_, digits, count) => `{ "digits": [${digits.replace(/\s+/g, ' ').trim()}], "count": ${count} }`,
-    )
 
 /**
  * Save computation state variables to disk.

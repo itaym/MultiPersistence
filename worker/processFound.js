@@ -21,8 +21,7 @@ import { setComputationState } from '../Config/computationStateIO.js'
 
 /**
  * Replays every stacked batch (plus the one carried on this message) through the
- * context's found-recorder, using a single scratch HugeIntEx (the recorder calls
- * `getDigits()` on it).
+ * context's found-recorder, on a single scratch HugeIntEx.
  *
  * @param {WorkerContext} context
  * @param {number} endTime
