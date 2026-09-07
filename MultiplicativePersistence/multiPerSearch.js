@@ -85,19 +85,24 @@ export const multiPerSearch = async (
      */
     const createPermutations = baseAccommodate
 
-    /** Records one found number and flushes the batch at 100. */
+    /**
+     * Records one found number: clears the not-found streak, ratchets
+     * `notFoundLimit` up to the current iteration count, and appends the number
+     * to the pending `messages` batch. At 100 the batch is handed to the worker
+     * as a `'stack'` message (and cleared) when the worker is ready.
+     *
+     * @returns {boolean} `false` when the batch has grown past 10,000 and the
+     *   worker still isn't ready — the caller should `await waitShowLog()` to let
+     *   it drain; `true` otherwise.
+     */
     const recordFound = () => {
         notFound = 0
         if (countIterations > notFoundLimit) notFoundLimit = countIterations
         messages.push(message(startTime, calcIterations, reduceResults))
         if (messages.length >= 100) {
-            if (messages.length >= 10_000 && process.env.isWorkerReady !== 'true') {
-                console.log(messages.length)
-                return false
-            }
-            if (postMessages(worker, 'stack', { messages })) {
-                messages = []
-            }
+            if (messages.length >= 10_000 && process.env.isWorkerReady !== 'true') return false
+
+            if (postMessages(worker, 'stack', { messages })) messages = []
         }
         return true
     }
