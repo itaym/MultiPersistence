@@ -78,7 +78,7 @@ const tests = [
 const counters = tests.map(() => 0)
 const getArgs = counters.map((_, x) => () => (counters[x]++ & 0xffff))
 
-testPerformances({ tests, getArgs }, {
+testPerformances({ getArgs, tests }, {
     multiplyBy: K,
     numIterations: 1_000_000_001,
     showAfter: Number(process.env.SHOW_AFTER) || 20_000,

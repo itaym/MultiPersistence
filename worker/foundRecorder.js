@@ -12,8 +12,8 @@ import factorial from '../utils/factorial.js'
  *
  * @typedef {Object} FoundSnapshot
  * @property {BigInt} additionSum    digit-addition sum of the number
- * @property {BigInt} multiplySum    digit-multiplication sum of the number
  * @property {BigInt} currentNoValue the number itself
+ * @property {BigInt} multiplySum    digit-multiplication sum of the number
  */
 
 /**
@@ -34,7 +34,7 @@ import factorial from '../utils/factorial.js'
  * @param {BigInt} currentNoValue
  * @returns {FoundSnapshot}
  */
-const snapshot = (additionSum, multiplySum, currentNoValue) => ({ additionSum, multiplySum, currentNoValue })
+const snapshot = (additionSum, multiplySum, currentNoValue) => ({ additionSum, currentNoValue, multiplySum })
 
 /**
  * Bumps a `{ key: count }` histogram.
@@ -57,7 +57,6 @@ const bumpHist = (hist, key) => {
  */
 const createStepBucket = (step, atRunTime, first) => ({
     additionSum: 0n,
-    multiplySum: 0n,
     atRunTime,
     combinations: 0n,
     count: 0,
@@ -65,6 +64,7 @@ const createStepBucket = (step, atRunTime, first) => ({
     first,
     iteration: 0,
     last: first,
+    multiplySum: 0n,
     productLengths: {},
     step,
 })
@@ -77,12 +77,12 @@ const createStepBucket = (step, atRunTime, first) => ({
  */
 const createLengthStepBucket = (first) => ({
     additionSum: 0n,
-    multiplySum: 0n,
-    count: 0,
     combinations: 0n,
+    count: 0,
     digitSets: {},
     first,
     last: first,
+    multiplySum: 0n,
     productLengths: {},
 })
 
@@ -117,7 +117,7 @@ const createLengthsArray = (currentNo) => {
 export const createFoundRecorder = (computationState) => {
     const { steps: countSteps, number_lengths: numberLengths } = computationState
 
-    return ({ atRunTime, calcIterations, steps, additionSum, multiplySum, productLength }, currentNo, length, startTime, endTime) => {
+    return ({ additionSum, atRunTime, calcIterations, multiplySum, productLength, steps }, currentNo, length, startTime, endTime) => {
         const currentNoValue = currentNo.value
         const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(createLengthsArray(currentNo))
         const digitSet = currentNo.getDigits().join(',') // sorted distinct digits, e.g. "2,5,7"
@@ -138,8 +138,8 @@ export const createFoundRecorder = (computationState) => {
         // ---- same totals, sliced by number length ----
         const lengthStats = (numberLengths[length] ??= {
             found: 0,
-            time: endTime - startTime,
             steps: {},
+            time: endTime - startTime,
         })
         const lengthStep = (lengthStats.steps[steps] ??= createLengthStepBucket(snapshot(additionSum, multiplySum, currentNoValue)))
 

@@ -109,10 +109,10 @@ const memoOnDisk = (fn, name) => {
 
     return (...args) => {
         store ??= createStore({
-            file: path.join(ensureCacheDir(), `${name}.json`),
             codecUrl: CODEC_URL,
-            idleMs: process.normalizedEnv.cache_idle_save_ms,
             debug: process.normalizedEnv.debug === true,
+            file: path.join(ensureCacheDir(), `${name}.json`),
+            idleMs: process.normalizedEnv.cache_idle_save_ms,
         })
 
         const key = args.join()

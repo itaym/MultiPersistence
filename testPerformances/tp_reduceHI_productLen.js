@@ -103,7 +103,7 @@ const getArgs = [
     () => (n1.addOneToSorted(), n1),
 ]
 
-testPerformances({ tests, getArgs }, {
+testPerformances({ getArgs, tests }, {
     multiplyBy,
     numIterations,
     showAfter,

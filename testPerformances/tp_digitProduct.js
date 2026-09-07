@@ -156,12 +156,12 @@ let i1 = 0
 let i2 = 0
 
 testPerformances({
-    tests: [viaCurrentChain, viaChunked, viaDivideConquer],
     getArgs: [
         () => pool[i0++ % L],
         () => pool[i1++ % L],
         () => pool[i2++ % L],
     ],
+    tests: [viaCurrentChain, viaChunked, viaDivideConquer],
 }, {
     multiplyBy: 1,
     numIterations: 1_000_000_001,

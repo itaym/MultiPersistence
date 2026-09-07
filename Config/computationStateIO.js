@@ -34,6 +34,10 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  * @property {number} count
  *     Number of results found at this step.
  *
+ * @property {Object<string, number>} digitSets
+ *     In memory: histogram of digit sets, `{ "2,5,7": count }`.
+ *     On disk: `[{ digits: [2, 5, 7], count }]` sorted by count.
+ *
  * @property {BigInt} first
  *     First number found at this step.
  *
@@ -47,10 +51,6 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  *     In memory: histogram of step-1 product digit-lengths, `{ length: count }`.
  *     On disk: `[{ productLength, count }]` sorted by length (see replacer/reviver).
  *
- * @property {Object<string, number>} digitSets
- *     In memory: histogram of digit sets, `{ "2,5,7": count }`.
- *     On disk: `[{ digits: [2, 5, 7], count }]` sorted by count.
- *
  * @property {number} [step]
  *     Persistence step index.
  */
@@ -62,11 +62,11 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  * @property {number} found
  *     How many results were found for this length.
  *
- * @property {number} time
- *     Total time spent searching this length.
- *
  * @property {TypeStep} steps
  *     Step information for this length.
+ *
+ * @property {number} time
+ *     Total time spent searching this length.
  */
 
 /**
@@ -122,8 +122,8 @@ const reviver = (key, value) => {
         case 'additionSum':
         case 'base':
         case 'calculated':
-        case 'currentNoValue':
         case 'combinations':
+        case 'currentNoValue':
         case 'iteration':
         case 'last_number':
         case 'multiplySum':
@@ -157,8 +157,8 @@ export const getComputationState = async () => {
         },
         last_number: normalizedEnv.last_number,
         number_lengths: {},
-        up_time: 0,
         steps: [],
+        up_time: 0,
     }
 
     try {

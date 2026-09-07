@@ -27,7 +27,7 @@ const getArgs = [
     () => (number2 *= 3n, number2 /= 2n),
 ]
 
-testPerformances({ tests, getArgs }, {
+testPerformances({ getArgs, tests }, {
     multiplyBy,
     numIterations,
     showAfter,

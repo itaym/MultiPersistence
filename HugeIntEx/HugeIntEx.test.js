@@ -41,7 +41,7 @@ test('HugeIntEx is a HugeInt and inherits the base surface', () => {
 
 test('custom digitCellFactory (search-style) flows through addOneToSorted', () => {
     const factory = () => (/** @type any */ ({
-        additionSum: 0n, changed: true, count: 1n, digit: 0n, next: null, prev: null, multiplySum: 0n,
+        additionSum: 0n, changed: true, count: 1n, digit: 0n, multiplySum: 0n, next: null, prev: null,
     }))
     const n = new HugeIntEx(29n, 10n, factory)
     n.addOneToSorted() // 29 -> 33, merged into one [3,2] cell

@@ -25,8 +25,8 @@ const postMessage = (worker, type, data) => {
         process.env.isWorkerReady = 'false'
 
         worker.postMessage({
-            type,
             data,
+            type,
         })
 
         return true

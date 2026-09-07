@@ -14,9 +14,9 @@ import { setComputationState } from '../Config/computationStateIO.js'
  * @property {number} countIterations      real iterations at this tick
  * @property {BigInt} currentNo            current number value
  * @property {number} endTime              timestamp of this tick (ms)
- * @property {number} notFoundLimit        max tolerated consecutive misses
  * @property {FoundMessage[]} messages     the still-unsent batch
  * @property {number} notFound             current consecutive-miss count
+ * @property {number} notFoundLimit        max tolerated consecutive misses
  */
 
 /**
@@ -56,7 +56,7 @@ const drainStackedMessages = (context, endTime) => {
  */
 export const processFound = async (context, found) => {
     const { base, computationState, log, startSessionTime, startTime } = context
-    const { calcIterations, countIterations, currentNo, endTime, notFoundLimit, messages, notFound } = found
+    const { calcIterations, countIterations, currentNo, endTime, messages, notFound, notFoundLimit } = found
 
     context.stackMessages.push(messages)
     const messagesCount = drainStackedMessages(context, endTime)
@@ -76,8 +76,8 @@ export const processFound = async (context, found) => {
     process.env.log = log({
         ...found,
         countSteps: computationState.steps,
-        messagesCount,
         lengths: computationState.number_lengths,
+        messagesCount,
         startSessionTime,
         startTime,
     })

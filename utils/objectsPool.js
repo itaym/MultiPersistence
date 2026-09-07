@@ -102,9 +102,9 @@ const _dropPool = (pool) => {
  *   - `dropPool()` → return the entire pool back to the global pool list
  *
  * @returns {{
- *   getObject: () => object,
  *   dropObject: (obj: object) => void,
- *   dropPool: () => void
+ *   dropPool: () => void,
+ *   getObject: () => object
  * }}
  */
 export const getPool = () => {
@@ -142,8 +142,8 @@ export const getPool = () => {
     }
 
     return {
+        dropObject,
         dropPool: _dropPool.bind(null, pool),
         getObject,
-        dropObject,
     }
 }

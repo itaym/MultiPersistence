@@ -26,9 +26,9 @@ import { getTimeString } from '../utils/getTimeString.js'
 
 /**
  * @typedef {Object} BenchSpec
- * @property {AnyFn[]} tests    functions to benchmark
  * @property {AnyFn[]} getArgs  arg producers, paired by index — `getArgs[i]()`
  *                              feeds `tests[i]` on every iteration
+ * @property {AnyFn[]} tests    functions to benchmark
  */
 
 /**
@@ -117,7 +117,7 @@ const showStats = (tests, args, multiplyBy) => {
  * @returns {Object<string, StatsRow>} the final stats table (see {@link showStats})
  */
 const testPerformances = (
-    { tests, getArgs },
+    { getArgs, tests },
     {
         multiplyBy = 1,
         numIterations = 1_000_000_001,

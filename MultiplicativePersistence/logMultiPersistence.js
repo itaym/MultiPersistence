@@ -61,25 +61,25 @@ const toGB = (bytes) => (bytes / 1024 ** 3).toFixed(2)
  * @param {Object} params
  * @param {BigInt} params.calcIterations - calculated iterations so far
  * @param {Number} params.countIterations - actual iterations counted
+ * @param {Number} params.endTime - current timestamp
+ * @param {BigInt} params.exIterations - expected total iterations
  * @param {Number} params.iterationsPerLog - iterations since last log
  * @param {Number} params.notFound - current not-found count
  * @param {Number} params.notFoundLimit - max allowed not-found count
- * @param {Number} params.endTime - current timestamp
  * @param {Number} params.startTime - current run start timestamp
  * @param {Number} params.startTimeLog - last log timestamp
- * @param {BigInt} params.exIterations - expected total iterations
  * @returns {Object} derived rate/time stats
  */
 const computeRateStats = ({
     calcIterations,
     countIterations,
+    endTime,
+    exIterations,
     iterationsPerLog,
     notFound,
     notFoundLimit,
-    endTime,
     startTime,
     startTimeLog,
-    exIterations,
 }) => {
     const numOfMilliseconds = endTime - startTime
     const numOfMillisecondsLog = endTime - startTimeLog
@@ -95,11 +95,11 @@ const computeRateStats = ({
     timeLeft = BigInt(timeLeft)
 
     return {
-        numOfMilliseconds,
-        iterationsPerSecond,
         countIterationsPerSecond,
+        iterationsPerSecond,
         iterationsPerSecondLog,
         notFoundTimeLeft,
+        numOfMilliseconds,
         percentDone,
         timeLeft,
     }
@@ -107,8 +107,8 @@ const computeRateStats = ({
 
 /**
  * @typedef {Object} ProductLengthSummary
- * @property {number} min - smallest step-1 product length seen
  * @property {number} max - largest step-1 product length seen
+ * @property {number} min - smallest step-1 product length seen
  * @property {number} peak - the most common step-1 product length
  */
 
@@ -134,7 +134,7 @@ const productLengthSummary = (hist) => {
             peak = len
         }
     }
-    return { min, max, peak }
+    return { max, min, peak }
 }
 
 /**
@@ -176,13 +176,13 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
 
 /**
  * @typedef {Object} CountStep
- * @property {HugeInt} first - first number found at this step
- * @property {Number} step - step index
- * @property {Number} count - numbers found at this step
- * @property {BigInt} iteration - iteration count when first reached
  * @property {Number} atRunTime - timestamp when this step was reached
- * @property {Object<string, number>} productLengths - histogram of step-1 product digit-lengths
+ * @property {Number} count - numbers found at this step
  * @property {Object<string, number>} digitSets - histogram of digit sets, `{ "2,5,7": count }`
+ * @property {HugeInt} first - first number found at this step
+ * @property {BigInt} iteration - iteration count when first reached
+ * @property {Object<string, number>} productLengths - histogram of step-1 product digit-lengths
+ * @property {Number} step - step index
  */
 
 /**
@@ -192,11 +192,11 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
  * @property {CountStep[]} countSteps - per-step stats
  * @property {BigInt} currentNo - current number being checked
  * @property {Number} endTime - current timestamp
- * @property {Number} notFoundLimit - max allowed not-found count
  * @property {Number} iterationsPerLog - iterations since last log
  * @property {Object<String, {found: Number}>} lengths - stats keyed by number length
  * @property {Number} messagesCount - total messages sent
  * @property {Number} notFound - current not-found count
+ * @property {Number} notFoundLimit - max allowed not-found count
  * @property {Number} startSessionTime - session start timestamp
  * @property {Number} startTime - current run start timestamp
  * @property {Number} startTimeLog - last log timestamp
@@ -205,11 +205,11 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
 /**
  * Creates a logging function for multiplicative-persistence sessions.
  *
- * @param {HugeInt} goalNumber - the target number
  * @param {BigInt} base - numeric base used for HugeInt operations
+ * @param {HugeInt} goalNumber - the target number
  * @returns {function(LogSessionStats): String} function that formats and returns a log string
  */
-export default function logMultiPersistence({ goalNumber, base }) {
+export default function logMultiPersistence({ base, goalNumber }) {
     const exIterations = countPermutations(BigInt(goalNumber.length), base - 2n)
 
     return function ({
@@ -218,11 +218,11 @@ export default function logMultiPersistence({ goalNumber, base }) {
         countSteps,
         currentNo,
         endTime,
-        notFoundLimit,
         iterationsPerLog,
         lengths,
         messagesCount,
         notFound,
+        notFoundLimit,
         startSessionTime,
         startTime,
         startTimeLog,
@@ -242,8 +242,8 @@ export default function logMultiPersistence({ goalNumber, base }) {
         const mem = process.memoryUsage()
 
         const rates = computeRateStats({
-            calcIterations, countIterations, iterationsPerLog, notFound,
-            notFoundLimit, endTime, startTime, startTimeLog, exIterations,
+            calcIterations, countIterations, endTime, exIterations, iterationsPerLog,
+            notFound, notFoundLimit, startTime, startTimeLog,
         })
         const { countLog, totalFound } = buildCountStepsLog(countSteps, endTime, startTime)
 

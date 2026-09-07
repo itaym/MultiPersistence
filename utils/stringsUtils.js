@@ -19,8 +19,8 @@ export const sanitize = (str) => {
 
 /**
  * @typedef {Object} SegmentBounds
- * @property {number[]} segStarts - start index of each segment in source
  * @property {number[]} segLens - length of each segment
+ * @property {number[]} segStarts - start index of each segment in source
  */
 
 /**
@@ -67,7 +67,7 @@ const computeSegments = memorize((sourceLength, segments, lengthLimit) => {
         }
     }
 
-    return { segStarts, segLens }
+    return { segLens, segStarts }
 }, 'computeSegments')
 
 /**
@@ -139,7 +139,7 @@ const buildSegmentMap = (rank, width, segStart, segLen) => {
 export const truncate = (source, segments, lengthLimit) => {
     if (source.length <= lengthLimit) return source
 
-    const { segStarts, segLens } = computeSegments(source.length, segments, lengthLimit)
+    const { segLens, segStarts } = computeSegments(source.length, segments, lengthLimit)
 
     const resultParts = []
     for (let s = 0; s < segments; s++) {
@@ -152,12 +152,12 @@ export const truncate = (source, segments, lengthLimit) => {
 
 /**
  * @typedef {Object} RulerResult
- * @property {string} source - the original input string
  * @property {string} chars_set - the set of characters counted toward the rank
- * @property {number} segments - number of chunks used
  * @property {number} lengthLimit - the max length constraint applied
  * @property {string} result - the truncated string
  * @property {string} ruler - the ruler map string
+ * @property {number} segments - number of chunks used
+ * @property {string} source - the original input string
  */
 
 /**
@@ -192,7 +192,7 @@ export const truncateWithRuler = (source, charsSet, segments, lengthLimit) => {
         result = source
         ruler = buildSegmentMap(rank, width, 0, source.length)
     } else {
-        const { segStarts, segLens } = computeSegments(source.length, segments, lengthLimit)
+        const { segLens, segStarts } = computeSegments(source.length, segments, lengthLimit)
 
         const resultParts = []
         const mapParts = []
@@ -207,11 +207,11 @@ export const truncateWithRuler = (source, charsSet, segments, lengthLimit) => {
     }
 
     return {
-        source,
         chars_set: charsSet,
-        segments,
         lengthLimit,
         result,
-        ruler
+        ruler,
+        segments,
+        source,
     }
 }
