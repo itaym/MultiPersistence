@@ -141,12 +141,11 @@ export const multiPerSearch = async (
         currentNo.addOneToSorted()
         calcIterations += 1n + createPermutations(currentNo)
         countIterations++
-        iterationsCheckCount++
         reduceResults = multiPerNBC(currentNo, numBase)
         if (reduceResults.steps !== 2) recordFound()
         else notFound++
 
-        if (iterationsCheckCount >= check_interval_count) {
+        if (++iterationsCheckCount >= check_interval_count) {
             const now = Date.now()
             if (now - log_interval > logLastTime) {
                 logLastTime = now
