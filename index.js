@@ -41,7 +41,7 @@ import { getComputationState } from './Config/computationStateIO.js'
 import { initConfig } from './Config/config.js'
 import { initPollyFill } from './utils/pollyfill.js'
 import { multiPerSearch } from './MultiplicativePersistence/index.js'
-import waitShowLog from './utils/waitShowLog.js'
+import waitForWorker from './utils/waitForWorker.js'
 // import Cache from './utils/Cache.js'
 
 initConfig()
@@ -83,7 +83,7 @@ const workerConfig = {
 postMessages( worker, 'init', workerConfig)
 
 while (process.env.isWorkerReady !== 'true') {
-    await waitShowLog(100)
+    await waitForWorker(100)
 }
 
 // noinspection JSCheckFunctionSignatures

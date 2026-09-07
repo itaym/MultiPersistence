@@ -2,7 +2,7 @@ import HugeIntEx from '../HugeIntEx/index.js'
 import baseAccommodate from './BaseAccommodate/index.js'
 import postMessages from '../utils/postMessage.js'
 import prepareMessage from '../utils/prepareMessage.js'
-import waitShowLog from '../utils/waitShowLog.js'
+import waitForWorker from '../utils/waitForWorker.js'
 import { multiPer, multiPerNBC } from './index.js'
 
 /**
@@ -92,8 +92,8 @@ export const multiPerSearch = async (
      * as a `'stack'` message (and cleared) when the worker is ready.
      *
      * @returns {boolean} `false` when the batch has grown past 10,000 and the
-     *   worker still isn't ready — the caller should `await waitShowLog()` to let
-     *   it drain; `true` otherwise.
+     *   worker still isn't ready — the caller should `await waitForWorker()` to
+     *   let it drain; `true` otherwise.
      */
     const recordFound = () => {
         notFound = 0
@@ -156,7 +156,7 @@ export const multiPerSearch = async (
         reduceResults = multiPerNBC(currentNo, numBase)
         if (reduceResults.steps !== 2) {
             if (!recordFound()) {
-                await waitShowLog()
+                await waitForWorker()
             }
         }
         else notFound++
