@@ -7,6 +7,8 @@
  *  - {@link HugeIntEx#countTwoComponents} / {@link HugeIntEx#countTwoComponentsNoFirstCell}
  *    — the "twos in the digit product" vocabulary used by the base-12/24
  *    accommodate rules; thin wrappers over {@link HugeInt#factorCountOf}.
+ *  - a cached {@link HugeIntEx#length} — the search reads it every iteration but
+ *    it only changes on a rollover, so the O(cells) walk is skipped.
  *
  * The search additionally hangs `changed` / `multiplySum` / `additionSum` on each
  * cell through a custom `digitCellFactory` (see `multiPerSearch.js`) and folds
@@ -29,6 +31,9 @@ export class HugeIntEx extends HugeInt {
     /** @type {() => DigitCell} */
     #digitCellFactory
 
+    /** Cached digit count, always valid. @type {BigInt} */
+    #length = 0n
+
     /**
      * @param {BigInt} [initValue=0n]
      * @param {BigInt} [base=10n]
@@ -37,7 +42,24 @@ export class HugeIntEx extends HugeInt {
     constructor(initValue = 0n, base = 10n, digitCellFactory = defaultDigitCellFactory) {
         super(initValue, base, digitCellFactory)
         this.#digitCellFactory = digitCellFactory
+        this.#length = super.length
     }
+
+    /**
+     * Total digit count, cached. {@link addOneToSorted} keeps it exact; every
+     * other cell-count change recomputes it here.
+     *
+     * @returns {BigInt}
+     */
+    get length() {
+        return this.#length
+    }
+
+    /**
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@SEARCH OPERATIONS
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     */
 
     /**
      * Advances to the next multiplicative-persistence search candidate: `+1` on a
@@ -52,7 +74,8 @@ export class HugeIntEx extends HugeInt {
      *   past one cell.
      * - least-significant run maxed, no next cell (all digits `base - 1`): the
      *   run's digit becomes **2** and its count grows by one — every `1…` number
-     *   is skipped (a leading 1 is inert in a digit product).
+     *   is skipped (a leading 1 is inert in a digit product). This is the only
+     *   branch that changes {@link length}.
      *
      * @method addOneToSorted
      * @param {DigitCell} [cell=this.firstCell] - The cell to increment.
@@ -80,6 +103,7 @@ export class HugeIntEx extends HugeInt {
         if (!cell.next) {
             cell.digit = 2n
             cell.count++
+            this.#length += 1n
             return
         }
 
@@ -127,6 +151,65 @@ export class HugeIntEx extends HugeInt {
         const digits = []
         for (let cell = this.lastCell; cell; cell = cell.prev) digits.push(cell.digit)
         return digits
+    }
+
+    /**
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     * @section @@LENGTH-CACHE UPKEEP
+     * Inherited ops that change the digit count — recompute {@link length} after.
+     * None are on the search's hot path.
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     */
+
+    /** @param {HugeInt|bigint|number} other @returns {this} */
+    add(other) {
+        const r = super.add(other)
+        this.#length = super.length
+        return r
+    }
+
+    /** @param {DigitCell|null} [cell] @returns {void} */
+    addOne(cell) {
+        super.addOne(cell)
+        this.#length = super.length
+    }
+
+    /**
+     * @param {string} str
+     * @param {BigInt} base
+     * @returns {this}
+     */
+    fromString(str, base) {
+        super.fromString(str, base)
+        this.#length = super.length
+        return this
+    }
+
+    /** @param {HugeInt|bigint|number} other @param {{maxCells?: bigint}} [options] @returns {this} */
+    multiply(other, options) {
+        const r = super.multiply(other, options)
+        this.#length = super.length
+        return r
+    }
+
+    /** @param {bigint} digit @returns {this} */
+    multiplyByDigit(digit) {
+        const r = super.multiplyByDigit(digit)
+        this.#length = super.length
+        return r
+    }
+
+    /** @param {bigint} k @returns {this} */
+    shiftLeft(k) {
+        const r = super.shiftLeft(k)
+        this.#length = super.length
+        return r
+    }
+
+    /** @param {DigitCell|null} [cell] @returns {void} */
+    subtractOne(cell) {
+        super.subtractOne(cell)
+        this.#length = super.length
     }
 }
 

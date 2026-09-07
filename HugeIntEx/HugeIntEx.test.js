@@ -138,6 +138,40 @@ test('getDigits — distinct digits, smallest first', () => {
 })
 
 // ---------------------------------------------------------------------------
+// length (cached)
+// ---------------------------------------------------------------------------
+
+test('length is cached and stays exact through addOneToSorted / fromString', () => {
+    const n = ex(2n, 9n)
+    assert.equal(n.length, 1n)
+    for (let i = 0; i < 7; i++) n.addOneToSorted()   // 2..8 then 8 -> "22"
+    assert.equal(n.toString(), '22')
+    assert.equal(n.length, 2n)
+
+    n.fromString('888', 9n)
+    assert.equal(n.length, 3n)
+    n.addOneToSorted()                                // 888 -> 2222
+    assert.equal(n.length, 4n)
+
+    // non-decreasing walk without a rollover keeps the length put
+    n.fromString('23', 10n)
+    assert.equal(n.length, 2n)
+    n.addOneToSorted()                                // 23 -> 24
+    assert.equal(n.length, 2n)
+})
+
+test('length recomputes after an inherited mutator', () => {
+    const m = ex(12n, 10n)
+    assert.equal(m.length, 2n)
+    m.multiply(1000n)                                 // 12000
+    assert.equal(m.length, 5n)
+    m.add(5n)                                         // 12005
+    assert.equal(m.length, 5n)
+    m.subtractOne()                                   // 12004
+    assert.equal(m.length, 5n)
+})
+
+// ---------------------------------------------------------------------------
 // countTwoComponents
 // ---------------------------------------------------------------------------
 
