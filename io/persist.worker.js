@@ -23,14 +23,14 @@ const { port } = workerData
 
 /**
  * @typedef {Object} StoreState
- * @property {Map<string, *>} map
+ * @property {{ serialize: Function, deserialize: Function } | null} codec
+ * @property {boolean} debug
+ * @property {boolean} dirtyWhileWriting
  * @property {string} file
  * @property {number} idleMs
- * @property {boolean} debug
- * @property {{ serialize: Function, deserialize: Function } | null} codec
  * @property {NodeJS.Timeout | null} idleTimer
+ * @property {Map<string, *>} map
  * @property {boolean} writing
- * @property {boolean} dirtyWhileWriting
  */
 
 /** id → per-store state. @type {Map<number, StoreState>} */
@@ -74,7 +74,7 @@ const load = async (id, state) => {
         } catch {}
     }
 
-    port.postMessage({ type: 'loaded', id, text })
+    port.postMessage({ id, text, type: 'loaded' })
 }
 
 /**
@@ -99,7 +99,7 @@ const save = async (id, state) => {
             await fs.rename(state.file, `${state.file}.bak`)
         } catch {}
         await fs.writeFile(state.file, text)
-        port.postMessage({ type: 'saved', id })
+        port.postMessage({ id, type: 'saved' })
     } catch (err) {
         console.error(`io persist worker: save failed for ${state.file}:`, err)
     } finally {
@@ -125,14 +125,14 @@ port.on('message', (msg) => {
             if (stores.has(msg.id)) break
             /** @type {StoreState} */
             const fresh = {
-                map: new Map(),
+                codec: null,
+                debug: msg.debug,
+                dirtyWhileWriting: false,
                 file: msg.file,
                 idleMs: msg.idleMs,
-                debug: msg.debug,
-                codec: null,
                 idleTimer: null,
+                map: new Map(),
                 writing: false,
-                dirtyWhileWriting: false,
             }
             stores.set(msg.id, fresh)
             loadCodec(msg.codecUrl).then((codec) => {
@@ -140,7 +140,7 @@ port.on('message', (msg) => {
                 return load(msg.id, fresh)
             }).catch((err) => {
                 console.error(`io persist worker: codec load failed for ${msg.file}:`, err)
-                port.postMessage({ type: 'loaded', id: msg.id, text: null })
+                port.postMessage({ id: msg.id, text: null, type: 'loaded' })
             })
             break
         }

@@ -17,7 +17,7 @@ for (let i = 2; i < 37; i++) {
     tests.push(test)
 }
 
-testPerformances({ tests, getArgs }, {
+testPerformances({ getArgs, tests }, {
     multiplyBy,
     numIterations,
     showAfter,

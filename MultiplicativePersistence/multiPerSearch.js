@@ -107,11 +107,11 @@ export const multiPerSearch = async (
             countIterations,
             currentNo: currentNo.value, // = last number checked
             endTime,
-            notFoundLimit,
             iterationsPerLog,
             length: currentNo.length,
             messages,
             notFound,
+            notFoundLimit,
             startTimeLog,
         })) {
             messages = []

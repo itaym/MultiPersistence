@@ -34,7 +34,7 @@ const getArgs = [
     () => (number2++),
 ]
 
-testPerformances({ tests, getArgs }, {
+testPerformances({ getArgs, tests }, {
     multiplyBy,
     numIterations,
     showAfter,

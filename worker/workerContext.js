@@ -37,7 +37,7 @@ export const createWorkerContext = (config) => {
     return {
         base,
         computationState,
-        log: logMultiPersistence({ goalNumber, base }),
+        log: logMultiPersistence({ base, goalNumber }),
         recordFound: createFoundRecorder(computationState),
         startSessionTime: config.startSessionTime,
         startTime: config.startTime,

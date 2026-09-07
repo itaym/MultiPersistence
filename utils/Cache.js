@@ -10,10 +10,10 @@ import now from './now.js'
 export default class Cache extends Map {
     /**
      * @typedef {Object} DecayPolicy
-     * @property {number} [maxSize]
-     *   Maximum number of items allowed in the cache. Defaults to `2**24`.
      * @property {number} [expireIn]
      *   Time‑to‑live (TTL) in milliseconds. Each `get()` refreshes the TTL.
+     * @property {number} [maxSize]
+     *   Maximum number of items allowed in the cache. Defaults to `2**24`.
      */
 
     /**
@@ -66,6 +66,35 @@ export default class Cache extends Map {
     }
 
     /**
+     * Retrieves a value from the cache.
+     *
+     * - Returns `undefined` if the key does not exist or is expired.
+     * - Refreshes the TTL on successful access (sliding expiration).
+     * - Increments the access count for LFU eviction.
+     *
+     * @param {*} key
+     *   The key to retrieve.
+     * @returns {*|undefined}
+     *   The stored value, or `undefined` if missing or expired.
+     */
+    get(key) {
+        const time = now + 0
+        const entry = super.get(key)
+
+        if (!entry) return undefined
+
+        if (entry.expire < time) {
+            this.delete(key)
+            return undefined
+        }
+
+        entry.expire = time + this.decayPolicy.expireIn
+        entry.count++
+
+        return entry.item
+    }
+
+    /**
      * Stores a value in the cache.
      *
      * - If the cache is full and the existing entry is expired (or missing),
@@ -97,34 +126,5 @@ export default class Cache extends Map {
         })
 
         return this
-    }
-
-    /**
-     * Retrieves a value from the cache.
-     *
-     * - Returns `undefined` if the key does not exist or is expired.
-     * - Refreshes the TTL on successful access (sliding expiration).
-     * - Increments the access count for LFU eviction.
-     *
-     * @param {*} key
-     *   The key to retrieve.
-     * @returns {*|undefined}
-     *   The stored value, or `undefined` if missing or expired.
-     */
-    get(key) {
-        const time = now + 0
-        const entry = super.get(key)
-
-        if (!entry) return undefined
-
-        if (entry.expire < time) {
-            this.delete(key)
-            return undefined
-        }
-
-        entry.expire = time + this.decayPolicy.expireIn
-        entry.count++
-
-        return entry.item
     }
 }

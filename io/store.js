@@ -19,11 +19,11 @@ const WORKER_URL = new URL('./persist.worker.js', import.meta.url)
 
 /**
  * @typedef {Object} StoreOptions
- * @property {string} file        absolute path of the JSON file to persist to
  * @property {string} codecUrl    module URL exporting `serialize([entries])` and
  *                                `deserialize(text)`; imported on both threads
- * @property {number} [idleMs]    idle time before a dirty store is flushed; default 2000
  * @property {boolean} [debug]    when true, never touch the disk (load still runs)
+ * @property {string} file        absolute path of the JSON file to persist to
+ * @property {number} [idleMs]    idle time before a dirty store is flushed; default 2000
  */
 
 /**
@@ -50,9 +50,9 @@ export class Store {
         Store.#port.unref()
 
         Store.#worker = new Worker(WORKER_URL, {
-            workerData: { port: port2 },
-            transferList: [port2],
             env: SHARE_ENV,
+            transferList: [port2],
+            workerData: { port: port2 },
         })
         Store.#worker.unref()
         Store.#worker.on('error', (err) => {
@@ -90,7 +90,7 @@ export class Store {
     #ready = false
 
     /** @param {StoreOptions} options */
-    constructor({ file, codecUrl, idleMs = 2000, debug = false }) {
+    constructor({ codecUrl, debug = false, file, idleMs = 2000 }) {
         this.#file = file
         this.#debug = debug
 
@@ -105,12 +105,12 @@ export class Store {
         })
 
         Store.#port.postMessage({
-            type: 'open',
-            id: this.#id,
-            file,
             codecUrl,
-            idleMs: Number(idleMs) || 2000,
             debug,
+            file,
+            id: this.#id,
+            idleMs: Number(idleMs) || 2000,
+            type: 'open',
         })
     }
 
@@ -168,7 +168,7 @@ export class Store {
         Store.#drain()
         this.#map.set(key, value)
         this.#dirty = true
-        Store.#port.postMessage({ type: 'set', id: this.#id, key, value })
+        Store.#port.postMessage({ id: this.#id, key, type: 'set', value })
         return this
     }
 
@@ -204,7 +204,7 @@ export class Store {
      * @returns {void}
      */
     close() {
-        Store.#port.postMessage({ type: 'close', id: this.#id })
+        Store.#port.postMessage({ id: this.#id, type: 'close' })
         this.flushSync()
         Store.#routes.delete(this.#id)
     }
