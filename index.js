@@ -62,8 +62,10 @@ const worker = new Worker('./worker/index.js', {
 
 let computationState = await getComputationState()
 
+const check_interval_count = normalizedEnv.check_interval_count
+const checkpoint_interval = normalizedEnv.checkpoint_interval
 const goalNumber = new HugeInt(normalizedEnv.goal_number, normalizedEnv.base)
-const log_interval = normalizedEnv['log_interval']
+const log_interval = normalizedEnv.log_interval
 const startSessionTime = Date.now()
 const startTime = startSessionTime - computationState.up_time
 
@@ -85,6 +87,6 @@ while (process.env.isWorkerReady !== 'true') {
 }
 
 // noinspection JSCheckFunctionSignatures
-await multiPerSearch(computationState, log_interval, startSessionTime, startTime, worker)
+await multiPerSearch(check_interval_count, checkpoint_interval, computationState, log_interval, startSessionTime, startTime, worker)
 await worker.terminate()
 console.log('---------- FINISH ----------')

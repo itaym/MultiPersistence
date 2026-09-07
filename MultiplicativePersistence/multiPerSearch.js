@@ -38,21 +38,25 @@ const cellFactory = () => ({
  * `currentNo.value` — always the last number checked — so a resume picks up on
  * exactly the next one.
  *
+ * @param {number} check_interval_count        iterations between wall-clock checks
+ * @param {number} checkpoint_interval         ms between checkpoint saves
  * @param {ComputationState} computationState  state to continue from
- * @param {number} log_interval                ms between log outputs
+ * @param {number} log_interval                ms between log prints
  * @param {number} startSessionTime            wall-clock start of this session
  * @param {number} startTime                   virtual start (`now - total up_time`)
  * @param {Worker} worker                      receives results and log ticks
  * @returns {Promise<void>}
  */
 export const multiPerSearch = async (
+    check_interval_count,
+    checkpoint_interval,
     computationState,
     log_interval,
     startSessionTime,
     startTime,
     worker,
 ) => {
-    const { base, iterations, last_number, up_time } = computationState
+    const { base, iterations, last_number } = computationState
     const numBase = Number(base)
     const goalLength = process.normalizedEnv.goal_power_of10
 
@@ -67,6 +71,10 @@ export const multiPerSearch = async (
     /** @type {ReduceResults} */
     let reduceResults
     let messages = []
+
+    let iterationsCheckCount = 0
+    let logLastTime = 0
+    let checkpointLastTime = 0
 
     /**
      * Prunes `currentNo` past digit ranges that can't reach persistence > 2 and
@@ -90,18 +98,12 @@ export const multiPerSearch = async (
     // ---- periodic log tick + final save ----
     let iterationsAtLastLog = countIterations
     let startTimeLog = startSessionTime
-    let logAfter = (countIterations + countIterations / up_time * log_interval) || 250_000
 
     /** Sends a `found` tick and re-estimates the next log point. */
-    const checkpoint = async () => {
-        const endTime = Date.now()
+    const checkpoint = async (now) => {
+        const endTime = now
         const iterationsPerLog = countIterations - iterationsAtLastLog
-        const perIteration = (endTime - startTimeLog) / iterationsPerLog
 
-        logAfter = Math.floor(log_interval / perIteration) + countIterations
-        if (!Number.isFinite(logAfter)) logAfter = countIterations + 100_000
-
-        await waitShowLog()
         if (postMessages(worker, 'found', {
             calcIterations,
             countIterations,
@@ -127,6 +129,7 @@ export const multiPerSearch = async (
         currentNo.addOneToSorted()
         calcIterations += 1n
         countIterations++
+        iterationsCheckCount++
         reduceResults = multiPer(currentNo, numBase)
         if (reduceResults.steps !== 2) recordFound()
         else notFound++
@@ -138,16 +141,26 @@ export const multiPerSearch = async (
         currentNo.addOneToSorted()
         calcIterations += 1n + createPermutations(currentNo)
         countIterations++
-
+        iterationsCheckCount++
         reduceResults = multiPerNBC(currentNo, numBase)
         if (reduceResults.steps !== 2) recordFound()
         else notFound++
 
-        if (countIterations > logAfter) await checkpoint()
-
+        if (iterationsCheckCount >= check_interval_count) {
+            const now = Date.now()
+            if (now - log_interval > logLastTime) {
+                logLastTime = now
+                console.log(`\n${process.env.log}`)
+            }
+            if (now - checkpoint_interval > checkpointLastTime) {
+                checkpointLastTime = now
+                await checkpoint(now)
+            }
+            iterationsCheckCount = 0
+        }
         if (notFound >= notFoundLimit || currentNo.length >= goalLength) break
     }
 
-    await checkpoint()
+    await checkpoint(Date.now())
     await waitShowLog()
 }
