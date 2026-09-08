@@ -25,6 +25,9 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  * A single persistence step entry.
  *
  * @typedef {object} TypeStep
+ * @property {Object<string, number>} additionSums
+ *     Histogram of digit-addition sums, `{ additionSum: count }`.
+ *
  * @property {number} [atRunTime]
  *     Milliseconds elapsed when this step was recorded.
  *
@@ -114,7 +117,7 @@ const reviver = (key, value) => {
         case 'base':
         case 'calculated':
         case 'combinations':
-        case 'currentNoValue':
+        case 'numberValue':
         case 'iteration':
         case 'last_number':
         case 'multiplySum':

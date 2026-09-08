@@ -12,7 +12,7 @@ import factorial from '../utils/factorial.js'
  *
  * @typedef {Object} FoundSnapshot
  * @property {BigInt} additionSum    digit-addition sum of the number
- * @property {BigInt} currentNoValue the number itself
+ * @property {BigInt} numberValue the number itself
  * @property {BigInt} multiplySum    digit-multiplication sum of the number
  */
 
@@ -31,10 +31,10 @@ import factorial from '../utils/factorial.js'
 /**
  * @param {BigInt} additionSum
  * @param {BigInt} multiplySum
- * @param {BigInt} currentNoValue
+ * @param {BigInt} numberValue
  * @returns {FoundSnapshot}
  */
-const snapshot = (additionSum, multiplySum, currentNoValue) => ({ additionSum, currentNoValue, multiplySum })
+const snapshot = (additionSum, multiplySum, numberValue) => ({ additionSum, numberValue, multiplySum })
 
 /**
  * Bumps a `{ key: count }` histogram.
@@ -57,6 +57,7 @@ const bumpHist = (hist, key) => {
  */
 const createStepBucket = (step, atRunTime, first) => ({
     additionSum: 0n,
+    additionSums: {},
     atRunTime,
     combinations: 0n,
     count: 0,
@@ -76,6 +77,7 @@ const createStepBucket = (step, atRunTime, first) => ({
  */
 const createLengthStepBucket = (first) => ({
     additionSum: 0n,
+    additionSums: {},
     combinations: 0n,
     count: 0,
     first,
@@ -116,20 +118,21 @@ export const createFoundRecorder = (computationState) => {
     const { steps: countSteps, number_lengths: numberLengths } = computationState
 
     return ({ additionSum, atRunTime, calcIterations, multiplySum, productLength, steps }, currentNo, length, startTime, endTime) => {
-        const currentNoValue = currentNo.value
+        const numberValue = currentNo.value
         const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(createLengthsArray(currentNo))
 
         // ---- totals for this persistence step ----
-        const step = (countSteps[steps] ??= createStepBucket(steps, atRunTime, snapshot(additionSum, multiplySum, currentNoValue)))
+        const step = (countSteps[steps] ??= createStepBucket(steps, atRunTime, snapshot(additionSum, multiplySum, numberValue)))
 
         step.additionSum += additionSum
         step.multiplySum += multiplySum
         step.combinations += combinations
         step.count++
-        step.last = snapshot(additionSum, multiplySum, currentNoValue)
+        step.last = snapshot(additionSum, multiplySum, numberValue)
         step.atRunTime = atRunTime
         step.iteration = calcIterations
-        bumpHist(step.productLengths ??= {}, productLength) // ??= for buckets loaded from an older results file
+        bumpHist(step.additionSums ??= {}, additionSum) // ??= for buckets loaded from an older results file
+        bumpHist(step.productLengths ??= {}, productLength)
 
         // ---- same totals, sliced by number length ----
         const lengthStats = (numberLengths[length] ??= {
@@ -137,13 +140,14 @@ export const createFoundRecorder = (computationState) => {
             steps: {},
             time: endTime - startTime,
         })
-        const lengthStep = (lengthStats.steps[steps] ??= createLengthStepBucket(snapshot(additionSum, multiplySum, currentNoValue)))
+        const lengthStep = (lengthStats.steps[steps] ??= createLengthStepBucket(snapshot(additionSum, multiplySum, numberValue)))
 
         lengthStep.additionSum += additionSum
         lengthStep.multiplySum += multiplySum
-        lengthStep.last = snapshot(additionSum, multiplySum, currentNoValue)
+        lengthStep.last = snapshot(additionSum, multiplySum, numberValue)
         lengthStep.count++
         lengthStep.combinations += combinations
+        bumpHist(lengthStep.additionSums ??= {}, additionSum)
         bumpHist(lengthStep.productLengths ??= {}, productLength)
         lengthStats.found++
     }

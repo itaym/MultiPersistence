@@ -226,7 +226,7 @@ export default function logMultiPersistence({ base, goalNumber }) {
     }) {
         const lastStep = countSteps[countSteps.length - 1]
         const maxSteps = lastStep?.step
-        const lastNumberFound = new HugeInt((lastStep?.first || 0n).currentNoValue, base)
+        const lastNumberFound = new HugeInt((lastStep?.first || 0n).numberValue, base)
         const currentNoHI = new HugeInt(currentNo, base)
 
         const sessionMilliseconds = endTime - startSessionTime
