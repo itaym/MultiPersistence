@@ -177,5 +177,6 @@ export const multiPerSearch = async (
     }
 
     await checkpoint(Date.now())
+    await waitForWorker()
     console.log(`\n${process.env.log}`)
 }
