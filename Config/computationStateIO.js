@@ -52,9 +52,11 @@ import { resolve } from 'path'
  *
  * @typedef {object} ComputationState
  * @property {BigInt} base numeric base used for HugeInt operations
+ * @property {BigInt} goal exclusive upper bound — the first candidate not to check
  * @property {Iterations} iterations iteration statistics
- * @property {BigInt} last_number last number processed before saving
+ * @property {BigInt} last_number last number processed before saving (the moving resume point)
  * @property {NumberLengths} number_lengths statistics grouped by number length
+ * @property {BigInt} range_start inclusive lower bound of this run's range (fixed; `0n` in continuous mode)
  * @property {TypeStep[]} steps persistence step entries
  */
 
@@ -75,6 +77,7 @@ export const getComputationState = async () => {
     /** @type ComputationState */
     const defaultVars = {
         base: normalizedEnv.base,
+        goal: normalizedEnv.goal_number,
         iterations: {
             calculated: 0n,
             count: 0,
@@ -83,22 +86,29 @@ export const getComputationState = async () => {
         },
         last_number: normalizedEnv.last_number,
         number_lengths: {},
+        range_start: 0n,
         steps: [],
         up_time: 0,
     }
 
     if (normalizedEnv.debug) return defaultVars
 
+    const backfill = (state) => {
+        state.goal ??= normalizedEnv.goal_number
+        state.range_start ??= 0n
+        return state
+    }
+
     const stem = resolve(resultsStem(normalizedEnv.base))
 
     try {
-        return (await import(pathToFileURL(`${stem}.js`).href)).default
+        return backfill((await import(pathToFileURL(`${stem}.js`).href)).default)
     } catch {}
 
     try {
         // main file missing or corrupt — import the backup as an inline module
         const src = await fs.readFile(`${stem}.js.bak`, 'utf8')
-        return (await import(`data:text/javascript,${encodeURIComponent(src)}`)).default
+        return backfill((await import(`data:text/javascript,${encodeURIComponent(src)}`)).default)
     } catch {}
 
     return defaultVars

@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node HugeInt/HugeInt.test.js && node HugeInt/multiply.test.js && node HugeIntEx/HugeIntEx.test.js && node MultiplicativePersistence/multiplicativePersistence.test.js"
+    "test": "node HugeInt/HugeInt.test.js && node HugeInt/multiply.test.js && node HugeIntEx/HugeIntEx.test.js && node MultiplicativePersistence/multiplicativePersistence.test.js && node Config/computationStateIO.test.js"
   },
   "author": "Itay Merchav",
   "license": "ISC",
