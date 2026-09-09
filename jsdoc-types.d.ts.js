@@ -14,7 +14,7 @@
  * @property {BigInt} last_number - The evaluated expression that produces the last number (from LAST_NUMBER)
  * @property {number} log_interval - Interval in milliseconds for logging output (from LOG_INTERVAL)
  * @property {string} memorize_cache_dir - Directory memorize() cache files are read from / written to (from MEMORIZE_CACHE_DIR)
- * @property {string} vars_file - Path to the variables file (from VARS_FILE)
+ * @property {string} results_file - Base name of the result files, no extension (from RESULTS_FILE)
  * @typedef {Object} NormalizedEnv
  */
 

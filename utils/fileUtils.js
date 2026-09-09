@@ -41,6 +41,32 @@ export const writeJsonFile = async (filename, value, replacer, space, encoding =
 }
 
 /**
+ * Writes text to a file, renaming any existing file to `.bak` first.
+ *
+ * @param {string} filename
+ *     File path.
+ *
+ * @param {string} text
+ *     Content to write.
+ *
+ * @param {ObjectEncodingOptions} [encoding={ encoding: 'utf8' }]
+ *     File encoding.
+ *
+ * @returns {Promise<void>}
+ */
+export const writeTextFile = async (filename, text, encoding = { encoding: 'utf8' }) => {
+    const { normalizedEnv } = process
+    if (normalizedEnv.debug === true) return
+
+    try {
+        await fsPromises.rename(filename, `${filename}.bak`)
+    } catch {}
+    finally {
+        await fsPromises.writeFile(filename, text, encoding)
+    }
+}
+
+/**
  * Reads and parses a JSON file.
  *
  * Falls back to a `.bak` file if the main file cannot be read.

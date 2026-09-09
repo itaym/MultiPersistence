@@ -3,7 +3,10 @@
 import { promises as fs } from 'fs'
 // eslint-disable-next-line no-unused-vars
 import HugeInt from '../HugeInt/index.js'
-import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
+import { writeTextFile } from '../utils/fileUtils.js'
+import { toJs } from '../io/utils.js'
+import { pathToFileURL } from 'url'
+import { resolve } from 'path'
 /**
  * Iteration statistics stored in the results file.
  *
@@ -47,8 +50,7 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  *     Last number found at this step.
  *
  * @property {Object<string, number>} productLengths
- *     In memory: histogram of step-1 product digit-lengths, `{ length: count }`.
- *     On disk: `[{ productLength, count }]` sorted by length (see replacer/reviver).
+ *     Histogram of step-1 product digit-lengths, `{ length: count }`.
  *
  * @property {number} [step]
  *     Persistence step index.
@@ -94,51 +96,22 @@ import {readJsonFile, writeJsonFile} from '../utils/fileUtils.js'
  *     Array of persistence step entries.
  */
 
-/**
- * JSON reviver used when loading saved state.
- *
- * Converts specific fields into BigInt values, and turns each `productLengths` /
- * `digitSets` row array (how histograms are stored on disk) back into the
- * `{ key: count }` map the recorder increments.
- *
- * @param {string} key
- * @param {*} value
- * @returns {BigInt|*}
- */
-const reviver = (key, value) => {
-    if (key === 'productLengths' && Array.isArray(value)) {
-        const map = {}
-        for (const row of value) map[row.productLength] = row.count
-        return map
-    }
-
-    switch (key) {
-        case 'additionSum':
-        case 'base':
-        case 'calculated':
-        case 'combinations':
-        case 'numberValue':
-        case 'iteration':
-        case 'last_number':
-        case 'multiplySum':
-            return BigInt(value)
-    }
-    return value
-}
+/** `./results/<base 5-char>_<results_file>` — the caller appends `.js` / `.js.bak`. */
+const resultsStem = (base) =>
+    `./results/${base.toString().padStart(5, '0')}_${process.normalizedEnv.results_file}`
 
 /**
- * Load computation state variables from the results file.
+ * Load computation state from `<resultsStem>.js` (an ESM module — a BigInt round
+ * trips as a `123n` literal, no reviver needed).
  *
- * If `debug=true`, returns default values without reading from disk.
- * If the main JSON file is missing, attempts to load a `.bak` backup.
+ * Returns default values in debug mode, or when the file can't be imported —
+ * trying the `.js.bak` backup first.
  *
  * @returns {Promise<ComputationState>}
  */
 export const getComputationState = async () => {
 
     const { normalizedEnv } = process
-    const { vars_file } = normalizedEnv
-    const filename = `./results/${normalizedEnv.base.toString().padStart(5, '0')}_${vars_file}`
 
     /** @type ComputationState */
     const defaultVars = {
@@ -155,75 +128,34 @@ export const getComputationState = async () => {
         up_time: 0,
     }
 
+    if (normalizedEnv.debug) return defaultVars
+
+    const stem = resolve(resultsStem(normalizedEnv.base))
+
     try {
-        return await readJsonFile(filename, reviver, defaultVars)
+        return (await import(pathToFileURL(`${stem}.js`).href)).default
+    } catch {}
+
+    try {
+        // main file missing or corrupt — import the backup as an inline module
+        const src = await fs.readFile(`${stem}.js.bak`, 'utf8')
+        return (await import(`data:text/javascript,${encodeURIComponent(src)}`)).default
     } catch {}
 
     return defaultVars
 }
 
 /**
- * JSON replacer used when saving state.
+ * Save computation state to `<resultsStem>.js`, an `export default { ... }`
+ * module. The existing file is renamed to `.js.bak` first.
  *
- * Converts BigInt and HugeInt values into strings so they can be serialized.
- *
- * @param {string} key
- * @param {*} value
- * @returns {string|*}
- */
-const replacer = (key, value) => {
-    if (key === 'productLengths' && value && !Array.isArray(value)) {
-        return Object.entries(value)
-            .map(([productLength, count]) => ({ productLength: Number(productLength), count }))
-            .sort((a, b) => a.productLength - b.productLength)
-    }
-
-    const name = value?.constructor?.name
-    if (name === 'BigInt') {
-        return value.toString()
-    }
-    if (name === 'HugeInt' || name === 'HugeIntEx') {
-        return value.value.toString()
-    }
-    return value
-}
-
-/**
- * Puts each `{ productLength, count }` row back on a single line — the
- * tab-indented printer otherwise spreads every row across three lines.
- *
- * @param {string} json
- * @returns {string}
- */
-const collapseHistograms = (json) => json
-    .replace(/\{\s*"productLength":\s*(\d+),\s*"count":\s*(\d+)\s*}/g, '{ "productLength": $1, "count": $2 }')
-
-/**
- * Save computation state variables to disk.
- *
- * Writes to:
- *   ./results/<base>_<vars_file>
- *
- * Before writing, attempts to rename the existing file to `.bak`.
- *
- * @param {ComputationState} computationState
- *     The initialization variables to save.
- *
- * @param {BigInt} base
- *     The numeric base used to determine the filename.
- *
+ * @param {ComputationState} computationState  the state to save
+ * @param {BigInt} base                        base, picks the filename
  * @returns {Promise<void>}
  */
 export const setComputationState = async (computationState, base) => {
-    const { normalizedEnv } = process
-    const { vars_file } = normalizedEnv
-
-    if (normalizedEnv.debug) return
-
-    const fileName = `./results/${base.toString().padStart(5, '0')}_${vars_file}`
-
     try {
-        await writeJsonFile(fileName, computationState, replacer, '\t', undefined, collapseHistograms)
+        await writeTextFile(`${resultsStem(base)}.js`, `export default ${toJs(computationState)}\n`)
     }
     catch {}
 }
