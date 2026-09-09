@@ -52,7 +52,7 @@ const drainStackedMessages = (context, endTime) => {
  * @returns {Promise<void>}
  */
 export const processFound = async (context, found) => {
-    const { base, computationState, log, startSessionTime, startTime } = context
+    const { base, computationState, goal, log, range_start, startSessionTime, startTime } = context
     const { calcIterations, countIterations, currentNo, endTime, messages, notFound, notFoundLimit } = found
 
     context.stackMessages.push(messages)
@@ -67,6 +67,8 @@ export const processFound = async (context, found) => {
     }
     computationState.last_number = currentNo
     computationState.up_time = endTime - startTime
+    computationState.goal ??= goal
+    computationState.range_start ??= range_start
 
     delete found.messages
 

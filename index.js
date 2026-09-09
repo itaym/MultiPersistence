@@ -11,7 +11,9 @@
  *
  * @typedef {Object} WorkerConfig
  * @property {BigInt} base numeric base used for HugeInt operations
+ * @property {BigInt} goal exclusive upper bound of this run's range
  * @property {BigInt} goalNumber target number for the persistence search
+ * @property {BigInt} range_start inclusive lower bound of this run's range (`0n` in continuous mode)
  * @property {number} startSessionTime timestamp (ms) when this session began
  * @property {number} startTime session start adjusted for prior uptime (ms)
  * @property {import('./Config/computationStateIO.js').ComputationState} VARS the worker's starting computation state
@@ -54,7 +56,9 @@ const startTime = startSessionTime - computationState.up_time
 /** @type {WorkerConfig} */
 const workerConfig = {
     base:  normalizedEnv.base,
+    goal: computationState.goal,
     goalNumber: goalNumber.value,
+    range_start: computationState.range_start,
     startSessionTime,
     startTime,
     VARS: {
