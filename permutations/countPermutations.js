@@ -5,12 +5,11 @@ import memorize from '../utils/memorize.js'
 initConfig()
 
 /**
- * Computes permutations of a given length using digits 1…base.
- * Uses internal caching to avoid re-computation.
+ * Permutations of length `length` over digits 1…base. Internally cached.
  *
- * @param {BigInt} base - Maximum digit value.
- * @param {BigInt} length - Permutation length.
- * @returns {BigInt} - Number of permutations.
+ * @param {BigInt} base max digit value
+ * @param {BigInt} length permutation length
+ * @returns {BigInt}
  */
 const _getPermutations = (() => {
 
@@ -43,12 +42,11 @@ const _getPermutations = (() => {
 })()
 
 /**
- * Computes total permutations for lengths 1…length using digits 1…base.
- * Wraps `_getPermutations` and caches accumulated results.
+ * Total permutations for lengths 1…length over digits 1…base. Cached.
  *
- * @param {BigInt} base - Maximum digit value.
- * @param {BigInt} length - Maximum length to include.
- * @returns {BigInt} - Total permutations.
+ * @param {BigInt} base max digit value
+ * @param {BigInt} length max length to include
+ * @returns {BigInt}
  */
 const getPermutations = (() => {
 
@@ -85,12 +83,11 @@ const getPermutations = (() => {
 })()
 
 /**
- * Counts permutations of a given length using digits 1…base.
- * Returns 0 for non‑positive lengths; otherwise delegates to getPermutations.
+ * Permutations of length `_length` over digits 1…base; `0n` for non-positive lengths.
  *
- * @param {BigInt} _length - Permutation length.
- * @param {BigInt} base - Maximum digit value.
- * @returns {BigInt} - Number of permutations.
+ * @param {BigInt} _length permutation length
+ * @param {BigInt} base max digit value
+ * @returns {BigInt}
  */
 const countPermutations = memorize((_length, base) => {
     if (_length <= 0n) return 0n

@@ -1,14 +1,7 @@
 /**
- * Worker-thread entry point for the multiplicative-persistence search.
- *
- * Boots configuration and hands every incoming message to
- * {@link createMessageHandler}. All real work lives in the sibling modules:
- *  - `workerContext.js` — one-time `init` setup
- *  - `processFound.js`  — the `found` pipeline (drain, tally, log, persist)
- *  - `foundRecorder.js` — folding a found number into the running stats
- *
- * Coordination with the main thread is a single semaphore,
- * `process.env.isWorkerReady`, flipped to `'true'` after each message.
+ * Worker-thread entry point: boots config and routes every message to {@link createMessageHandler}.
+ * Work lives in the siblings: `workerContext.js` (init), `processFound.js` (the `found` pipeline),
+ * `foundRecorder.js` (folding a number into the stats).
  */
 
 import { initConfig } from '../Config/config.js'

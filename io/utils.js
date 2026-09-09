@@ -7,9 +7,7 @@
 const isIdent = (key) => /^[A-Za-z_$][\w$]*$/.test(key)
 
 /**
- * Writes a value as JS source. The results file is a module — `export default
- * {...}` loaded with `import` — so a BigInt survives as a `123n` literal and
- * nothing needs a reviver.
+ * Serializes `value` to JS source — a BigInt becomes a `123n` literal, HugeInt / HugeIntEx its value.
  *
  * @param {*} value
  * @param {string} [indent] leading whitespace for the current depth

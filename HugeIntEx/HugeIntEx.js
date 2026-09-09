@@ -1,21 +1,10 @@
 /**
  * {@link HugeInt} plus the hooks the multiplicative-persistence search relies on:
  *
- *  - {@link HugeIntEx#addOneToSorted} — increment by 1 for a digit list kept in
- *    ascending order, which also starts every new order of magnitude at digit 2
- *    (a leading 1 is inert in a digit product, so the whole `1…` range is skipped).
- *  - {@link HugeIntEx#countTwoComponents} / {@link HugeIntEx#countTwoComponentsNoFirstCell}
- *    — the "twos in the digit product" vocabulary used by the base-12/24
- *    accommodate rules; thin wrappers over {@link HugeInt#factorCountOf}.
- *  - a cached {@link HugeIntEx#length} — the search reads it every iteration but
- *    it only changes on a rollover, so the O(cells) walk is skipped.
- *
- * The search additionally hangs `changed` / `multiplySum` / `additionSum` on each
- * cell through a custom `digitCellFactory` (see `multiPerSearch.js`) and folds
- * them in `reduceHI`; those fields live on the cells, not on this class.
- *
- * `addOneToSorted` needs the cell factory, which is `#private` to {@link HugeInt},
- * so this subclass keeps its own reference.
+ *  - {@link HugeIntEx#addOneToSorted} — `+1` for an ascending-digit number, skipping the `1…` range.
+ *  - {@link HugeIntEx#countTwoComponents} / {@link HugeIntEx#countTwoComponentsNoFirstCell} —
+ *    "twos in the digit product", wrappers over {@link HugeInt#factorCountOf}.
+ *  - a cached {@link HugeIntEx#length}, only recomputed on a rollover.
  *
  * @module HugeInt/HugeIntEx
  */
@@ -46,8 +35,7 @@ export class HugeIntEx extends HugeInt {
     }
 
     /**
-     * Total digit count, cached. {@link addOneToSorted} keeps it exact; every
-     * other cell-count change recomputes it here.
+     * Total digit count, cached — {@link addOneToSorted} keeps it exact, other mutators recompute it.
      *
      * @returns {BigInt}
      */
@@ -62,23 +50,16 @@ export class HugeIntEx extends HugeInt {
      */
 
     /**
-     * Advances to the next multiplicative-persistence search candidate: `+1` on a
-     * number whose digits read left-to-right in non-decreasing order, so the
-     * least-significant cell always holds the largest digit.
+     * Next search candidate: `+1` on an ascending-digit number (LSB cell holds the largest digit).
      *
-     * - digit `< base - 1`: bump it (splitting the run when its count > 1).
-     * - least-significant run maxed, with a next cell: those digits plus one
-     *   carried digit from the next run all become `nextDigit + 1`, merged into
-     *   the least-significant cell. The runs stay merged, so a maxed run only
-     *   ever sits at the least-significant end and the carry never propagates
-     *   past one cell.
-     * - least-significant run maxed, no next cell (all digits `base - 1`): the
-     *   run's digit becomes **2** and its count grows by one — every `1…` number
-     *   is skipped (a leading 1 is inert in a digit product). This is the only
-     *   branch that changes {@link length}.
+     * - digit `< base - 1`: bump it, splitting the run when count > 1.
+     * - LSB run maxed, next cell exists: the run plus one carried digit become `nextDigit + 1`,
+     *   merged into the LSB cell; the carry never propagates past one cell.
+     * - LSB run maxed, no next cell (all `base - 1`): digit becomes **2**, count grows by one —
+     *   the `1…` range is skipped. The only branch that changes {@link length}.
      *
      * @method addOneToSorted
-     * @param {DigitCell} [cell=this.firstCell] - The cell to increment.
+     * @param {DigitCell} [cell=this.firstCell] cell to increment
      * @returns {void}
      */
     addOneToSorted(cell = this.firstCell) {
@@ -118,12 +99,11 @@ export class HugeIntEx extends HugeInt {
     }
 
     /**
-     * `factorCountOf(2n, …)` — the base-12/24 accommodate rules read it as
-     * "twos in the digit product".
+     * `factorCountOf(2n, …)` — "twos in the digit product" for the base-12/24 accommodate rules.
      *
      * @method countTwoComponents
-     * @param {DigitCell|null} [cell=this.firstCell] - Starting cell for the scan.
-     * @returns {BigInt} - Exponent of 2 in the digit product.
+     * @param {DigitCell|null} [cell=this.firstCell] starting cell for the scan
+     * @returns {BigInt} exponent of 2 in the digit product
      */
     countTwoComponents(cell) {
         return this.factorCountOf(2n, cell ?? this.firstCell)
@@ -133,16 +113,14 @@ export class HugeIntEx extends HugeInt {
      * `countTwoComponents` starting past the least-significant run.
      *
      * @method countTwoComponentsNoFirstCell
-     * @returns {BigInt} - Exponent of 2 in the digit product, excluding the first cell.
+     * @returns {BigInt} exponent of 2 in the digit product, excluding the first cell
      */
     countTwoComponentsNoFirstCell() {
         return this.countTwoComponents(this.firstCell.next)
     }
 
     /**
-     * The digits of this number, smallest first — one entry per cell. The search
-     * keeps its numbers sorted with merged groups, so every cell is a distinct
-     * digit and this is the digit *set*.
+     * The distinct digits, smallest first — one per cell (search numbers are sorted, merged runs).
      *
      * @method getDigits
      * @returns {BigInt[]}

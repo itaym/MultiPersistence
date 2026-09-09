@@ -9,13 +9,7 @@
  */
 
 /**
- * Wraps `fn` in a timing harness that accumulates wall-clock duration and a
- * call count across every invocation.
- *
- * The returned function is a drop-in replacement for `fn`: it forwards all
- * arguments, returns `fn`'s result unchanged, and on the side times each call
- * with `performance.now()` and adds it to a running total. Two helpers hang off
- * it: `.reset()` to zero the counters and `.stats()` to read them back.
+ * Wraps `fn` in a drop-in timing harness that accumulates wall-clock duration and a call count.
  *
  * @param {AnyFn} fn        function to measure
  * @returns {MeasuredFn}    wrapper around `fn` carrying `.reset()` and `.stats()`
@@ -44,8 +38,7 @@ function measureTime(fn) {
     }
 
     /**
-     * Zeroes the call count and accumulated duration. Use after a warm-up phase
-     * so it doesn't pollute the measured numbers.
+     * Zeroes the call count and accumulated duration (run after warm-up).
      *
      * @returns {void}
      */

@@ -1,16 +1,8 @@
 /**
- * Persist worker: the off-thread half of {@link module:io}.
- *
- * One instance per realm, handling every store. For each `open` it loads the
- * file, holds its own copy of the data, folds in every `set` the client sends,
- * and rewrites the whole file once `idleMs` has passed with no further writes.
- * Flushes on `flush` and on `close`.
- *
- * All traffic runs over the {@link MessagePort} handed in through `workerData`
- * (not `parentPort`) so the client can drain it synchronously with
- * `receiveMessageOnPort` — this project's main thread never yields to its own
- * event loop, so it cannot receive messages any other way. Every message
- * carries a numeric store `id`.
+ * Persist worker: the off-thread half of {@link module:io}. One instance per realm; per `open`
+ * it loads the file, folds in every `set`, and rewrites the file after `idleMs` of quiet (also
+ * on `flush` and `close`). Traffic runs over the {@link MessagePort} from `workerData`, tagged
+ * with a numeric store `id`.
  *
  * @module io/persist.worker
  */
@@ -48,9 +40,8 @@ const loadCodec = (url) => {
 }
 
 /**
- * Reads a store's file (falling back to its `.bak`), seeds its map with any
- * keys not already set by an early `set`, and reports the raw text back so the
- * client can seed its own view.
+ * Reads a store's file (or its `.bak`), seeds the map with keys not already set, and posts the
+ * raw text back for the client to seed its own view.
  *
  * @param {number} id
  * @param {StoreState} state
@@ -78,8 +69,8 @@ const load = async (id, state) => {
 }
 
 /**
- * Rewrites a store's file: rename the current file to `.bak`, then write the
- * fresh JSON. Coalesces writes that land while one is already in flight.
+ * Rewrites a store's file (current file renamed to `.bak` first). Coalesces writes that land
+ * while one is in flight.
  *
  * @param {number} id
  * @param {StoreState} state

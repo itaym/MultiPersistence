@@ -1,20 +1,10 @@
 /**
- * Sends a message to a worker if it is marked as ready.
- *
- * For type `"init"` readiness is forced. Otherwise the message is sent only
- * when `process.env.isWorkerReady === 'true'`.
+ * Sends a message to the worker when it is ready; type `"init"` is always sent.
  *
  * @param {Worker} worker
- *     Worker instance.
- *
- * @param {string} type
- *     Message type.
- *
- * @param {any} data
- *     Message payload.
- *
- * @returns {boolean}
- *     Whether the message was sent.
+ * @param {string} type message type
+ * @param {any} data message payload
+ * @returns {boolean} whether the message was sent
  */
 const postMessage = (worker, type, data) => {
 

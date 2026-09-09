@@ -21,10 +21,8 @@
  */
 
 /**
- * @typedef {[bigint, bigint]} DigitGroup
- *     One digit and how many times it repeats in a row: `[digit, repeatCount]`.
- * @typedef {DigitGroup[]} DigitGroups
- *     A whole number as digit groups, least-significant group first.
+ * @typedef {[bigint, bigint]} DigitGroup a digit and its run length: `[digit, repeatCount]`
+ * @typedef {DigitGroup[]} DigitGroups a whole number as digit groups, least-significant first
  */
 
 /** Thrown when a product cannot be represented within the given cell budget. */

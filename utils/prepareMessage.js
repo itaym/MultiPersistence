@@ -14,24 +14,12 @@
  */
 
 /**
- * Create a `FoundMessage` describing the current persistence result.
+ * Builds a `FoundMessage` for the current persistence result. Call with a HugeInt as `this`.
  *
- * This function must be invoked with a HugeInt instance as its `this` context.
- * It converts the HugeInt to a string, computes the elapsed runtime, and
- * packages all relevant metadata into a structured message object.
- *
- * @param {number} startTime
- *     The timestamp (ms) when the search session began.
- *
- * @param {number} calcIterations
- *     Number of calculated iterations performed so far.
- *
- * @param {ReduceResults} reduceResults
- *     Number of multiplicative‑persistence steps taken to reach a single digit.
- *
+ * @param {number} startTime timestamp (ms) when the search session began
+ * @param {number} calcIterations calculated iterations so far
+ * @param {ReduceResults} reduceResults the step-1 reduction fields to copy in
  * @returns {FoundMessage}
- *     A structured message containing timing, iteration count, the number string,
- *     and persistence depth.
  */
 const prepareMessage = function (startTime, calcIterations, reduceResults) {
     // Copy the four ReduceResults fields by name for performance.

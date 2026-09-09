@@ -5,14 +5,9 @@ import dotenvEval from './dotenvEval.js'
 let executed = false
 
 /**
- * Initializes application configuration once.
+ * Loads polyfills and environment variables. Runs at most once.
  *
- * Loads polyfills and environment variables, ensuring initialization
- * is performed only a single time.
- *
- * @param {object} [options]
- *     Optional configuration passed to dotenv.
- *
+ * @param {object} [options] passed to `dotenv.config`
  * @returns {void}
  */
 export const initConfig = (options = undefined) => {

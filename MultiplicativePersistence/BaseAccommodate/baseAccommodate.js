@@ -11,21 +11,12 @@ import { base00015 } from './base00015.js'
 import { base00016 } from './base00016.js'
 
 /**
- * Selects and returns a base‑specific optimization function.
- *
- * Adds helper methods to HugeInt when needed and returns the module
- * matching the current normalized base. Unsupported bases return a no‑op.
+ * The accommodate function for the active base, or a no-op for unsupported bases.
  *
  * @returns {Function}
- *     The optimization function for the active base, or a no‑op.
  */
 const functionToExport = () => {
-    /**
-     * Adds `cTCNFC` to HugeIntEx as an alias for
-     * `countTwoComponentsNoFirstCell`.
-     *
-     * @type {Function}
-     */
+    // cTCNFC: alias for countTwoComponentsNoFirstCell
     HugeIntEx.prototype.cTCNFC = HugeIntEx.prototype.countTwoComponentsNoFirstCell
 
     let fn
@@ -42,11 +33,7 @@ const functionToExport = () => {
         default:  fn = emptyFunction
     }
 
-    /**
-     * Supported bases for accommodation modules.
-     *
-     * @type {Array<BigInt>}
-     */
+    /** @type {Array<BigInt>} supported bases */
     fn.supported = [
         6n, 8n, 9n, 10n, 12n, 14n, 15n, 16n,
     ]

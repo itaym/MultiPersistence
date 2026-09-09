@@ -16,11 +16,8 @@ import { processFound } from './processFound.js'
  */
 
 /**
- * Creates the `parentPort` message listener.
- *
- * The worker never blocks: it processes one message, then flips the
- * `process.env.isWorkerReady` semaphore so the main thread may send the next.
- * `init` builds the {@link WorkerContext} that every later message reads from.
+ * Creates the `parentPort` message listener. Each message flips `process.env.isWorkerReady`
+ * back to `'true'` when done; `init` builds the {@link WorkerContext} the rest read from.
  *
  * @returns {(message: WorkerMessage) => Promise<void>}
  */

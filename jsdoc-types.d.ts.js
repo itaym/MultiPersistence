@@ -1,9 +1,5 @@
 /**
- * Represents the normalized and evaluated environment variables loaded from the `.env` file.
- *
- * All keys in this object are converted to lowercase, and each value reflects the final
- * processed result after parsing, evaluation, and normalization. This provides a consistent
- * and predictable structure for accessing configuration values throughout the application.
+ * Normalized, evaluated `.env` variables — keys lowercased, values already parsed.
  *
  * @property {BigInt} base - The base used for numeric operations (from BASE)
  * @property {number} cache_idle_save_ms - Idle ms an io store waits before rewriting its file (from CACHE_IDLE_SAVE_MS)
@@ -22,9 +18,8 @@
  * Result object returned by digit‑reduction functions.
  *
  * @typedef {Object} ReduceResults
- * @property {BigInt} additionSum - Sum of all digits (digit * count) in the HugeInt.
- * @property {BigInt} multiplySum - Product of all digits (digit ** count) in the HugeInt.
- * @property {number} productLength - Digit count of the step-1 product (`multiplySum`) in the current base.
- *
- * @property {number} steps - Number of multiplicative steps performed so far.
+ * @property {BigInt} additionSum sum of all digits (digit * count) in the HugeInt
+ * @property {BigInt} multiplySum product of all digits (digit ** count) in the HugeInt
+ * @property {number} productLength digit count of the step-1 product (`multiplySum`) in the current base
+ * @property {number} steps multiplicative steps performed so far
  */

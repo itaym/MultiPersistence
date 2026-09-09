@@ -11,63 +11,34 @@ import { resolve } from 'path'
  * Iteration statistics stored in the results file.
  *
  * @typedef {object} Iterations
- * @property {BigInt} calculated
- *     Total number of calculated iterations.
- *
- * @property {number} count
- *     Total number of real iterations performed.
- *
- * @property {number} found_nothing
- *     Number of consecutive iterations that found no results.
- *
- * @property {number} found_nothing_break_at
- *     Threshold at which the search should stop due to no findings.
+ * @property {BigInt} calculated total calculated iterations
+ * @property {number} count total real iterations performed
+ * @property {number} found_nothing consecutive iterations that found nothing
+ * @property {number} found_nothing_break_at miss count at which the search stops
  */
 
 /**
  * A single persistence step entry.
  *
  * @typedef {object} TypeStep
- * @property {Object<string, number>} additionSums
- *     Histogram of digit-addition sums, `{ additionSum: count }`.
- *
- * @property {number} [atRunTime]
- *     Milliseconds elapsed when this step was recorded.
- *
- * @property {BigInt} combinations
- *     Number of combinations evaluated at this step.
- *
- * @property {number} count
- *     Number of results found at this step.
- *
- * @property {BigInt} first
- *     First number found at this step.
- *
- * @property {number} [iteration]
- *     Iteration index when this step was recorded.
- *
- * @property {BigInt} last
- *     Last number found at this step.
- *
- * @property {Object<string, number>} productLengths
- *     Histogram of step-1 product digit-lengths, `{ length: count }`.
- *
- * @property {number} [step]
- *     Persistence step index.
+ * @property {Object<string, number>} additionSums histogram of digit-addition sums, `{ additionSum: count }`
+ * @property {number} [atRunTime] milliseconds elapsed when this step was recorded
+ * @property {BigInt} combinations combinations evaluated at this step
+ * @property {number} count results found at this step
+ * @property {BigInt} first first number found at this step
+ * @property {number} [iteration] iteration index when this step was recorded
+ * @property {BigInt} last last number found at this step
+ * @property {Object<string, number>} productLengths histogram of step-1 product digit-lengths, `{ length: count }`
+ * @property {number} [step] persistence step index
  */
 
 /**
  * Properties stored per number length.
  *
  * @typedef {object} LengthProps
- * @property {number} found
- *     How many results were found for this length.
- *
- * @property {TypeStep} steps
- *     Step information for this length.
- *
- * @property {number} time
- *     Total time spent searching this length.
+ * @property {number} found results found for this length
+ * @property {TypeStep} steps step information for this length
+ * @property {number} time total time spent searching this length
  */
 
 /**
@@ -77,23 +48,14 @@ import { resolve } from 'path'
  */
 
 /**
- * Structure of the initialization variables loaded from disk.
+ * Structure of the state loaded from disk.
  *
  * @typedef {object} ComputationState
- * @property {BigInt} base
- *     The numeric base used for HugeInt operations.
- *
- * @property {Iterations} iterations
- *     Iteration statistics.
- *
- * @property {BigInt} last_number
- *     The last number processed before saving.
- *
- * @property {NumberLengths} number_lengths
- *     Statistics grouped by number length.
- *
- * @property {TypeStep[]} steps
- *     Array of persistence step entries.
+ * @property {BigInt} base numeric base used for HugeInt operations
+ * @property {Iterations} iterations iteration statistics
+ * @property {BigInt} last_number last number processed before saving
+ * @property {NumberLengths} number_lengths statistics grouped by number length
+ * @property {TypeStep[]} steps persistence step entries
  */
 
 /** `./results/<base 5-char>_<results_file>` — the caller appends `.js` / `.js.bak`. */
@@ -101,11 +63,8 @@ const resultsStem = (base) =>
     `./results/${base.toString().padStart(5, '0')}_${process.normalizedEnv.results_file}`
 
 /**
- * Load computation state from `<resultsStem>.js` (an ESM module — a BigInt round
- * trips as a `123n` literal, no reviver needed).
- *
- * Returns default values in debug mode, or when the file can't be imported —
- * trying the `.js.bak` backup first.
+ * Loads the computation state. Returns defaults in debug mode or when neither `<stem>.js`
+ * nor its `.js.bak` can be imported.
  *
  * @returns {Promise<ComputationState>}
  */
@@ -146,11 +105,11 @@ export const getComputationState = async () => {
 }
 
 /**
- * Save computation state to `<resultsStem>.js`, an `export default { ... }`
- * module. The existing file is renamed to `.js.bak` first.
+ * Saves the computation state to `<stem>.js` as an `export default {…}` module, renaming
+ * any existing file to `.js.bak`.
  *
- * @param {ComputationState} computationState  the state to save
- * @param {BigInt} base                        base, picks the filename
+ * @param {ComputationState} computationState
+ * @param {BigInt} base picks the filename
  * @returns {Promise<void>}
  */
 export const setComputationState = async (computationState, base) => {

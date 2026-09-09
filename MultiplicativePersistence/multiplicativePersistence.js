@@ -5,19 +5,15 @@ import { digitsValue } from '../Digits/index.js'
  */
 
 /**
- * One reused result object. `multiPer` / `multiPerNBC` / `reduceHI` all write
- * into it and return it; the caller must read what it needs before the next
- * call. Saves one small allocation per search iteration. Safe because
- * `reduceResults` never escapes the loop — `prepareMessage` copies the fields.
+ * One reused result object — `multiPer` / `multiPerNBC` / `reduceHI` write into it and return
+ * it, so the caller must read what it needs before the next call.
  *
  * @type {ReduceResults}
  */
 const result = { additionSum: 0n, multiplySum: 0n, productLength: 0, steps: 0 }
 
 /**
- * Digit product of a base-`base` string, in one pass; `0n` on the first `0`
- * digit. `str.includes('0')` is a fast native scan that also covers the common
- * case (a zero ends the persistence chain) without touching BigInt.
+ * Digit product of a base-`base` string; `0n` when any digit is `0`.
  *
  * @param {string} str
  * @returns {BigInt}
@@ -31,9 +27,8 @@ function strDigitProduct(str) {
 }
 
 /**
- * Digit product of a HugeInt, written into {@link result}. Walks the cells,
- * refreshing the per-cell `multiplySum` / `additionSum` caches only from the
- * first unchanged cell onward (`cell.changed`).
+ * Digit product of a HugeInt, written into {@link result}, refreshing the per-cell
+ * `multiplySum` / `additionSum` caches from the first `changed` cell onward.
  *
  * @param {HugeInt} hugeInt
  * @returns {ReduceResults} the shared {@link result}, with `steps = 1`
@@ -67,8 +62,7 @@ function reduceHI(hugeInt) {
 }
 
 /**
- * Multiplicative persistence of a HugeInt. `steps = 0` for a single digit;
- * otherwise delegates to {@link multiPerNBC}.
+ * Multiplicative persistence of a HugeInt. `steps = 0` for a single digit, else {@link multiPerNBC}.
  *
  * @param {HugeInt} currentNo
  * @param {number} base
@@ -88,10 +82,8 @@ export const multiPer = function (currentNo, base) {
 }
 
 /**
- * Multiplicative persistence of a HugeInt, no single-digit check. Runs step 1
- * here ({@link reduceHI}); the step-1 product is stringified once — needed to
- * continue the reduction anyway — so its length is `productLength` for free.
- * Steps 2+ run in {@link multiPer2}.
+ * Multiplicative persistence of a HugeInt, no single-digit check. Step 1 is {@link reduceHI},
+ * steps 2+ are {@link multiPer2}; also sets `productLength`.
  *
  * @param {HugeInt} currentNo
  * @param {number} base
@@ -113,8 +105,7 @@ export const multiPerNBC = function (currentNo, base) {
 }
 
 /**
- * Persistence steps left once `n` is a step-2+ value: keep taking the digit
- * product until it is a single digit.
+ * Persistence steps left from a step-2+ value `n` — digit product until a single digit.
  *
  * @param {BigInt} n
  * @param {number} base

@@ -229,9 +229,7 @@ const base00024 = (() => {
         10n: fn10,
         11n: emptyFunction,
     }
-    /**
-     * @param currentNo {HugeInt}
-     */
+    /** @param {HugeInt} currentNo */
     return (currentNo) => {
 
         const checkCell = currentNo.firstCell

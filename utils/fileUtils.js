@@ -1,29 +1,14 @@
 import { promises as fsPromises } from 'fs'
 import fs from 'fs'
 /**
- * Writes a JavaScript value to a JSON file.
- *
- * Attempts to rename the existing file to a `.bak` backup, then writes
- * the new JSON content. Backup errors are ignored.
+ * Writes `value` as JSON, renaming any existing file to `.bak` first.
  *
  * @param {string} filename
- *     File path.
- *
- * @param {Object|Array} value
- *     Value to serialize.
- *
- * @param {function|string[]|number[]} [replacer]
- *     Optional JSON replacer.
- *
- * @param {string|number} [space]
- *     Optional indentation.
- *
+ * @param {Object|Array} value value to serialize
+ * @param {function|string[]|number[]} [replacer] JSON replacer
+ * @param {string|number} [space] indentation
  * @param {ObjectEncodingOptions} [encoding={ encoding: 'utf8' }]
- *     File encoding.
- *
- * @param {(json: string) => string} [transform]
- *     Optional final pass over the serialized string before it is written.
- *
+ * @param {(json: string) => string} [transform] final pass over the serialized string before writing
  * @returns {Promise<void>}
  */
 export const writeJsonFile = async (filename, value, replacer, space, encoding = { encoding: 'utf8' }, transform) => {
@@ -41,17 +26,11 @@ export const writeJsonFile = async (filename, value, replacer, space, encoding =
 }
 
 /**
- * Writes text to a file, renaming any existing file to `.bak` first.
+ * Writes `text` to a file, renaming any existing file to `.bak` first.
  *
  * @param {string} filename
- *     File path.
- *
  * @param {string} text
- *     Content to write.
- *
  * @param {ObjectEncodingOptions} [encoding={ encoding: 'utf8' }]
- *     File encoding.
- *
  * @returns {Promise<void>}
  */
 export const writeTextFile = async (filename, text, encoding = { encoding: 'utf8' }) => {
@@ -67,25 +46,13 @@ export const writeTextFile = async (filename, text, encoding = { encoding: 'utf8
 }
 
 /**
- * Reads and parses a JSON file.
- *
- * Falls back to a `.bak` file if the main file cannot be read.
- * Returns a default value if both reads fail.
+ * Reads and parses a JSON file, falling back to `.bak`, then to `defaultJson`.
  *
  * @param {string} filename
- *     File path.
- *
- * @param {function} [reviver]
- *     Optional JSON reviver.
- *
- * @param {Object|Array} [defaultJson={}]
- *     Default value if reading fails.
- *
+ * @param {function} [reviver] JSON reviver
+ * @param {Object|Array} [defaultJson={}] returned when both reads fail
  * @param {ObjectEncodingOptions|string} [encoding={ encoding: 'utf8' }]
- *     File encoding.
- *
- * @returns {Promise<Object|Array>}
- *     Parsed JSON.
+ * @returns {Promise<Object|Array>} parsed JSON
  */
 export const readJsonFile = async (filename, reviver, defaultJson = {}, encoding = { encoding: 'utf8' }) => {
     const { normalizedEnv } = process
@@ -110,25 +77,13 @@ export const readJsonFile = async (filename, reviver, defaultJson = {}, encoding
 }
 
 /**
- * Synchronously reads and parses a JSON file.
- *
- * Falls back to a `.bak` file if the main file cannot be read.
- * Returns a default value if both reads fail.
+ * Synchronous {@link readJsonFile}.
  *
  * @param {string} filename
- *     File path.
- *
- * @param {function} [reviver]
- *     Optional JSON reviver.
- *
- * @param {Object|Array} [defaultJson={}]
- *     Default value if reading fails.
- *
+ * @param {function} [reviver] JSON reviver
+ * @param {Object|Array} [defaultJson={}] returned when both reads fail
  * @param {ObjectEncodingOptions|string} [encoding={ encoding: 'utf8' }]
- *     File encoding.
- *
- * @returns {Object|Array}
- *     Parsed JSON.
+ * @returns {Object|Array} parsed JSON
  */
 export const readJsonFileSync = (filename, reviver, defaultJson = {}, encoding = { encoding: 'utf8' }) => {
     const { normalizedEnv } = process

@@ -1,12 +1,8 @@
 /**
- * Tests whether a DigitCell factory returns a valid DigitCell object.
- * Validates required fields and their types.
+ * Whether `digitCellFactory()` returns an object with the required DigitCell fields and types.
  *
  * @param {() => Object} digitCellFactory
- *     Factory function that must return a DigitCell‑like object.
- *
  * @returns {boolean}
- *     True if the returned object contains the required DigitCell fields.
  */
 export const testDigitCellFactory = (digitCellFactory) => {
     const testDigitCell = digitCellFactory()

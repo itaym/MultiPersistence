@@ -1,8 +1,6 @@
 /**
- * {@link Store} — the client half of {@link module:io}: an in-memory `Map` for
- * synchronous `get`/`has`, backed by the one shared
- * {@link module:io/persist.worker} thread that owns the file and rewrites it
- * after a quiet period.
+ * {@link Store} — the client half of {@link module:io}: an in-memory `Map` for synchronous
+ * `get`/`has`, backed by the shared {@link module:io/persist.worker} thread that owns the file.
  *
  * @module io/store
  */
@@ -27,9 +25,8 @@ const WORKER_URL = new URL('./persist.worker.js', import.meta.url)
  */
 
 /**
- * A disk-backed key/value store. Usable immediately: until the worker reports
- * the loaded contents, the store simply looks empty and buffers writes, then
- * back-fills the keys it did not already see.
+ * A disk-backed key/value store. Usable immediately: it looks empty until the worker reports
+ * the file's contents, then back-fills the keys it has not already seen.
  */
 export class Store {
     /** id → live Store, for routing worker messages. @type {Map<number, Store>} */
@@ -178,8 +175,7 @@ export class Store {
     }
 
     /**
-     * Best-effort synchronous rewrite of the store file. Runs from the
-     * `process` `exit` hook, where the worker can no longer help.
+     * Best-effort synchronous rewrite of the store file, from the `process` `exit` hook.
      *
      * @returns {void}
      */
@@ -198,8 +194,8 @@ export class Store {
     }
 
     /**
-     * Ask the worker to flush and forget this store, then flush synchronously
-     * here too. Optional — the `exit` hook covers the common case.
+     * Asks the worker to flush and drop this store, and flushes here too. Optional — the
+     * `exit` hook covers the common case.
      *
      * @returns {void}
      */

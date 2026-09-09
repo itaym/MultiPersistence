@@ -1,13 +1,10 @@
 import { digitsObj as baseDigits } from '../Digits/index.js'
 
 /**
- * Groups array items by a key returned from the callback.
+ * Groups this array's items by the key the callback returns.
  *
- * @param {function(*, number, Array): string|number} callback
- *     Function returning a group key.
- *
+ * @param {function(*, number, Array): string|number} callback returns a group key
  * @returns {Object<string, Array<*>>}
- *     Grouped items.
  */
 function group(callback) {
     const result = {}
@@ -20,11 +17,9 @@ function group(callback) {
 }
 
 /**
- * Extends a constructor's toString method to support radices > 36.
+ * Extends `constructor.prototype.toString` to support radices > 36.
  *
  * @param {{ prototype: { toString: function } }} constructor
- *     Type whose toString should be extended.
- *
  * @returns {void}
  */
 function toString(constructor) {
@@ -52,13 +47,11 @@ function toString(constructor) {
 }
 
 /**
- * Computes logarithm with an arbitrary base.
+ * Logarithm of `number` in an arbitrary `base`.
  *
- * @param {number} base - Logarithmic base.
- * @param {number} number - Value to evaluate.
- *
+ * @param {number} base
+ * @param {number} number
  * @returns {number}
- *     Logarithm of number in the given base.
  */
 function logX(base, number) {
     return Math.log(number) / Math.log(base)

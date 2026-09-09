@@ -43,11 +43,7 @@ export const digitsValue = {
 }
 
 
-/**
- * Extend digit mappings for bases greater than 64.
- *
- * @returns {void}
- */
+// extend the digit maps for bases greater than 64
 if (maxBase > 64) {
     let offset = 0n
     for (let x = 0n; x < maxBase + 64; x++) {
@@ -70,11 +66,10 @@ if (maxBase > 64) {
  */
 export const baseDigits = memorize(
     /**
-     * Builds the string of digit characters for a given base by concatenating
-     * digitsObj lookups for 0n..base-1n.
+     * String of digit characters `0n..base-1n`.
      *
-     * @param {BigInt} base - the numeric base
-     * @returns {String} concatenated digit characters for the base
+     * @param {BigInt} base
+     * @returns {String}
      */
     (base) => {
         let digitsString = ''
@@ -89,7 +84,7 @@ export const baseDigits = memorize(
 )
 
 /**
- * Precomputed BigInt values for integers 0 through 1999.
+ * Precomputed BigInt values for integers 0 through 9999.
  *
  * @type {BigInt[]}
  */

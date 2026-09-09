@@ -87,9 +87,8 @@ const createLengthStepBucket = (first) => ({
 })
 
 /**
- * Digit-group repeat-counts of `currentNo`, used to divide out identical-digit
- * permutations when counting combinations. Falls back to `[1n]` when every digit
- * cell has a count of 1.
+ * Digit-cell repeat-counts of `currentNo` (the identical-digit permutation divisor), or `[1n]`
+ * when every cell count is 1.
  *
  * @param {HugeInt} currentNo
  * @returns {BigInt[]}
@@ -106,10 +105,8 @@ const createLengthsArray = (currentNo) => {
 }
 
 /**
- * Builds the {@link FoundRecorder} bound to a computation state. The returned
- * function folds each found number into two views of `computationState`:
- * `steps` (totals per persistence depth) and `number_lengths` (the same, sliced
- * by digit length).
+ * Builds the {@link FoundRecorder} for `computationState`. It folds each found number into
+ * `steps` (per persistence depth) and `number_lengths` (the same, sliced by digit length).
  *
  * @param {ComputationState} computationState
  * @returns {FoundRecorder}

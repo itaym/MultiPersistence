@@ -8,11 +8,10 @@ initConfig({ path: '../.env' })
 initPollyFill()
 
 /**
- * Merges multiple Map instances into a single Map.
- * Later maps overwrite keys from earlier ones.
+ * Merges maps into a new one; later maps overwrite earlier keys.
  *
- * @param {Map<string, any>[]} maps - Array of Map objects to merge
- * @returns {Map<string, any>} A new Map containing all merged entries
+ * @param {Map<string, any>[]} maps
+ * @returns {Map<string, any>}
  */
 const mergeMaps = (maps) => {
     console.log(`🔄 Starting merge of ${maps.length} maps...`)
@@ -33,14 +32,10 @@ const mergeMaps = (maps) => {
 }
 
 /**
- * Normalizes a filename into an absolute JSON path inside the cache directory.
+ * Absolute JSON path in the cache dir. Joined onto `../` since this file runs from `utils/`.
  *
- * mergeMaps.js is run from inside `utils/`, one level below the repo root
- * where `.env` and `memorize_cache_dir` are resolved from - so `memorize_cache_dir`
- * (e.g. `./caching`) is joined onto `../` rather than the current directory.
- *
- * @param {string} filename - Filename without extension
- * @returns {string} Absolute normalized path to the JSON file
+ * @param {string} filename without extension
+ * @returns {string}
  */
 const normalizeFilename = (filename) => {
     const { normalizedEnv: { memorize_cache_dir } } = process
@@ -50,10 +45,8 @@ const normalizeFilename = (filename) => {
 }
 
 /**
- * Loads multiple maps from disk, merges them, and saves the result.
- * Filenames must be edited manually in the array below.
- *
- * Throws if any file does not exist or cannot be parsed.
+ * Loads each bundle of maps from disk, merges it, and saves the result. Throws on a missing
+ * or unparseable file. Filenames are edited by hand in the array below.
  */
 export const runMergeMap = () => {
     console.log('🚀 Running merge process...')

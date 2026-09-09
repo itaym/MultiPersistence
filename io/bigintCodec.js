@@ -15,7 +15,6 @@ export const BIGINT_TAG = /^-?\d+n$/
 
 /**
  * JSON replacer: tags BigInt values with a trailing `n`.
- *
  * @param {string} key
  * @param {*} value
  * @returns {*}
@@ -24,9 +23,7 @@ export const replacer = (key, value) =>
     typeof value === 'bigint' ? `${value}n` : value
 
 /**
- * JSON reviver: converts only `n`-tagged strings back to BigInt; every other
- * value passes through untouched.
- *
+ * JSON reviver: converts `n`-tagged strings back to BigInt.
  * @param {string} key
  * @param {*} value
  * @returns {*}

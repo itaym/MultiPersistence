@@ -1,15 +1,9 @@
 /**
- * Wraps an object and provides a custom primitive conversion.
- *
- * When converted to a primitive, returns `1n + fn(obj)`.
+ * Wraps `obj`; converting it to a primitive yields `1n + fn(obj)`.
  *
  * @class
- *
  * @param {Object} obj
- *     Object to wrap.
- *
  * @param {function(Object): BigInt} fn
- *     Function returning a BigInt based on the object.
  */
 class ToPrimitive {
     constructor(obj, fn) {

@@ -20,12 +20,11 @@ import { setComputationState } from '../Config/computationStateIO.js'
  */
 
 /**
- * Replays every stacked batch (plus the one carried on this message) through the
- * context's found-recorder, on a single scratch HugeIntEx.
+ * Feeds every stacked batch through the context's found-recorder.
  *
  * @param {WorkerContext} context
  * @param {number} endTime
- * @returns {number} total number of messages drained
+ * @returns {number} messages drained
  */
 const drainStackedMessages = (context, endTime) => {
     const { base, recordFound, startTime, stackMessages } = context
@@ -45,9 +44,8 @@ const drainStackedMessages = (context, endTime) => {
 }
 
 /**
- * Handles a `found` message: drains all pending batches into `computationState`,
- * refreshes the iteration/last-number/up-time fields, renders the log snapshot
- * into `process.env.log`, and persists the state to disk.
+ * Handles a `found` message: drains the batches, refreshes `computationState`, writes the
+ * log to `process.env.log`, and persists to disk.
  *
  * @param {WorkerContext} context
  * @param {FoundPayload} found

@@ -9,13 +9,10 @@ import { replacer, reviver } from '../io/bigintCodec.js'
 const CODEC_URL = new URL('../io/bigintCodec.js', import.meta.url).href
 
 /**
- * Saves a Map to a JSON file.
+ * Saves a Map to a JSON file. Legacy helper for `utils/mergeMaps.js`.
  *
- * Legacy helper kept for `utils/mergeMaps.js`; the memoized path persists
- * through {@link module:io} instead.
- *
- * @param {string} filename - Path to the file.
- * @param {Map<string, BigInt>} map - Map to serialize.
+ * @param {string} filename
+ * @param {Map<string, BigInt>} map
  * @returns {void}
  */
 export function saveMapToFile(filename, map) {
@@ -23,12 +20,10 @@ export function saveMapToFile(filename, map) {
 }
 
 /**
- * Loads a Map from a JSON file. Returns an empty Map if loading fails.
+ * Loads a Map from a JSON file, or an empty Map on failure. Legacy helper for `utils/mergeMaps.js`.
  *
- * Legacy helper kept for `utils/mergeMaps.js`.
- *
- * @param {string} filename - Path to the file.
- * @returns {Map<string, BigInt>} - Loaded map.
+ * @param {string} filename
+ * @returns {Map<string, BigInt>}
  */
 export function loadMapFromFileSync(filename) {
     try {
@@ -89,18 +84,12 @@ const memoInMemory = (fn) => {
 }
 
 /**
- * Memoizes `fn` through an {@link module:io} store at `{cache_dir}/{name}.json`.
- *
- * The store is created on the first call, not here: `memorize()` runs while
- * Config is still bootstrapping, before `process.normalizedEnv` is populated.
- * A background worker then loads the file and rewrites it after every
- * `cache_idle_save_ms` of write-idle time (and on process exit). Calls made
- * before the file has loaded simply recompute; once it arrives, missing keys
- * are back-filled.
+ * Memorizes `fn` through an {@link module:io} store at `{cache_dir}/{name}.json`. The store is
+ * created lazily on the first call, after Config has populated `process.normalizedEnv`.
  *
  * @template {(...args: any[]) => any} F
  * @param {F} fn
- * @param {string} name  cache file name without extension
+ * @param {string} name cache file name without extension
  * @returns {(...args: Parameters<F>) => ReturnType<F>}
  */
 const memoOnDisk = (fn, name) => {
@@ -126,14 +115,12 @@ const memoOnDisk = (fn, name) => {
 }
 
 /**
- * Wraps a function with memoization keyed by its `args.join()`. With a `name`,
- * the cache is disk-backed through {@link module:io}; without one it lives only
- * in memory.
+ * Memorizes `fn`, keyed by `args.join()`. With a `name` the cache is disk-backed, else memory-only.
  *
  * @template {(...args: any[]) => any} F
- * @param {F} fn         the function to memoize
- * @param {string} [name]  cache file name (without extension); omit for memory-only
- * @returns {(...args: Parameters<F>) => ReturnType<F>} a memoized version of fn
+ * @param {F} fn
+ * @param {string} [name] cache file name without extension; omit for memory-only
+ * @returns {(...args: Parameters<F>) => ReturnType<F>}
  */
 export default function memorize(fn, name) {
     if (!isValidName(name)) return memoInMemory(fn)

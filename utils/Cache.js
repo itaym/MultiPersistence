@@ -1,28 +1,18 @@
 import now from './now.js'
 
 /**
- * A time‑based cache with sliding expiration and LFU (least‑frequently‑used)
- * eviction. Each entry stores:
- * - `item`: the actual value
- * - `expire`: timestamp when the entry becomes invalid
- * - `count`: number of successful `get()` calls (used for LFU eviction)
+ * A `Map` with sliding-expiration TTL and least-frequently-used eviction.
  */
 export default class Cache extends Map {
     /**
      * @typedef {Object} DecayPolicy
-     * @property {number} [expireIn]
-     *   Time‑to‑live (TTL) in milliseconds. Each `get()` refreshes the TTL.
-     * @property {number} [maxSize]
-     *   Maximum number of items allowed in the cache. Defaults to `2**24`.
+     * @property {number} [expireIn] TTL in ms; each `get()` refreshes it
+     * @property {number} [maxSize] max items, default `2**24`
      */
 
     /**
-     * Creates a new Cache instance.
-     *
      * @param {DecayPolicy} [decayPolicy={}]
-     *   Configuration for expiration and eviction behavior.
-     * @param {string} [name]
-     *   Optional name for debugging or identification.
+     * @param {string} [name] for debugging
      */
     constructor(decayPolicy = {}, name = undefined) {
         super()
@@ -41,9 +31,7 @@ export default class Cache extends Map {
     }
 
     /**
-     * Enforces the decay policy by:
-     * 1. Removing expired items.
-     * 2. Evicting least‑frequently‑used items until size ≤ maxSize.
+     * Drops expired items, then evicts least-frequently-used ones until size ≤ maxSize.
      *
      * @private
      */
@@ -66,16 +54,10 @@ export default class Cache extends Map {
     }
 
     /**
-     * Retrieves a value from the cache.
-     *
-     * - Returns `undefined` if the key does not exist or is expired.
-     * - Refreshes the TTL on successful access (sliding expiration).
-     * - Increments the access count for LFU eviction.
+     * Value for `key`, or `undefined` if missing or expired. Refreshes the TTL and bumps the count.
      *
      * @param {*} key
-     *   The key to retrieve.
      * @returns {*|undefined}
-     *   The stored value, or `undefined` if missing or expired.
      */
     get(key) {
         const time = now + 0
@@ -95,20 +77,11 @@ export default class Cache extends Map {
     }
 
     /**
-     * Stores a value in the cache.
-     *
-     * - If the cache is full and the existing entry is expired (or missing),
-     *   eviction may occur.
-     * - Throws an error if eviction cannot free enough space.
+     * Stores `item` under `key`, running eviction first when the cache is full.
      *
      * @param {*} key
-     *   The key to store.
      * @param {*} item
-     *   The value to store.
      * @returns {Cache}
-     *
-     * @throws {Error}
-     *   If the cache is at max size and cannot evict enough entries.
      */
     set(key, item) {
         const existing = super.get(key)

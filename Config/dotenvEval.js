@@ -3,15 +3,10 @@ import { argv } from 'node:process'
 import HugeInt from '../HugeInt/index.js'
 
 /**
- * Converts a CLI argument string into a JavaScript value.
- *
- * Supports booleans, null, undefined, BigInt, and raw strings.
+ * Coerces a CLI argument string to boolean, null, undefined, BigInt, or the raw string.
  *
  * @param {string} rawValue
- *     The raw CLI argument value.
- *
  * @returns {boolean|bigint|null|undefined|string}
- *     The coerced value.
  */
 const coerceCliValue = (rawValue) => {
     const lower = rawValue.toLowerCase()
@@ -29,14 +24,9 @@ const coerceCliValue = (rawValue) => {
 }
 
 /**
- * Normalizes environment variables parsed from dotenv.
+ * Evals each dotenv value into `process.normalizedEnv` (trusted input) and derives `goal_number`.
  *
- * Converts values using eval (trusted input only) and stores results
- * in `process.normalizedEnv`. Computes `goal_number` from base settings.
- *
- * @param {Object<string,string>} parsed
- *     Raw environment variables from dotenv.
- *
+ * @param {Object<string,string>} parsed raw dotenv variables
  * @returns {void}
  */
 const normalizeEnvFromDotenv = (parsed) => {
@@ -56,15 +46,9 @@ const normalizeEnvFromDotenv = (parsed) => {
 }
 
 /**
- * Applies CLI overrides to normalized environment variables.
- *
- * Accepts arguments in the form `key=value`, coerces values safely,
- * updates both normalizedEnv and process.env, and recomputes goal_number
- * when relevant settings change.
+ * Applies `key=value` CLI args to `normalizedEnv` and `process.env`, re-deriving `goal_number`.
  *
  * @param {string[]} argv
- *     CLI arguments.
- *
  * @returns {void}
  */
 const applyCliOverrides = (argv) => {
@@ -89,15 +73,10 @@ const applyCliOverrides = (argv) => {
 }
 
 /**
- * Initializes environment variables by normalizing dotenv values
- * and applying CLI overrides.
+ * Normalizes dotenv values then applies CLI overrides. Exits on a dotenv error.
  *
- * @param {Object<string,string>} parsed
- *     Parsed dotenv variables.
- *
- * @param {Object<string,string>} error
- *     Error object from dotenv, if any.
- *
+ * @param {Object<string,string>} parsed parsed dotenv variables
+ * @param {Object<string,string>} error dotenv error, if any
  * @returns {void}
  */
 const dotenvEval = ({ parsed, error }) => {

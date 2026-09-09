@@ -26,9 +26,8 @@ import { getTimeString } from '../utils/getTimeString.js'
 
 /**
  * @typedef {Object} BenchSpec
- * @property {AnyFn[]} getArgs  arg producers, paired by index — `getArgs[i]()`
- *                              feeds `tests[i]` on every iteration
- * @property {AnyFn[]} tests    functions to benchmark
+ * @property {AnyFn[]} getArgs arg producers paired by index — `getArgs[i]()` feeds `tests[i]`
+ * @property {AnyFn[]} tests functions to benchmark
  */
 
 /**
@@ -57,14 +56,12 @@ const serializeStats = stats => ({
 })
 
 /**
- * Reads `.stats()` off every measured function and arg producer, uses each
- * group's mean throughput as the comparison baseline, prints the table, and
- * returns it.
+ * Prints (and returns) the `console.table` of every function's throughput vs the group mean.
  *
  * @param {MeasuredFn[]} tests         measured benchmark functions
  * @param {MeasuredFn[]} args          measured arg producers, index-paired with `tests`
  * @param {number} [multiplyBy=1]      forwarded to `.stats()`
- * @returns {Object<string, StatsRow>} keyed `fn_0`, `ar_0`, `fn_1`, … — as handed to `console.table`
+ * @returns {Object<string, StatsRow>} keyed `fn_0`, `ar_0`, `fn_1`, …
  */
 const showStats = (tests, args, multiplyBy) => {
 
@@ -104,13 +101,8 @@ const showStats = (tests, args, multiplyBy) => {
 }
 
 /**
- * Runs every function in `tests` side by side over the same iteration loop and
- * reports their relative throughput.
- *
- * Each iteration calls `tests[i](getArgs[i]())` for all `i`. After a warm-up
- * phase the timers are reset, then the measured loop runs, printing a table
- * every `showAfter` iterations and once more at the end. The `percent` column
- * shows how each function compares to the mean of the group.
+ * Runs every function in `tests` side by side over one iteration loop and reports their
+ * throughput relative to the group mean, after a warm-up and every `showAfter` iterations.
  *
  * @param {BenchSpec} spec             functions to benchmark and their paired arg producers
  * @param {BenchOptions} [options]     iteration counts and reporting cadence

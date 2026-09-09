@@ -1,38 +1,20 @@
 /**
- * Main entry point for the Multiplicative Persistence search process.
- *
- * Responsibilities:
- * 1. Initialize configuration and polyfills (side‑effect imports).
- * 2. Set up shared environment variables used for lightweight communication
- *    between the main thread and the worker thread.
- * 3. Spawn the worker thread with a shared environment (SHARE_ENV).
- * 4. Load initialization variables and construct the goal number.
- * 5. Send an initialization message to the worker containing all runtime data.
- * 6. Perform a minimal‑overhead readiness check:
- *      - In most cases the worker is already ready.
- *      - If not, the loop sleeps briefly and prints any worker log output.
- * 7. Start the main multiplicative persistence search.
- * 8. Terminate the worker and print a completion banner.
- *
- * This file intentionally avoids blocking the main thread while waiting
- * for the worker. Instead, it uses shared environment variables as a
- * fast readiness signal, keeping the main script running without delay.
+ * Main entry point: boots config, spawns the worker, loads the computation state, runs
+ * {@link multiPerSearch}, then terminates the worker. Coordinates with the worker through
+ * `process.env` rather than blocking on it.
  *
  * @module MainIndex
- *
- * @throws {Error}
- *     If configuration is invalid or the worker fails to initialize.
  */
 
 /**
  * Payload sent to the worker on the `init` message.
  *
  * @typedef {Object} WorkerConfig
- * @property {BigInt} base              numeric base used for HugeInt operations
- * @property {BigInt} goalNumber        target number for the persistence search
- * @property {number} startSessionTime  timestamp (ms) when this session began
- * @property {number} startTime         session start adjusted for prior uptime (ms)
- * @property {import('./Config/computationStateIO.js').ComputationState} VARS  the worker's starting computation state
+ * @property {BigInt} base numeric base used for HugeInt operations
+ * @property {BigInt} goalNumber target number for the persistence search
+ * @property {number} startSessionTime timestamp (ms) when this session began
+ * @property {number} startTime session start adjusted for prior uptime (ms)
+ * @property {import('./Config/computationStateIO.js').ComputationState} VARS the worker's starting computation state
  */
 import HugeInt from './HugeInt/index.js'
 import postMessages from './utils/postMessage.js'

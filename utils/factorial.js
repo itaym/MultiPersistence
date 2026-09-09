@@ -3,15 +3,10 @@ import { initConfig } from '../Config/config.js'
 initConfig()
 
 /**
- * Computes the factorial of a BigInt recursively.
- *
- * Returns 1n for values ≤ 1n; otherwise multiplies n by factorial(n − 1).
+ * Factorial of `number` (`1n` for values ≤ 1n).
  *
  * @param {BigInt} number
- *     Value to compute.
- *
  * @returns {BigInt}
- *     Factorial result.
  */
 const factorialFn = number => {
     if (!number || (number <= 1n)) return 1n

@@ -106,9 +106,7 @@ export const base00024 = (() => {
         return permutationsSaved
     }
 
-    /**
-     * @param currentNo {HugeInt}
-     */
+    /** @param {HugeInt} currentNo */
     return (currentNo) => {
         const checkCell = currentNo.firstCell
         switch (checkCell.digit) {

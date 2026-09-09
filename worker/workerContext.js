@@ -10,16 +10,15 @@ import { createFoundRecorder } from './foundRecorder.js'
  */
 
 /**
- * Everything the worker builds once, on `init`, and reuses for every later
- * message. Replaces the module-level `let` state of the old single-file worker.
+ * Everything the worker builds once, on `init`, and reuses for every later message.
  *
  * @typedef {Object} WorkerContext
- * @property {BigInt} base                    numeric base for HugeInt operations
- * @property {ComputationState} computationState  the running search state, mutated in place and persisted
- * @property {(stats: Object) => string} log  log-string builder from {@link logMultiPersistence}
- * @property {FoundRecorder} recordFound      folds one found number into `computationState`
- * @property {number} startSessionTime        timestamp this session started (ms)
- * @property {number} startTime               session start adjusted for prior uptime (ms)
+ * @property {BigInt} base numeric base for HugeInt operations
+ * @property {ComputationState} computationState running search state, mutated in place and persisted
+ * @property {(stats: Object) => string} log log-string builder from {@link logMultiPersistence}
+ * @property {FoundRecorder} recordFound folds one found number into `computationState`
+ * @property {number} startSessionTime timestamp this session started (ms)
+ * @property {number} startTime session start adjusted for prior uptime (ms)
  * @property {FoundMessage[][]} stackMessages batches awaiting the next `found` tick
  */
 

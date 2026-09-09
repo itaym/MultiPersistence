@@ -19,18 +19,11 @@ const TIME_UNITS_NAMES = [
 ]
 
 /**
- * Formats a time‑unit count into a readable string.
- *
- * Uses locale formatting for short values and scientific notation for long ones.
+ * Formats a unit count and its name, e.g. `"3 Hours"`. Long values use scientific notation.
  *
  * @param {BigInt} unitCount
- *     Number of units.
- *
- * @param {number} i
- *     Index of the unit name.
- *
+ * @param {number} i index into `TIME_UNITS_NAMES`
  * @returns {string}
- *     Formatted unit string.
  */
 const getUnitString = function(unitCount, i) {
     let unitString = unitCount.toString()
@@ -44,18 +37,11 @@ const getUnitString = function(unitCount, i) {
 }
 
 /**
- * Converts a duration in milliseconds into a human‑readable time string.
- *
- * Supports number and BigInt inputs. Optionally excludes milliseconds.
+ * Converts a millisecond duration into a human-readable time string.
  *
  * @param {BigInt|number} numOfMilliseconds
- *     Duration in milliseconds.
- *
- * @param {boolean} [excludeMilliseconds=true]
- *     Whether to omit milliseconds.
- *
+ * @param {boolean} [excludeMilliseconds=true] omit the milliseconds unit
  * @returns {string}
- *     Formatted time string.
  */
 export function getTimeString(numOfMilliseconds, excludeMilliseconds = true) {
     if (numOfMilliseconds?.constructor?.name !== 'BigInt')

@@ -1,11 +1,9 @@
 import memorize from "./memorize.js";
 /**
- * Sanitizes a string for terminal‑safe output.
- * Replaces control, zero‑width, and bidi characters with 'X'.
+ * Sanitizes a string for terminal-safe output — control, zero-width and bidi characters become 'X'.
  *
- * @param {string} str - Input string.
- *
- * @returns {string} - Sanitized string.
+ * @param {string} str
+ * @returns {string}
  */
 export const sanitize = (str) => {
     return str
@@ -24,12 +22,11 @@ export const sanitize = (str) => {
  */
 
 /**
- * Computes the start/length for each segment when source exceeds lengthLimit.
- * Shared by truncate and truncateWithRuler.
+ * Start index and length of each segment when the source exceeds `lengthLimit`.
  *
- * @param {number} sourceLength - length of the source string
- * @param {number} segments - number of chunks
- * @param {number} lengthLimit - max length of the final joined result
+ * @param {number} sourceLength length of the source string
+ * @param {number} segments number of chunks
+ * @param {number} lengthLimit max length of the final joined result
  * @returns {SegmentBounds}
  */
 const computeSegments = memorize((sourceLength, segments, lengthLimit) => {
@@ -71,13 +68,12 @@ const computeSegments = memorize((sourceLength, segments, lengthLimit) => {
 }, 'computeSegments')
 
 /**
- * Builds the dash/number ruler map for a single segment [segStart, segStart+segLen).
- * Pure function - safe to memoize by (rank, segStart, segLen).
+ * Dash/number ruler map for a single segment `[segStart, segStart + segLen)`.
  *
- * @param {(number|null)[]} rank - rtl running count of set-chars per index, null if not a set char
- * @param {number} width - digit width for padding rank numbers
- * @param {number} segStart - segment start index in source
- * @param {number} segLen - segment length
+ * @param {(number|null)[]} rank rtl running count of set-chars per index, null if not a set char
+ * @param {number} width digit width for padding rank numbers
+ * @param {number} segStart segment start index in source
+ * @param {number} segLen segment length
  * @returns {string} ruler map string of length segLen
  */
 const buildSegmentMap = (rank, width, segStart, segLen) => {
@@ -129,12 +125,12 @@ const buildSegmentMap = (rank, width, segStart, segLen) => {
 }
 
 /**
- * Truncates a string to lengthLimit by splitting into `segments` chunks joined by "...".
+ * Truncates `source` to `lengthLimit` as `segments` chunks joined by "...".
  *
- * @param {string} source - string to truncate
- * @param {number} segments - number of chunks when source exceeds lengthLimit
- * @param {number} lengthLimit - max length of the returned result
- * @returns {string} the truncated string
+ * @param {string} source
+ * @param {number} segments chunk count when source exceeds lengthLimit
+ * @param {number} lengthLimit max length of the returned result
+ * @returns {string}
  */
 export const truncate = (source, segments, lengthLimit) => {
     if (source.length <= lengthLimit) return source
@@ -161,14 +157,12 @@ export const truncate = (source, segments, lengthLimit) => {
  */
 
 /**
- * Truncates a string to lengthLimit by splitting into `segments` chunks
- * joined by "...", plus a same-length ruler map marking set-char ranks
- * at each chunk's edges.
+ * {@link truncate} plus a same-length ruler map marking set-char ranks at each chunk's edges.
  *
- * @param {string} source - string to truncate
- * @param {string} charsSet - characters that count toward the rank
- * @param {number} segments - number of chunks when source exceeds lengthLimit
- * @param {number} lengthLimit - max length of the returned result
+ * @param {string} source
+ * @param {string} charsSet characters that count toward the rank
+ * @param {number} segments chunk count when source exceeds lengthLimit
+ * @param {number} lengthLimit max length of the returned result
  * @returns {RulerResult}
  */
 export const truncateWithRuler = (source, charsSet, segments, lengthLimit) => {
