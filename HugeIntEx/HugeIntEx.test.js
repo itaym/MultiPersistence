@@ -184,6 +184,39 @@ test('countTwoComponents / …NoFirstCell delegate to factorCountOf(2n, …)', (
 })
 
 // ---------------------------------------------------------------------------
+// compare
+// ---------------------------------------------------------------------------
+
+test('compare — length, digit, run-length tiebreak', () => {
+    assert.equal(fs('999').compare(fs('2222')), -1)          // fewer digits -> smaller
+    assert.equal(fs('2222').compare(fs('999')), 1)
+    assert.equal(fs('2234').compare(fs('3334')), -1)         // lower MSB digit
+    assert.equal(fs('3334').compare(fs('2234')), 1)
+    assert.equal(fs('2223').compare(fs('2233')), -1)         // longer run of 2s -> smaller
+    assert.equal(fs('2233').compare(fs('2223')), 1)
+    assert.equal(fs('2245').compare(fs('2255')), -1)         // tiebreak one cell deeper
+    assert.equal(fs('2333').compare(fs('2333')), 0)          // equal
+    assert.equal(fs('223', 6n).compare(fs('233', 6n)), -1)   // base 6
+})
+
+test('compare matches numeric order across a canonical sweep', () => {
+    for (const base of [3n, 6n, 9n, 10n, 16n]) {
+        const nums = []
+        const walk = ex(2n, base)
+        for (let i = 0; i < 60; i++) {
+            nums.push({ hi: fs(walk.toString(), base), v: walk.value })
+            walk.addOneToSorted()
+        }
+        for (const a of nums) {
+            for (const b of nums) {
+                const want = a.v < b.v ? -1 : a.v > b.v ? 1 : 0
+                assert.equal(a.hi.compare(b.hi), want, `base ${base}: ${a.v} vs ${b.v}`)
+            }
+        }
+    }
+})
+
+// ---------------------------------------------------------------------------
 
 console.log(`\n${passed} passed, ${failed} failed`)
 process.exit(failed ? 1 : 0)

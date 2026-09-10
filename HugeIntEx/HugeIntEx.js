@@ -153,6 +153,33 @@ export class HugeIntEx extends HugeInt {
     }
 
     /**
+     * Three-way compare with another sorted HugeInt of the same base. No value
+     * rebuild — walks the digit cells from the top.
+     *
+     * @param {HugeInt} other to compare with
+     * @returns {-1 | 0 | 1} `1` when this is the larger number
+     */
+    compare(other) {
+        // In this case the base will always be the same, so saving the check
+        // if (this.base !== other.base) throw new Error('Both HugeIntExs must be from the same base')
+        if (this.length !== other.length) return this.length < other.length ? -1 : 1
+
+        let thisCell = this.lastCell
+        let otherCell = other.lastCell
+
+        while (thisCell) {
+            if (thisCell.digit !== otherCell.digit) return thisCell.digit < otherCell.digit ? -1 : 1
+
+            if (thisCell.count === otherCell.count) {
+                thisCell = thisCell.prev
+                otherCell = otherCell.prev
+            }
+            else return thisCell.count < otherCell.count ? 1 : -1
+        }
+        return 0
+    }
+
+    /**
      * @param {string} str
      * @param {BigInt} base
      * @returns {this}
