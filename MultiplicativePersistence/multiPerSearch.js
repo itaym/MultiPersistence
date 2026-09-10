@@ -2,6 +2,7 @@ import HugeIntEx from '../HugeIntEx/index.js'
 import baseAccommodate from './BaseAccommodate/index.js'
 import postMessages from '../utils/postMessage.js'
 import prepareMessage from '../utils/prepareMessage.js'
+import showLog from '../utils/showLog.js'
 import waitForWorker from '../utils/waitForWorker.js'
 import { multiPer, multiPerNBC } from './index.js'
 
@@ -160,7 +161,7 @@ export const multiPerSearch = async (
             const now = Date.now()
             if (now - log_interval > logLastTime) {
                 logLastTime = now
-                console.log(`\n${process.env.log}`)
+                showLog(`\n${process.env.log}`)
             }
             if (now - checkpoint_interval > checkpointLastTime) {
                 checkpointLastTime = now
@@ -173,5 +174,5 @@ export const multiPerSearch = async (
 
     await checkpoint(Date.now())
     await waitForWorker()
-    console.log(`\n${process.env.log}`)
+    showLog(`\n${process.env.log}`)
 }
