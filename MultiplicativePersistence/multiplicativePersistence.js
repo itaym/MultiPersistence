@@ -107,14 +107,14 @@ export const multiPerNBC = function (currentNo, base) {
 /**
  * Persistence steps left from a step-2+ value `n` — digit product until a single digit.
  *
- * @param {BigInt} n
+ * @param {BigInt} product
  * @param {number} base
  * @returns {number}
  */
-const multiPer2 = function (n, base) {
+const multiPer2 = function (product, base) {
     let steps = 0
-    while (n >= base) {
-        n = strDigitProduct(n.toString(base))
+    while (product >= base) {
+        product = strDigitProduct(product.toString(base))
         steps++
     }
     return steps

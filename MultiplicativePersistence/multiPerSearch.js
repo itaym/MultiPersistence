@@ -54,6 +54,7 @@ export const multiPerSearch = async (
     const { base, iterations, last_number } = computationState
     const numBase = Number(base)
     const goalLength = process.normalizedEnv.goal_power_of10
+    const goalNo = new HugeIntEx(process.normalizedEnv.goal_number)
 
     let calcIterations = iterations.calculated
     let countIterations = iterations.count
@@ -167,7 +168,7 @@ export const multiPerSearch = async (
             }
             iterationsCheckCount = 0
         }
-        if (notFound >= notFoundLimit || currentNo.length >= goalLength) break
+        if (notFound >= notFoundLimit || currentNo.length >= goalLength || currentNo.compare(goalNo) >= 0) break
     }
 
     await checkpoint(Date.now())

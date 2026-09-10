@@ -17,6 +17,12 @@ import { HugeInt, defaultDigitCellFactory } from '../HugeInt/HugeInt.js'
 
 export class HugeIntEx extends HugeInt {
 
+    /** @private @type {BigInt} base used for digit decomposition and arithmetic */
+    #base
+
+    /** @private @type {BigInt} cached `base - 1n`, for geometric-series sums */
+    #baseMinusOne
+
     /** @type {() => DigitCell} */
     #digitCellFactory
 
@@ -30,6 +36,9 @@ export class HugeIntEx extends HugeInt {
      */
     constructor(initValue = 0n, base = 10n, digitCellFactory = defaultDigitCellFactory) {
         super(initValue, base, digitCellFactory)
+
+        this.#base = base
+        this.#baseMinusOne = this.#base - 1n
         this.#digitCellFactory = digitCellFactory
         this.#length = super.length
     }
@@ -63,21 +72,18 @@ export class HugeIntEx extends HugeInt {
      * @returns {void}
      */
     addOneToSorted(cell = this.firstCell) {
-        const baseMinusOne = this.base - 1n
         cell.changed = true
 
-        if (cell.digit !== baseMinusOne) {
+        if (cell.digit !== this.#baseMinusOne) {
             if (cell.count === 1n) {
                 cell.digit++
                 return
             }
             const cellToAdd = this.#digitCellFactory()
-            cellToAdd.count = cell.count - 1n
-            cellToAdd.digit = cell.digit
 
-            this.addCellAfter(cell, cellToAdd)
-            cell.count = 1n
-            cell.digit++
+            this.addCellBefore(cell, cellToAdd)
+            cellToAdd.digit = cell.digit + 1n
+            cell.count--
             return
         }
 
@@ -190,7 +196,10 @@ export class HugeIntEx extends HugeInt {
         return this
     }
 
-    /** @param {HugeInt|bigint|number} other @param {{maxCells?: bigint}} [options] @returns {this} */
+    /** @param {HugeInt|bigint|number} other
+     * @param {{maxCells?: bigint}} [options]
+     * @returns {this}
+    */
     multiply(other, options) {
         const r = super.multiply(other, options)
         this.#length = super.length
