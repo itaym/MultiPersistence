@@ -48,6 +48,17 @@ import { resolve } from 'path'
  */
 
 /**
+ * Identity and boundaries of the segment a result file belongs to.
+ *
+ * @typedef {object} SegmentMeta
+ * @property {BigInt} base numeric base used for HugeInt operations
+ * @property {number} createdAt timestamp (ms) when this segment was created
+ * @property {BigInt} endAt inclusive upper bound of this segment
+ * @property {string} id unique id for this segment
+ * @property {BigInt} startAt inclusive lower bound of this segment
+ */
+
+/**
  * Structure of the state loaded from disk.
  *
  * @typedef {object} ComputationState
@@ -55,6 +66,7 @@ import { resolve } from 'path'
  * @property {BigInt} goal exclusive upper bound — the first candidate not to check
  * @property {Iterations} iterations iteration statistics
  * @property {BigInt} last_number last number processed before saving (the moving resume point)
+ * @property {SegmentMeta} meta identity and boundaries of this segment
  * @property {NumberLengths} number_lengths statistics grouped by number length
  * @property {BigInt} range_start inclusive lower bound of this run's range (fixed; `0n` in continuous mode)
  * @property {TypeStep[]} steps persistence step entries
@@ -85,6 +97,13 @@ export const getComputationState = async () => {
             found_nothing_break_at: 1_000_000_000,
         },
         last_number: normalizedEnv.last_number,
+        meta: {
+            base: normalizedEnv.base,
+            createdAt: Date.now(),
+            endAt: normalizedEnv.goal_number,
+            id: crypto.randomUUID(),
+            startAt: 0n,
+        },
         number_lengths: {},
         range_start: 0n,
         steps: [],
@@ -95,6 +114,13 @@ export const getComputationState = async () => {
 
     const backfill = (state) => {
         state.goal ??= normalizedEnv.goal_number
+        state.meta ??= {
+            base: normalizedEnv.base,
+            createdAt: Date.now(),
+            endAt: normalizedEnv.goal_number,
+            id: crypto.randomUUID(),
+            startAt: 0n,
+        }
         state.range_start ??= 0n
         return state
     }
