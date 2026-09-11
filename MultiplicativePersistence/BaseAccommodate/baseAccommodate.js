@@ -12,16 +12,17 @@ import { base00016 } from './base00016.js'
 
 /**
  * The accommodate function for the active base, or a no-op for unsupported bases.
+ * @param {BigInt} base
  *
  * @returns {Function}
  */
-const functionToExport = () => {
+const baseAccommodate = (base) => {
     // cTCNFC: alias for countTwoComponentsNoFirstCell
     HugeIntEx.prototype.cTCNFC = HugeIntEx.prototype.countTwoComponentsNoFirstCell
 
     let fn
 
-    switch (process.normalizedEnv.base) {
+    switch (base) {
         case 6n:  fn = base00006; break
         case 8n:  fn = base00008; break
         case 9n:  fn = base00009; break
@@ -41,4 +42,4 @@ const functionToExport = () => {
     return fn
 }
 
-export default functionToExport()
+export default baseAccommodate

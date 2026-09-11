@@ -79,7 +79,7 @@ export const multiPerSearch = async (
      *
      * @type {(currentNo: HugeIntEx) => BigInt}
      */
-    const createPermutations = baseAccommodate
+    const createPermutations = baseAccommodate(base)
 
     /**
      * Records one found number: clears the not-found streak, ratchets
