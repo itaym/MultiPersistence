@@ -15,8 +15,9 @@ const worker = new Worker('./searchWorker.js', { env: SHARE_ENV })
 
 worker.on('message', (msg) => {
     if (msg?.type === 'showLog') console.log(msg.text)
+    if (msg?.type === 'ready') worker.postMessage({ type: 'run' })
 })
 
-worker.postMessage({ type: 'run' })
+worker.postMessage({ type: 'init', normalizedEnv: process.normalizedEnv })
 
 await gaySchluffen(MAX_MILLISECONDS_FOR_TIMEOUT)

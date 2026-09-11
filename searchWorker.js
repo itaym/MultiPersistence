@@ -80,6 +80,12 @@ const run = async () => {
     showLog('---------- FINISH ----------')
 }
 
+const init = (msg) => {
+    process.normalizedEnv = msg.normalizedEnv
+    parentPort.postMessage({ type: 'ready' })
+}
+
 parentPort.on('message', (msg) => {
-    if (msg?.type === 'run') run()
+    if (msg?.type === 'init') init(msg)
+    if (msg?.type === 'run') run().then()
 })
