@@ -30,11 +30,11 @@ import postMessages from './utils/postMessage.js'
 import showLog from './utils/showLog.js'
 import waitForWorker from './utils/waitForWorker.js'
 
-const run = async () => {
+const run = async (normalizedEnv) => {
     initConfig()
     initPollyFill()
 
-    const { env, normalizedEnv } = process
+    const { env } = process
 
     env.isWorkerReady = 'false'
     env.log = ''
@@ -90,7 +90,7 @@ const init = (msg) => {
 
 parentPort.on('message', (msg) => {
     if (msg?.type === 'init') init(msg)
-    if (msg?.type === 'run') run().then()
+    if (msg?.type === 'run') run(process.normalizedEnv).then()
     if (msg?.type === 'debugger')
         debugger
 })
