@@ -1,5 +1,5 @@
-import HugeInt from '../../HugeInt/index.js'
-import logMultiPersistence from '../../MultiplicativePersistence/logMultiPersistence.js'
+import HugeInt from '#HugeInt/index.js'
+import logMultiPersistence from '#MultiplicativePersistence/logMultiPersistence.js'
 import { createFoundRecorder } from './foundRecorder.js'
 
 /**

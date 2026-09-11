@@ -9,7 +9,7 @@ import { writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { toJs } from '../io/utils.js'
+import { toJs } from '#io/utils.js'
 
 process.normalizedEnv = {
     base: 6n,

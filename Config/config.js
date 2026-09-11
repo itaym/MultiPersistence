@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-import { initPollyFill } from '../utils/pollyfill.js'
+import { initPollyFill } from '#utils/pollyfill.js'
 import dotenvEval from './dotenvEval.js'
 
 let normalizedEnv

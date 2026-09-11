@@ -9,8 +9,8 @@
  * ITERS / BASE / START overridable via env.
  */
 
-import { HugeIntEx } from '../HugeIntEx/HugeIntEx.js'
-import { multiPerNBC } from '../MultiplicativePersistence/multiplicativePersistence.js'
+import { HugeIntEx } from '#HugeIntEx/HugeIntEx.js'
+import { multiPerNBC } from '#MultiplicativePersistence/multiplicativePersistence.js'
 
 const BASE = BigInt(process.env.BASE || 9)
 const NUMBASE = Number(BASE)

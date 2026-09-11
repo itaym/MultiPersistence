@@ -4,7 +4,7 @@
  * `foundRecorder.js` (folding a number into the stats).
  */
 
-import { initConfig } from '../../Config/config.js'
+import { initConfig } from '#Config/config.js'
 import { parentPort } from 'worker_threads'
 import { createMessageHandler } from './messageHandler.js'
 

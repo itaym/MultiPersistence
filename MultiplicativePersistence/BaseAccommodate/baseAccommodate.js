@@ -1,5 +1,5 @@
 import { emptyFunction } from './utils.js'
-import HugeIntEx from '../../HugeIntEx/index.js'
+import HugeIntEx from '#HugeIntEx/index.js'
 
 import { base00006 } from './base00006.js'
 import { base00008 } from './base00008.js'

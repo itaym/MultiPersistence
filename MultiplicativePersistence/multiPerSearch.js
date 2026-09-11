@@ -1,9 +1,9 @@
-import HugeIntEx from '../HugeIntEx/index.js'
+import HugeIntEx from '#HugeIntEx/index.js'
 import baseAccommodate from './BaseAccommodate/index.js'
-import postMessages from '../utils/postMessage.js'
-import prepareMessage from '../utils/prepareMessage.js'
-import showLog from '../utils/showLog.js'
-import waitForWorker from '../utils/waitForWorker.js'
+import postMessages from '#utils/postMessage.js'
+import prepareMessage from '#utils/prepareMessage.js'
+import showLog from '#utils/showLog.js'
+import waitForWorker from '#utils/waitForWorker.js'
 import { multiPer, multiPerNBC } from './index.js'
 
 /**

@@ -13,7 +13,7 @@
  */
 
 import testPerformances from './testPerformances.js'
-import HugeIntEx from '../HugeIntEx/index.js'
+import HugeIntEx from '#HugeIntEx/index.js'
 
 const multiplyBy = 1
 const numIterations = 1_000_000_001

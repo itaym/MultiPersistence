@@ -4,6 +4,20 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "imports": {
+    "#Config/*": "./Config/*",
+    "#Digits/*": "./Digits/*",
+    "#HugeInt/*": "./HugeInt/*",
+    "#HugeIntEx/*": "./HugeIntEx/*",
+    "#MultiplicativePersistence/*": "./MultiplicativePersistence/*",
+    "#ToPrimitive/*": "./ToPrimitive/*",
+    "#caching/*": "./caching/*",
+    "#io/*": "./io/*",
+    "#permutations/*": "./permutations/*",
+    "#testPerformances/*": "./testPerformances/*",
+    "#utils/*": "./utils/*",
+    "#workers/*": "./workers/*"
+  },
   "scripts": {
     "test": "node HugeInt/HugeInt.test.js && node HugeInt/multiply.test.js && node HugeIntEx/HugeIntEx.test.js && node MultiplicativePersistence/multiplicativePersistence.test.js && node Config/computationStateIO.test.js"
   },

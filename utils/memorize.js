@@ -1,9 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import { createStore } from '../io/index.js'
+import { createStore } from '#io/index.js'
 import { readJsonFileSync } from './fileUtils.js'
 import { writeJsonFile } from './fileUtils.js'
-import { replacer, reviver } from '../io/bigintCodec.js'
+import { replacer, reviver } from '#io/bigintCodec.js'
 
 /** Module URL of the codec, shared with the `io` persist worker. */
 const CODEC_URL = new URL('../io/bigintCodec.js', import.meta.url).href

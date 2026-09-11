@@ -12,7 +12,7 @@
  */
 
 import testPerformances from './testPerformances.js'
-import { digitsValue } from '../Digits/index.js'
+import { digitsValue } from '#Digits/index.js'
 
 const BASE = 9
 const BASE_N = 9n

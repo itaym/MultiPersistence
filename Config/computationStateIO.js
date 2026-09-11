@@ -2,9 +2,9 @@
 
 import { promises as fs } from 'fs'
 // eslint-disable-next-line no-unused-vars
-import HugeInt from '../HugeInt/index.js'
-import { writeTextFile } from '../utils/fileUtils.js'
-import { toJs } from '../io/utils.js'
+import HugeInt from '#HugeInt/index.js'
+import { writeTextFile } from '#utils/fileUtils.js'
+import { toJs } from '#io/utils.js'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
 /**

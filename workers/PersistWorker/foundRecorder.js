@@ -1,5 +1,5 @@
-import calcCellsArrFactorial from '../../utils/calcCellsArrFactorial.js'
-import factorial from '../../utils/factorial.js'
+import calcCellsArrFactorial from '#utils/calcCellsArrFactorial.js'
+import factorial from '#utils/factorial.js'
 
 /**
  * Immutable snapshot of a single found number, stored as `first` / `last` on the

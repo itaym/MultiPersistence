@@ -1,6 +1,6 @@
 
-import { initConfig } from '../Config/config.js'
-import { initPollyFill } from '../utils/pollyfill.js'
+import { initConfig } from '#Config/config.js'
+import { initPollyFill } from '#utils/pollyfill.js'
 import path from 'path'
 import { loadMapFromFileSync, saveMapToFile } from './memorize.js'
 

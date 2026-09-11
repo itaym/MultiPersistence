@@ -10,7 +10,7 @@
  */
 
 import testPerformances from './testPerformances.js'
-import HugeIntEx from '../HugeIntEx/index.js'
+import HugeIntEx from '#HugeIntEx/index.js'
 
 // ---- pool of real reduceHI cells ----
 const pool = []

@@ -1,4 +1,4 @@
-import { digitsObj as baseDigits, digitsValue, toBigInt } from '../Digits/index.js'
+import { digitsObj as baseDigits, digitsValue, toBigInt } from '#Digits/index.js'
 import { testDigitCellFactory } from './utils.js'
 import {
     addGroups,

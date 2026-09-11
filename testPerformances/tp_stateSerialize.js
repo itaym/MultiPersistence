@@ -19,7 +19,7 @@
  */
 
 import testPerformances from './testPerformances.js'
-import { toJs } from '../io/utils.js'
+import { toJs } from '#io/utils.js'
 
 // ---- size knobs (mid-size checkpoint by default) ----
 const STEPS = 10

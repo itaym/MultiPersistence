@@ -1,12 +1,12 @@
-import { baseDigits } from '../Digits/index.js'
+import { baseDigits } from '#Digits/index.js'
 import {
     sanitize,
     truncate,
     truncateWithRuler,
 } from '../utils/stringsUtils.js'
-import { getTimeString } from '../utils/getTimeString.js'
-import countPermutations from '../permutations/countPermutations.js'
-import HugeInt from '../HugeInt/index.js'
+import { getTimeString } from '#utils/getTimeString.js'
+import countPermutations from '#permutations/countPermutations.js'
+import HugeInt from '#HugeInt/index.js'
 import chalk from 'chalk'
 
 const RULER_WIDTH = 140

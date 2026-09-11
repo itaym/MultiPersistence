@@ -1,4 +1,4 @@
-import { digitsObj as baseDigits } from '../Digits/index.js'
+import { digitsObj as baseDigits } from '#Digits/index.js'
 
 /**
  * Groups this array's items by the key the callback returns.

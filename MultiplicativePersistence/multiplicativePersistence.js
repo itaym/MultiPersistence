@@ -1,4 +1,4 @@
-import { digitsValue } from '../Digits/index.js'
+import { digitsValue } from '#Digits/index.js'
 
 /**
  * One reused result object — `multiPer` / `multiPerNBC` / `reduceHI` write into it and return

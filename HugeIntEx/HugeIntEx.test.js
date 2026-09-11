@@ -6,7 +6,7 @@
  */
 
 import assert from 'node:assert/strict'
-import { HugeInt } from '../HugeInt/HugeInt.js'
+import { HugeInt } from '#HugeInt/HugeInt.js'
 import { HugeIntEx } from './HugeIntEx.js'
 
 let passed = 0

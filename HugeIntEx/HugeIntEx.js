@@ -9,7 +9,7 @@
  * @module HugeInt/HugeIntEx
  */
 
-import { HugeInt, defaultDigitCellFactory } from '../HugeInt/HugeInt.js'
+import { HugeInt, defaultDigitCellFactory } from '#HugeInt/HugeInt.js'
 
 export class HugeIntEx extends HugeInt {
 

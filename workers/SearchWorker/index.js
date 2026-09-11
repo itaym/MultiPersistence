@@ -16,17 +16,17 @@
  * @property {BigInt} range_start inclusive lower bound of this run's range (`0n` in continuous mode)
  * @property {number} startSessionTime timestamp (ms) when this session began
  * @property {number} startTime session start adjusted for prior uptime (ms)
- * @property {import('../../Config/computationStateIO.js').ComputationState} VARS the worker's starting computation state
+ * @property {import('#Config/computationStateIO.js').ComputationState} VARS the worker's starting computation state
  */
-import HugeInt from '../../HugeInt/index.js'
+import HugeInt from '#HugeInt/index.js'
 import { Worker, SHARE_ENV, parentPort } from 'worker_threads'
-import gaySchluffen from '../../utils/gaySchluffen.js'
-import { getComputationState } from '../../Config/computationStateIO.js'
-import { initPollyFill } from '../../utils/pollyfill.js'
-import { multiPerSearch } from '../../MultiplicativePersistence/index.js'
-import postMessages from '../../utils/postMessage.js'
-import showLog from '../../utils/showLog.js'
-import waitForWorker from '../../utils/waitForWorker.js'
+import gaySchluffen from '#utils/gaySchluffen.js'
+import { getComputationState } from '#Config/computationStateIO.js'
+import { initPollyFill } from '#utils/pollyfill.js'
+import { multiPerSearch } from '#MultiplicativePersistence/index.js'
+import postMessages from '#utils/postMessage.js'
+import showLog from '#utils/showLog.js'
+import waitForWorker from '#utils/waitForWorker.js'
 
 initPollyFill()
 
@@ -44,7 +44,7 @@ const run = async (normalizedEnv) => {
     env.log = ''
 
     // noinspection JSCheckFunctionSignatures
-    const worker = new Worker('../PersistWorker/index.js', {
+    const worker = new Worker(new URL(import.meta.resolve('#workers/PersistWorker/index.js')), {
         'env': SHARE_ENV,
         resourceLimits: {
             maxOldGenerationSizeMb: 32_768

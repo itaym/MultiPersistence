@@ -1,5 +1,5 @@
 import measureTime from './measureTime.js'
-import { getTimeString } from '../utils/getTimeString.js'
+import { getTimeString } from '#utils/getTimeString.js'
 
 /**
  * A `TimingStats` snapshot with the baseline throughput to compare against
@@ -33,8 +33,7 @@ import { getTimeString } from '../utils/getTimeString.js'
  */
 
 // `counter` is module-global so it isn't reset between successive runs in one process.
-// `run` is currently unused — leftover from the old pairwise implementation.
-let run, counter = 1
+let counter = 1
 
 /**
  * Formats one stats object into a printable {@link StatsRow}.

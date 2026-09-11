@@ -1,6 +1,6 @@
 import { argv } from 'node:process'
 // noinspection ES6UnusedImports
-import HugeInt from '../HugeInt/index.js'
+import HugeInt from '#HugeInt/index.js'
 
 /**
  * Coerces a CLI argument string to boolean, null, undefined, BigInt, or the raw string.

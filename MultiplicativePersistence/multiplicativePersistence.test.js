@@ -6,13 +6,15 @@
  */
 
 import assert from 'node:assert/strict'
-import { HugeIntEx } from '../HugeIntEx/HugeIntEx.js'
+import { HugeIntEx } from '#HugeIntEx/HugeIntEx.js'
 import { multiPer, multiPerNBC } from './multiplicativePersistence.js'
 
 let passed = 0
 let failed = 0
 
-/** @param {string} name @param {() => void} fn */
+/** @param {string} name
+ * @param {() => void} fn
+*/
 function test(name, fn) {
     try {
         fn()

@@ -1,4 +1,4 @@
-import memorize from '../utils/memorize.js'
+import memorize from '#utils/memorize.js'
 
 /**
  * Permutations of length `length` over digits 1…base. Internally cached.

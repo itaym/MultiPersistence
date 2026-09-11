@@ -1,5 +1,5 @@
-import HugeIntEx from '../../HugeIntEx/index.js'
-import { setComputationState } from '../../Config/computationStateIO.js'
+import HugeIntEx from '#HugeIntEx/index.js'
+import { setComputationState } from '#Config/computationStateIO.js'
 
 /**
  * The `found` message payload sent by `multiPerSearch`.

@@ -1,4 +1,4 @@
-import ToPrimitive from '../ToPrimitive/index.js'
+import ToPrimitive from '#ToPrimitive/index.js'
 
 const hrMilliseconds = process.hrtime.bigint()
 const dateNow = Date.now()
