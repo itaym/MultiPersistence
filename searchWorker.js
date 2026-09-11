@@ -1,8 +1,7 @@
 /**
- * Search worker: on a `run` message from the main thread — carrying the loaded config and
- * computation state — spawns the persist worker, runs {@link multiPerSearch}, then terminates
- * the persist worker. Coordinates with the persist worker through `process.env` rather than
- * blocking on it.
+ * Search worker: `init` stores the config sent by main, `run` spawns the persist worker, runs
+ * {@link multiPerSearch}, then terminates the persist worker. Coordinates with the persist
+ * worker through `process.env` rather than blocking on it.
  *
  * @module SearchWorker
  */
@@ -31,6 +30,12 @@ import waitForWorker from './utils/waitForWorker.js'
 
 initPollyFill()
 
+/**
+ * Spawns the persist worker, runs {@link multiPerSearch}, then terminates the persist worker.
+ *
+ * @param {NormalizedEnv} normalizedEnv config sent by main over the `init` message
+ * @returns {Promise<void>}
+ */
 const run = async (normalizedEnv) => {
 
     const { env } = process
@@ -82,6 +87,12 @@ const run = async (normalizedEnv) => {
     showLog('---------- FINISH ----------')
 }
 
+/**
+ * Stores the config sent by main and signals readiness.
+ *
+ * @param {{normalizedEnv: NormalizedEnv}} msg init message payload
+ * @returns {void}
+ */
 const init = (msg) => {
     process.normalizedEnv = msg.normalizedEnv
     parentPort.postMessage({ type: 'ready' })
