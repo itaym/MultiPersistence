@@ -23,16 +23,15 @@ import HugeInt from './HugeInt/index.js'
 import { Worker, SHARE_ENV, parentPort } from 'worker_threads'
 import gaySchluffen from './utils/gaySchluffen.js'
 import { getComputationState } from './Config/computationStateIO.js'
-import { initConfig } from './Config/config.js'
 import { initPollyFill } from './utils/pollyfill.js'
 import { multiPerSearch } from './MultiplicativePersistence/index.js'
 import postMessages from './utils/postMessage.js'
 import showLog from './utils/showLog.js'
 import waitForWorker from './utils/waitForWorker.js'
 
+initPollyFill()
+
 const run = async (normalizedEnv) => {
-    initConfig()
-    initPollyFill()
 
     const { env } = process
 
