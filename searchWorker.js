@@ -1,7 +1,8 @@
 /**
- * Search worker: on a `run` message from the main thread, spawns the persist worker, loads
- * the computation state, runs {@link multiPerSearch}, then terminates the persist worker.
- * Coordinates with the persist worker through `process.env` rather than blocking on it.
+ * Search worker: on a `run` message from the main thread — carrying the loaded config and
+ * computation state — spawns the persist worker, runs {@link multiPerSearch}, then terminates
+ * the persist worker. Coordinates with the persist worker through `process.env` rather than
+ * blocking on it.
  *
  * @module SearchWorker
  */
@@ -19,12 +20,12 @@
  * @property {import('./Config/computationStateIO.js').ComputationState} VARS the worker's starting computation state
  */
 import HugeInt from './HugeInt/index.js'
-import postMessages from './utils/postMessage.js'
 import { Worker, SHARE_ENV, parentPort } from 'worker_threads'
 import { getComputationState } from './Config/computationStateIO.js'
 import { initConfig } from './Config/config.js'
 import { initPollyFill } from './utils/pollyfill.js'
 import { multiPerSearch } from './MultiplicativePersistence/index.js'
+import postMessages from './utils/postMessage.js'
 import showLog from './utils/showLog.js'
 import waitForWorker from './utils/waitForWorker.js'
 

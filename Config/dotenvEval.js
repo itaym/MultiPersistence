@@ -24,14 +24,13 @@ const coerceCliValue = (rawValue) => {
 }
 
 /**
- * Evals each dotenv value into `process.normalizedEnv` (trusted input) and derives `goal_number`.
+ * Builds a normalizedEnv object from dotenv values (trusted input) and derives `goal_number`.
  *
  * @param {Object<string,string>} parsed raw dotenv variables
- * @returns {void}
+ * @returns {object}
  */
 const normalizeEnvFromDotenv = (parsed) => {
-    const normalizedEnv = process.normalizedEnv || {}
-    process.normalizedEnv = normalizedEnv
+    const normalizedEnv = {}
 
     for (const [key, value] of Object.entries(parsed)) {
         try {
@@ -43,16 +42,18 @@ const normalizeEnvFromDotenv = (parsed) => {
 
     normalizedEnv.goal_number =
         BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10)
+
+    return normalizedEnv
 }
 
 /**
  * Applies `key=value` CLI args to `normalizedEnv` and `process.env`, re-deriving `goal_number`.
  *
+ * @param {object} normalizedEnv
  * @param {string[]} argv
- * @returns {void}
+ * @returns {object}
  */
-const applyCliOverrides = (argv) => {
-    const normalizedEnv = process.normalizedEnv || {}
+const applyCliOverrides = (normalizedEnv, argv) => {
     const env = process.env
 
     for (const arg of argv) {
@@ -70,6 +71,8 @@ const applyCliOverrides = (argv) => {
         normalizedEnv.goal_number =
             BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10)
     }
+
+    return normalizedEnv
 }
 
 /**
@@ -77,15 +80,14 @@ const applyCliOverrides = (argv) => {
  *
  * @param {Object<string,string>} parsed parsed dotenv variables
  * @param {Object<string,string>} error dotenv error, if any
- * @returns {void}
+ * @returns {object}
  */
 const dotenvEval = ({ parsed, error }) => {
     if (error) {
         console.error(error)
         process.exit(1)
     }
-    normalizeEnvFromDotenv(parsed)
-    applyCliOverrides(argv)
+    return applyCliOverrides(normalizeEnvFromDotenv(parsed), argv)
 }
 
 export default dotenvEval

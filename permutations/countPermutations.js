@@ -1,8 +1,4 @@
-import { initConfig } from '../Config/config.js'
-
 import memorize from '../utils/memorize.js'
-
-initConfig()
 
 /**
  * Permutations of length `length` over digits 1…base. Internally cached.

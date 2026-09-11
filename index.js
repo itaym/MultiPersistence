@@ -5,6 +5,8 @@
  */
 import { Worker, SHARE_ENV } from 'worker_threads'
 import gaySchluffen from './utils/gaySchluffen.js'
+// noinspection ES6UnusedImports
+import { initConfig } from './Config/config.js'
 
 const MAX_MILLISECONDS_FOR_TIMEOUT = 2_147_483_647
 

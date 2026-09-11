@@ -1,6 +1,4 @@
 import memorize from './memorize.js'
-import { initConfig } from '../Config/config.js'
-initConfig()
 
 /**
  * Factorial of `number` (`1n` for values ≤ 1n).
