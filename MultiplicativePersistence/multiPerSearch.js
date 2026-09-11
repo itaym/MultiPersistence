@@ -40,6 +40,7 @@ const cellFactory = () => ({
  * @param {number} log_interval                ms between log prints
  * @param {number} startSessionTime            wall-clock start of this session
  * @param {number} startTime                   virtual start (`now - total up_time`)
+ * @param {() => Promise<void>} tick           called once per checkpoint; caller decides what it does
  * @param {Worker} worker                      receives results and log ticks
  * @returns {Promise<void>}
  */
@@ -50,6 +51,7 @@ export const multiPerSearch = async (
     log_interval,
     startSessionTime,
     startTime,
+    tick,
     worker,
 ) => {
     const { base, iterations, last_number } = computationState
@@ -129,6 +131,7 @@ export const multiPerSearch = async (
 
         iterationsAtLastLog = countIterations
         startTimeLog = Date.now()
+        await tick()
     }
 
     // ---- prologue: single-digit numbers need the base-case-aware multiPer ----

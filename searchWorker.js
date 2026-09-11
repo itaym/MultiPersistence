@@ -21,6 +21,7 @@
  */
 import HugeInt from './HugeInt/index.js'
 import { Worker, SHARE_ENV, parentPort } from 'worker_threads'
+import gaySchluffen from './utils/gaySchluffen.js'
 import { getComputationState } from './Config/computationStateIO.js'
 import { initConfig } from './Config/config.js'
 import { initPollyFill } from './utils/pollyfill.js'
@@ -74,8 +75,10 @@ const run = async () => {
         await waitForWorker(100)
     }
 
+    const tick = () => gaySchluffen(0)
+
     // noinspection JSCheckFunctionSignatures
-    await multiPerSearch(check_interval_count, checkpoint_interval, computationState, log_interval, startSessionTime, startTime, worker)
+    await multiPerSearch(check_interval_count, checkpoint_interval, computationState, log_interval, startSessionTime, startTime, tick, worker)
     await worker.terminate()
     showLog('---------- FINISH ----------')
 }
@@ -88,4 +91,6 @@ const init = (msg) => {
 parentPort.on('message', (msg) => {
     if (msg?.type === 'init') init(msg)
     if (msg?.type === 'run') run().then()
+    if (msg?.type === 'debugger')
+        debugger
 })
