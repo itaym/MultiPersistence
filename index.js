@@ -15,4 +15,6 @@ worker.on('message', (msg) => {
     if (msg?.type === 'showLog') console.log(msg.text)
 })
 
+worker.postMessage({ type: 'run' })
+
 await gaySchluffen(MAX_MILLISECONDS_FOR_TIMEOUT)

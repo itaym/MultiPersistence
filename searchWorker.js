@@ -1,7 +1,7 @@
 /**
- * Search worker: boots config, spawns the persist worker, loads the computation state, runs
- * {@link multiPerSearch}, then terminates the persist worker. Coordinates with the persist
- * worker through `process.env` rather than blocking on it.
+ * Search worker: on a `run` message from the main thread, spawns the persist worker, loads
+ * the computation state, runs {@link multiPerSearch}, then terminates the persist worker.
+ * Coordinates with the persist worker through `process.env` rather than blocking on it.
  *
  * @module SearchWorker
  */
@@ -20,7 +20,7 @@
  */
 import HugeInt from './HugeInt/index.js'
 import postMessages from './utils/postMessage.js'
-import { Worker, SHARE_ENV } from 'worker_threads'
+import { Worker, SHARE_ENV, parentPort } from 'worker_threads'
 import { getComputationState } from './Config/computationStateIO.js'
 import { initConfig } from './Config/config.js'
 import { initPollyFill } from './utils/pollyfill.js'
@@ -28,51 +28,57 @@ import { multiPerSearch } from './MultiplicativePersistence/index.js'
 import showLog from './utils/showLog.js'
 import waitForWorker from './utils/waitForWorker.js'
 
-initConfig()
-initPollyFill()
+const run = async () => {
+    initConfig()
+    initPollyFill()
 
-const { env, normalizedEnv } = process
+    const { env, normalizedEnv } = process
 
-env.isWorkerReady = 'false'
-env.log = ''
+    env.isWorkerReady = 'false'
+    env.log = ''
 
-// noinspection JSCheckFunctionSignatures
-const worker = new Worker('./worker/index.js', {
-    'env': SHARE_ENV,
-    resourceLimits: {
-        maxOldGenerationSizeMb: 32_768
-    },
+    // noinspection JSCheckFunctionSignatures
+    const worker = new Worker('./worker/index.js', {
+        'env': SHARE_ENV,
+        resourceLimits: {
+            maxOldGenerationSizeMb: 32_768
+        },
+    })
+
+    let computationState = await getComputationState()
+
+    const check_interval_count = normalizedEnv.check_interval_count
+    const checkpoint_interval = normalizedEnv.checkpoint_interval
+    const goalNumber = new HugeInt(normalizedEnv.goal_number, normalizedEnv.base)
+    const log_interval = normalizedEnv.log_interval
+    const startSessionTime = Date.now()
+    const startTime = startSessionTime - computationState.up_time
+
+    /** @type {WorkerConfig} */
+    const workerConfig = {
+        base:  normalizedEnv.base,
+        goal: computationState.goal,
+        goalNumber: goalNumber.value,
+        range_start: computationState.range_start,
+        startSessionTime,
+        startTime,
+        VARS: {
+            ...computationState,
+        },
+    }
+
+    postMessages( worker, 'init', workerConfig)
+
+    while (process.env.isWorkerReady !== 'true') {
+        await waitForWorker(100)
+    }
+
+    // noinspection JSCheckFunctionSignatures
+    await multiPerSearch(check_interval_count, checkpoint_interval, computationState, log_interval, startSessionTime, startTime, worker)
+    await worker.terminate()
+    showLog('---------- FINISH ----------')
+}
+
+parentPort.on('message', (msg) => {
+    if (msg?.type === 'run') run()
 })
-
-let computationState = await getComputationState()
-
-const check_interval_count = normalizedEnv.check_interval_count
-const checkpoint_interval = normalizedEnv.checkpoint_interval
-const goalNumber = new HugeInt(normalizedEnv.goal_number, normalizedEnv.base)
-const log_interval = normalizedEnv.log_interval
-const startSessionTime = Date.now()
-const startTime = startSessionTime - computationState.up_time
-
-/** @type {WorkerConfig} */
-const workerConfig = {
-    base:  normalizedEnv.base,
-    goal: computationState.goal,
-    goalNumber: goalNumber.value,
-    range_start: computationState.range_start,
-    startSessionTime,
-    startTime,
-    VARS: {
-        ...computationState,
-    },
-}
-
-postMessages( worker, 'init', workerConfig)
-
-while (process.env.isWorkerReady !== 'true') {
-    await waitForWorker(100)
-}
-
-// noinspection JSCheckFunctionSignatures
-await multiPerSearch(check_interval_count, checkpoint_interval, computationState, log_interval, startSessionTime, startTime, worker)
-await worker.terminate()
-showLog('---------- FINISH ----------')
