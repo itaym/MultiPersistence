@@ -1,12 +1,12 @@
-import HugeInt from '../HugeInt/index.js'
-import logMultiPersistence from '../MultiplicativePersistence/logMultiPersistence.js'
+import HugeInt from '../../HugeInt/index.js'
+import logMultiPersistence from '../../MultiplicativePersistence/logMultiPersistence.js'
 import { createFoundRecorder } from './foundRecorder.js'
 
 /**
- * @typedef {import('../index.js').WorkerConfig} WorkerConfig
- * @typedef {import('../Config/computationStateIO.js').ComputationState} ComputationState
+ * @typedef {import('../SearchWorker/index.js').WorkerConfig} WorkerConfig
+ * @typedef {import('../../Config/computationStateIO.js').ComputationState} ComputationState
  * @typedef {import('./foundRecorder.js').FoundRecorder} FoundRecorder
- * @typedef {import('../utils/prepareMessage.js').FoundMessage} FoundMessage
+ * @typedef {import('../../utils/prepareMessage.js').FoundMessage} FoundMessage
  */
 
 /**

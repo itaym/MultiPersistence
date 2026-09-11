@@ -1,9 +1,9 @@
-import HugeIntEx from '../HugeIntEx/index.js'
-import { setComputationState } from '../Config/computationStateIO.js'
+import HugeIntEx from '../../HugeIntEx/index.js'
+import { setComputationState } from '../../Config/computationStateIO.js'
 
 /**
  * @typedef {import('./workerContext.js').WorkerContext} WorkerContext
- * @typedef {import('../utils/prepareMessage.js').FoundMessage} FoundMessage
+ * @typedef {import('../../utils/prepareMessage.js').FoundMessage} FoundMessage
  */
 
 /**
@@ -58,7 +58,7 @@ export const processFound = async (context, found) => {
     context.stackMessages.push(messages)
     const messagesCount = drainStackedMessages(context, endTime)
 
-    /** @type {import('../Config/computationStateIO.js').Iterations} */
+    /** @type {import('../../Config/computationStateIO.js').Iterations} */
     computationState.iterations = {
         calculated: calcIterations,
         count: countIterations,

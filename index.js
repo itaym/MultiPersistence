@@ -11,7 +11,7 @@ import { initConfig } from './Config/config.js'
 const MAX_MILLISECONDS_FOR_TIMEOUT = 2_147_483_647
 
 // noinspection JSCheckFunctionSignatures
-const worker = new Worker('./searchWorker.js', { env: SHARE_ENV })
+const worker = new Worker('./workers/SearchWorker/index.js', { env: SHARE_ENV })
 
 worker.on('message', (msg) => {
     if (msg?.type === 'showLog') console.log(msg.text)

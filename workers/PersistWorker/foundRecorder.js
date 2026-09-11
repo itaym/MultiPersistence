@@ -1,9 +1,9 @@
-import calcCellsArrFactorial from '../utils/calcCellsArrFactorial.js'
-import factorial from '../utils/factorial.js'
+import calcCellsArrFactorial from '../../utils/calcCellsArrFactorial.js'
+import factorial from '../../utils/factorial.js'
 
 /**
- * @typedef {import('../utils/prepareMessage.js').FoundMessage} FoundMessage
- * @typedef {import('../Config/computationStateIO.js').ComputationState} ComputationState
+ * @typedef {import('../../utils/prepareMessage.js').FoundMessage} FoundMessage
+ * @typedef {import('../../Config/computationStateIO.js').ComputationState} ComputationState
  */
 
 /**
@@ -53,7 +53,7 @@ const bumpHist = (hist, key) => {
  * @param {number} step
  * @param {number} atRunTime
  * @param {FoundSnapshot} first
- * @returns {import('../Config/computationStateIO.js').TypeStep}
+ * @returns {import('../../Config/computationStateIO.js').TypeStep}
  */
 const createStepBucket = (step, atRunTime, first) => ({
     additionSum: 0n,
