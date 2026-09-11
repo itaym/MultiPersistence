@@ -2,11 +2,6 @@ import HugeIntEx from '../../HugeIntEx/index.js'
 import { setComputationState } from '../../Config/computationStateIO.js'
 
 /**
- * @typedef {import('./workerContext.js').WorkerContext} WorkerContext
- * @typedef {import('../../utils/prepareMessage.js').FoundMessage} FoundMessage
- */
-
-/**
  * The `found` message payload sent by `multiPerSearch`.
  *
  * @typedef {Object} FoundPayload

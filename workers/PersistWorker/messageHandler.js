@@ -2,12 +2,6 @@ import { createWorkerContext } from './workerContext.js'
 import { processFound } from './processFound.js'
 
 /**
- * @typedef {import('./workerContext.js').WorkerContext} WorkerContext
- * @typedef {import('./processFound.js').FoundPayload} FoundPayload
- * @typedef {import('../utils/prepareMessage.js').FoundMessage} FoundMessage
- */
-
-/**
  * A message from the main thread.
  *
  * @typedef {Object} WorkerMessage

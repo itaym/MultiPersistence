@@ -3,13 +3,6 @@ import logMultiPersistence from '../../MultiplicativePersistence/logMultiPersist
 import { createFoundRecorder } from './foundRecorder.js'
 
 /**
- * @typedef {import('../SearchWorker/index.js').WorkerConfig} WorkerConfig
- * @typedef {import('../../Config/computationStateIO.js').ComputationState} ComputationState
- * @typedef {import('./foundRecorder.js').FoundRecorder} FoundRecorder
- * @typedef {import('../../utils/prepareMessage.js').FoundMessage} FoundMessage
- */
-
-/**
  * Everything the worker builds once, on `init`, and reuses for every later message.
  *
  * @typedef {Object} WorkerContext

@@ -11,10 +11,6 @@
 
 import { HugeInt, defaultDigitCellFactory } from '../HugeInt/HugeInt.js'
 
-/**
- * @typedef {import('../HugeInt/HugeInt.js').DigitCell} DigitCell
- */
-
 export class HugeIntEx extends HugeInt {
 
     /** @private @type {BigInt} base used for digit decomposition and arithmetic */

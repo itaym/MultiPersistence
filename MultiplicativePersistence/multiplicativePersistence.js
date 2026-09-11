@@ -1,10 +1,6 @@
 import { digitsValue } from '../Digits/index.js'
 
 /**
- * @typedef {import('../jsdoc-types.d.ts.js').ReduceResults} ReduceResults
- */
-
-/**
  * One reused result object — `multiPer` / `multiPerNBC` / `reduceHI` write into it and return
  * it, so the caller must read what it needs before the next call.
  *

@@ -2,12 +2,6 @@ import measureTime from './measureTime.js'
 import { getTimeString } from '../utils/getTimeString.js'
 
 /**
- * @typedef {import('./measureTime.js').AnyFn} AnyFn
- * @typedef {import('./measureTime.js').MeasuredFn} MeasuredFn
- * @typedef {import('./measureTime.js').TimingStats} TimingStats
- */
-
-/**
  * A `TimingStats` snapshot with the baseline throughput to compare against
  * spliced in by {@link showStats} (here: the mean `perSecond` of the group).
  *

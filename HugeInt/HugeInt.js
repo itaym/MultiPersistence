@@ -10,11 +10,6 @@ import {
 } from './multiply.js'
 
 /**
- * @typedef {import('./multiply.js').DigitGroup} DigitGroup
- * @typedef {import('./multiply.js').DigitGroups} DigitGroups
- */
-
-/**
  * A single digit-cell in the HugeInt linked list.
  *
  * @typedef {Object} DigitCell

@@ -2,11 +2,6 @@ import calcCellsArrFactorial from '../../utils/calcCellsArrFactorial.js'
 import factorial from '../../utils/factorial.js'
 
 /**
- * @typedef {import('../../utils/prepareMessage.js').FoundMessage} FoundMessage
- * @typedef {import('../../Config/computationStateIO.js').ComputationState} ComputationState
- */
-
-/**
  * Immutable snapshot of a single found number, stored as `first` / `last` on the
  * per-step and per-length buckets.
  *

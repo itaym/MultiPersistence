@@ -7,13 +7,6 @@ import waitForWorker from '../utils/waitForWorker.js'
 import { multiPer, multiPerNBC } from './index.js'
 
 /**
- * @typedef {import('../Config/computationStateIO.js').ComputationState} ComputationState
- * @typedef {import('../HugeInt/HugeInt.js').DigitCell} DigitCell
- * @typedef {import('../jsdoc-types.d.ts.js').ReduceResults} ReduceResults
- * @typedef {import('worker_threads').Worker} Worker
- */
-
-/**
  * Search-style digit cell — carries the `reduceHI` caches
  * (`changed` / `additionSum` / `multiplySum`).
  *
