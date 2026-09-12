@@ -19,7 +19,7 @@
     "#workers/*": "./workers/*"
   },
   "scripts": {
-    "test": "node HugeInt/HugeInt.test.js && node HugeInt/multiply.test.js && node HugeIntEx/HugeIntEx.test.js && node MultiplicativePersistence/multiplicativePersistence.test.js && node Config/computationStateIO.test.js"
+    "test": "node HugeInt/HugeInt.test.js && node HugeInt/multiply.test.js && node HugeIntEx/HugeIntEx.test.js && node MultiplicativePersistence/multiplicativePersistence.test.js && node Config/computationStateIO.test.js && node permutations/positionOf.test.js"
   },
   "author": "Itay Merchav",
   "license": "ISC",
