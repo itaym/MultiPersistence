@@ -12,7 +12,7 @@ import { resolve } from 'path'
  *
  * @typedef {object} Iterations
  * @property {BigInt} calculated total calculated iterations
- * @property {number} count total real iterations performed
+ * @property {BigInt} count total real iterations performed
  * @property {number} found_nothing consecutive iterations that found nothing
  * @property {number} found_nothing_break_at miss count at which the search stops
  */
@@ -55,14 +55,14 @@ import { resolve } from 'path'
  * @property {number} createdAt timestamp (ms) when this segment was created
  * @property {BigInt} endAt inclusive upper bound of this segment
  * @property {string} id unique id for this segment
- * @property {BigInt} startAt inclusive lower bound of this segment
+ * @property {BigInt} previousEndAt the previous segment's `endAt` (`0n` for the first segment) —
+ *   not itself tested; the first number this segment tests is `addOneToSorted(previousEndAt)`
  */
 
 /**
  * Structure of the state loaded from disk.
  *
  * @typedef {object} ComputationState
- * @property {BigInt} base numeric base used for HugeInt operations
  * @property {BigInt} goal exclusive upper bound — the first candidate not to check
  * @property {Iterations} iterations iteration statistics
  * @property {BigInt} last_number last number processed before saving (the moving resume point)
@@ -88,7 +88,6 @@ export const getComputationState = async () => {
 
     /** @type ComputationState */
     const defaultVars = {
-        base: normalizedEnv.base,
         goal: normalizedEnv.goal_number,
         iterations: {
             calculated: 0n,
@@ -102,7 +101,7 @@ export const getComputationState = async () => {
             createdAt: Date.now(),
             endAt: normalizedEnv.goal_number,
             id: crypto.randomUUID(),
-            startAt: 0n,
+            previousEndAt: 0n,
         },
         number_lengths: {},
         range_start: 0n,
@@ -119,7 +118,7 @@ export const getComputationState = async () => {
             createdAt: Date.now(),
             endAt: normalizedEnv.goal_number,
             id: crypto.randomUUID(),
-            startAt: 0n,
+            previousEndAt: 0n,
         }
         state.range_start ??= 0n
         return state

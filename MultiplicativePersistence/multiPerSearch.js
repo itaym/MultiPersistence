@@ -47,7 +47,8 @@ export const multiPerSearch = async (
     tick,
     worker,
 ) => {
-    const { base, iterations, last_number } = computationState
+    const { iterations, last_number, meta } = computationState
+    const { base } = meta
     const numBase = Number(base)
     const goalLength = process.normalizedEnv.goal_power_of10
     const goalNo = new HugeIntEx(process.normalizedEnv.goal_number)
