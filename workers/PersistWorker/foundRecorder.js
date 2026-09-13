@@ -48,7 +48,7 @@ const bumpHist = (hist, key) => {
  * @param {number} step
  * @param {number} atRunTime
  * @param {FoundSnapshot} first
- * @returns {import('../../Config/computationStateIO.js').TypeStep}
+ * @returns {TypeStep}
  */
 const createStepBucket = (step, atRunTime, first) => ({
     additionSum: 0n,
@@ -109,6 +109,7 @@ const createLengthsArray = (currentNo) => {
 export const createFoundRecorder = (computationState) => {
     const { steps: countSteps, number_lengths: numberLengths } = computationState
 
+    /** @type {FoundRecorder} */
     return ({ additionSum, atRunTime, calcIterations, multiplySum, productLength, steps }, currentNo, length, startTime, endTime) => {
         const numberValue = currentNo.value
         const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(createLengthsArray(currentNo))
