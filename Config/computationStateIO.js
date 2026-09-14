@@ -1,12 +1,9 @@
 // noinspection ES6UnusedImports
 
-import { promises as fs } from 'fs'
 // eslint-disable-next-line no-unused-vars
 import HugeInt from '#HugeInt/index.js'
-import { writeTextFile } from '#utils/fileUtils.js'
+import { importJsFile, writeTextFile } from '#utils/fileUtils.js'
 import { toJs } from '#io/utils.js'
-import { pathToFileURL } from 'url'
-import { resolve } from 'path'
 /**
  * Iteration statistics stored in the results file.
  *
@@ -60,6 +57,7 @@ import { resolve } from 'path'
  *   not itself tested; the first number this segment tests is `addOneToSorted(previousEndAt)`
  * @property {number} startId lowest original segment id merged into this result (own id if unmerged)
  * @property {'running'|'done'} status whether this segment is still being processed or finished
+ * @property {BigInt} [targetIterations] real iterations this segment should run for, set by a segments manager
  */
 
 /**
@@ -133,19 +131,8 @@ export const getComputationState = async () => {
         return state
     }
 
-    const stem = resolve(resultsStem(normalizedEnv.base))
-
-    try {
-        return backfill((await import(pathToFileURL(`${stem}.js`).href)).default)
-    } catch {}
-
-    try {
-        // main file missing or corrupt — import the backup as an inline module
-        const src = await fs.readFile(`${stem}.js.bak`, 'utf8')
-        return backfill((await import(`data:text/javascript,${encodeURIComponent(src)}`)).default)
-    } catch {}
-
-    return defaultVars
+    const loaded = await importJsFile(resultsStem(normalizedEnv.base))
+    return loaded ? backfill(loaded) : defaultVars
 }
 
 /**

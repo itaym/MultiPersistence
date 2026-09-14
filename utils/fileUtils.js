@@ -1,5 +1,29 @@
 import { promises as fsPromises } from 'fs'
 import fs from 'fs'
+import { pathToFileURL } from 'url'
+import { resolve } from 'path'
+
+/**
+ * Imports `<stem>.js` as an ES module and returns its default export, falling back to
+ * `<stem>.js.bak` (read as text and imported as an inline module) if the primary file is
+ * missing or fails to import.
+ *
+ * @param {string} stem path without the `.js` extension
+ * @returns {Promise<*>} `undefined` if both imports fail
+ */
+export const importJsFile = async (stem) => {
+    try {
+        return (await import(pathToFileURL(resolve(`${stem}.js`)).href)).default
+    } catch {}
+
+    try {
+        const src = await fsPromises.readFile(`${stem}.js.bak`, 'utf8')
+        return (await import(`data:text/javascript,${encodeURIComponent(src)}`)).default
+    } catch {}
+
+    return undefined
+}
+
 /**
  * Writes `value` as JSON, renaming any existing file to `.bak` first.
  *
