@@ -16,9 +16,10 @@ const cellFactory = () => ({
  * @param {BigInt} seed last number already checked (`0n` for a fresh start)
  * @param {BigInt} base
  * @param {BigInt} iterations number of iterations to run
+ * @param {number} [notFound=0] consecutive misses inherited from the previous segment
  * @returns {ComputationState}
  */
-const runSegment = (seed, base, iterations) => {
+const runSegment = (seed, base, iterations, notFound = 0) => {
     const numBase = Number(base)
     const startTime = Date.now()
 
@@ -37,7 +38,6 @@ const runSegment = (seed, base, iterations) => {
     const message = prepareMessage.bind(currentNo)
     let calcIterations = 0n
     let countIterations = 0n
-    let notFound = 0
     let reduceResults
 
     while (currentNo.length === 1n && countIterations < iterations) {
