@@ -54,9 +54,12 @@ import { resolve } from 'path'
  * @property {BigInt} base numeric base used for HugeInt operations
  * @property {number} createdAt timestamp (ms) when this segment was created
  * @property {BigInt} endAt inclusive upper bound of this segment
+ * @property {number} endId highest original segment id merged into this result (own id if unmerged)
  * @property {string} id unique id for this segment
  * @property {BigInt} previousEndAt the previous segment's `endAt` (`0n` for the first segment) —
  *   not itself tested; the first number this segment tests is `addOneToSorted(previousEndAt)`
+ * @property {number} startId lowest original segment id merged into this result (own id if unmerged)
+ * @property {'running'|'done'} status whether this segment is still being processed or finished
  */
 
 /**
@@ -100,8 +103,11 @@ export const getComputationState = async () => {
             base: normalizedEnv.base,
             createdAt: Date.now(),
             endAt: normalizedEnv.goal_number,
+            endId: 1,
             id: crypto.randomUUID(),
             previousEndAt: 0n,
+            startId: 1,
+            status: 'running',
         },
         number_lengths: {},
         range_start: 0n,
@@ -117,8 +123,11 @@ export const getComputationState = async () => {
             base: normalizedEnv.base,
             createdAt: Date.now(),
             endAt: normalizedEnv.goal_number,
+            endId: 1,
             id: crypto.randomUUID(),
             previousEndAt: 0n,
+            startId: 1,
+            status: 'running',
         }
         state.range_start ??= 0n
         return state
