@@ -24,8 +24,7 @@ const cellFactory = () => ({
 
 /**
  * Runs the multiplicative-persistence search for one session, resuming past
- * `computationState.last_number` until a number hits `goal_power_of10` digits or the not-found
- * tolerance runs out.
+ * `computationState.last_number` until the not-found tolerance runs out.
  *
  * @param {number} check_interval_count        iterations between wall-clock checks
  * @param {number} checkpoint_interval         ms between checkpoint saves
@@ -50,8 +49,6 @@ export const multiPerSearch = async (
     const { iterations, last_number, meta } = computationState
     const { base } = meta
     const numBase = Number(base)
-    const goalLength = process.normalizedEnv.goal_power_of10
-    const goalNo = new HugeIntEx(process.normalizedEnv.goal_number)
 
     let calcIterations = iterations.calculated
     let countIterations = iterations.count
@@ -166,7 +163,7 @@ export const multiPerSearch = async (
             }
             iterationsCheckCount = 0
         }
-        if (notFound >= notFoundLimit || currentNo.length >= goalLength || currentNo.compare(goalNo) >= 0) break
+        if (notFound >= notFoundLimit) break
     }
 
     await checkpoint(Date.now())

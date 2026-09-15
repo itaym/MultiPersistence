@@ -94,7 +94,7 @@ export const getComputationState = async () => {
             calculated: 0n,
             count: 0,
             found_nothing: 0,
-            found_nothing_break_at: 1_000_000_000,
+            found_nothing_break_at: normalizedEnv.found_nothing_break_at,
         },
         last_number: normalizedEnv.last_number,
         meta: {

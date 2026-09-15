@@ -40,9 +40,6 @@ const normalizeEnvFromDotenv = (parsed) => {
         }
     }
 
-    normalizedEnv.goal_number =
-        BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10)
-
     return normalizedEnv
 }
 
@@ -65,11 +62,6 @@ const applyCliOverrides = (normalizedEnv, argv) => {
 
         normalizedEnv[lowerKey] = value
         env[lowerKey] = value + ''
-    }
-
-    if ('base' in normalizedEnv && 'goal_power_of10' in normalizedEnv) {
-        normalizedEnv.goal_number =
-            BigInt(normalizedEnv.base) ** BigInt(normalizedEnv.goal_power_of10)
     }
 
     return normalizedEnv
