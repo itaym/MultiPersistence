@@ -1,4 +1,5 @@
 import memorize from '#utils/memorize.js'
+import MultiMap from '#utils/MultiMap.js'
 
 /**
  * Permutations of length `length` over digits 1…base. Internally cached.
@@ -9,8 +10,8 @@ import memorize from '#utils/memorize.js'
  */
 const _getPermutations = (() => {
 
-    const getPCache = new Map()
-    const getPCacheLast = new Map()
+    const getPCache = new MultiMap()
+    const getPCacheLast = new MultiMap()
 
     return (base, length) => {
         if (length === 1n) return base
@@ -46,8 +47,8 @@ const _getPermutations = (() => {
  */
 const getPermutations = (() => {
 
-    const cacheLast = new Map()
-    const cache = new Map()
+    const cacheLast = new MultiMap()
+    const cache = new MultiMap()
 
     return memorize((base, length) => {
 
