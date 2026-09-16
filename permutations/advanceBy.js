@@ -1,3 +1,4 @@
+import HugeIntEx from '#HugeIntEx/index.js'
 import { numberAt, positionOf } from './positionOf.js'
 
 /**
@@ -9,6 +10,6 @@ import { numberAt, positionOf } from './positionOf.js'
  * @param {BigInt} iterations calcIterations to advance by
  * @returns {BigInt} the number reached
  */
-const advanceBy = (sourceNo, base, iterations) => numberAt(positionOf(sourceNo, base) + iterations, base)
+const advanceBy = (sourceNo, base, iterations) => numberAt(positionOf(new HugeIntEx(sourceNo, base)) + iterations, base)
 
 export default advanceBy

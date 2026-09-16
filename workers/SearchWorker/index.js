@@ -55,7 +55,7 @@ const run = async (normalizedEnv) => {
 
     const check_interval_count = normalizedEnv.check_interval_count
     const checkpoint_interval = normalizedEnv.checkpoint_interval
-    const goalNumber = new HugeInt(normalizedEnv.goal_number, normalizedEnv.base)
+    const goalNumber = new HugeInt(normalizedEnv.pseudo_goal_number, normalizedEnv.base)
     const log_interval = normalizedEnv.log_interval
     const startSessionTime = Date.now()
     const startTime = startSessionTime - computationState.up_time

@@ -8,6 +8,7 @@ import { getTimeString } from '#utils/getTimeString.js'
 import countPermutations from '#permutations/countPermutations.js'
 import HugeInt from '#HugeInt/index.js'
 import chalk from 'chalk'
+import {positionOf} from "#permutations/positionOf.js";
 
 const RULER_WIDTH = 140
 const MAX_MILLISECONDS = BigInt('9'.repeat(500))
@@ -203,11 +204,11 @@ const buildCountStepsLog = (countSteps, endTime, startTime) => {
  * Creates a logging function for multiplicative-persistence sessions.
  *
  * @param {BigInt} base - numeric base used for HugeInt operations
- * @param {HugeInt} goalNumber - the target number
+ * @param {HugeIntEx} goalNumber - the target number
  * @returns {function(LogSessionStats): String} function that formats and returns a log string
  */
 export default function logMultiPersistence({ base, goalNumber }) {
-    const exIterations = countPermutations(BigInt(goalNumber.length), base - 2n)
+    const exIterations = positionOf(goalNumber)
 
     return function ({
         calcIterations,

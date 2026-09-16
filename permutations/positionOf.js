@@ -1,4 +1,5 @@
 import countPermutations from './countPermutations.js'
+// eslint-disable-next-line no-unused-vars
 import HugeIntEx from '#HugeIntEx/index.js'
 
 /**
@@ -15,17 +16,16 @@ const exactCount = (length, size) => {
 }
 
 /**
- * Position of `numberValue` in the ordered list of canonical (non-decreasing, digits in
+ * Position of `number` in the ordered list of canonical (non-decreasing, digits in
  * `[2, base-1]`) numbers — the same count `multiPerSearch` accumulates as `calcIterations`
  * reaching it from the start of that list.
  *
- * @param {BigInt} numberValue
- * @param {BigInt} base
+ * @param {HugeIntEx} number
  * @returns {BigInt}
  */
-export const positionOf = (numberValue, base) => {
+export const positionOf = (number) => {
+    const base = number.base
     const alphabetSize = base - 2n
-    const number = new HugeIntEx(numberValue, base)
     const length = number.length
 
     const cellsMsbToLsb = []

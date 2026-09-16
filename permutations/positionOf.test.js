@@ -58,14 +58,14 @@ const bruteForceAdvance = (startValue, base, targetIterations) => {
 }
 
 test('positionOf: known base-6 single-digit values', () => {
-    assert.equal(positionOf(2n, 6n), 0n)
-    assert.equal(positionOf(3n, 6n), 1n)
-    assert.equal(positionOf(4n, 6n), 2n)
-    assert.equal(positionOf(5n, 6n), 3n)
+    assert.equal(positionOf(new HugeIntEx(2n, 6n)), 0n)
+    assert.equal(positionOf(new HugeIntEx(3n, 6n)), 1n)
+    assert.equal(positionOf(new HugeIntEx(4n, 6n)), 2n)
+    assert.equal(positionOf(new HugeIntEx(5n, 6n)), 3n)
 })
 
 test('positionOf: first two-digit base-6 number follows the four single-digit ones', () => {
-    assert.equal(positionOf(14n, 6n), 4n) // "22" in base 6 = 2*6+2 = 14
+    assert.equal(positionOf(new HugeIntEx(14n, 6n)), 4n) // "22" in base 6 = 2*6+2 = 14
 })
 
 test('numberAt: inverse of the known base-6 cases', () => {
@@ -77,7 +77,7 @@ test('numberAt: inverse of the known base-6 cases', () => {
 test('positionOf / numberAt / advanceBy match real stepping, at every real calcIterations value', () => {
     for (const base of [6n, 8n, 9n, 10n, 12n]) {
         const seed = 2n * base + 2n // "22"
-        const seedPosition = positionOf(seed, base)
+        const seedPosition = positionOf(new HugeIntEx(seed, base))
         const currentNo = new HugeIntEx(seed, base)
         const createPermutations = baseAccommodate(base)
         let calcIterations = 0n
@@ -87,7 +87,7 @@ test('positionOf / numberAt / advanceBy match real stepping, at every real calcI
             calcIterations += 1n + createPermutations(currentNo)
 
             const expectedPosition = seedPosition + calcIterations
-            assert.equal(positionOf(currentNo.value, base), expectedPosition,
+            assert.equal(positionOf(currentNo), expectedPosition,
                 `base ${base}, step ${step}: positionOf mismatch`)
             assert.equal(numberAt(expectedPosition, base), currentNo.value,
                 `base ${base}, step ${step}: numberAt mismatch`)

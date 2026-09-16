@@ -1,4 +1,4 @@
-import HugeInt from '#HugeInt/index.js'
+import HugeIntEx from '#HugeIntEx/index.js'
 import logMultiPersistence from '#MultiplicativePersistence/logMultiPersistence.js'
 import { createFoundRecorder } from './foundRecorder.js'
 
@@ -8,7 +8,7 @@ import { createFoundRecorder } from './foundRecorder.js'
  * @typedef {Object} WorkerContext
  * @property {BigInt} base numeric base for HugeInt operations
  * @property {ComputationState} computationState running search state, mutated in place and persisted
- * @property {BigInt} goal exclusive upper bound of this run's range
+ * @property {BigInt} psudo_goal_number exclusive upper bound of this run's range
  * @property {(stats: Object) => string} log log-string builder from {@link logMultiPersistence}
  * @property {BigInt} range_start inclusive lower bound of this run's range
  * @property {FoundRecorder} recordFound folds one found number into `computationState`
@@ -26,7 +26,7 @@ import { createFoundRecorder } from './foundRecorder.js'
 export const createWorkerContext = (config) => {
     const base = config.base
     const computationState = config.VARS
-    const goalNumber = new HugeInt(config.goalNumber, base)
+    const goalNumber = new HugeIntEx(config.goalNumber, base)
 
     return {
         base,
