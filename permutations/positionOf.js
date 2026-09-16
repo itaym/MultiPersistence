@@ -1,6 +1,4 @@
 import countPermutations from './countPermutations.js'
-// eslint-disable-next-line no-unused-vars
-import HugeIntEx from '#HugeIntEx/index.js'
 
 /**
  * Exact count of non-decreasing digit sequences of length `length` over an alphabet of
@@ -12,7 +10,7 @@ import HugeIntEx from '#HugeIntEx/index.js'
  */
 const exactCount = (length, size) => {
     if (length === 0n) return 1n
-    return countPermutations(length, size) - countPermutations(length - 1n, size)
+    return /** @type {BigInt} */ countPermutations(length, size) - countPermutations(length - 1n, size)
 }
 
 /**
