@@ -5,7 +5,6 @@ import {
     truncateWithRuler,
 } from '../utils/stringsUtils.js'
 import { getTimeString } from '#utils/getTimeString.js'
-import countPermutations from '#permutations/countPermutations.js'
 import HugeInt from '#HugeInt/index.js'
 import chalk from 'chalk'
 import {positionOf} from "#permutations/positionOf.js";

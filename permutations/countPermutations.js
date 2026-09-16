@@ -26,7 +26,7 @@ const _getPermutations = (() => {
 
         if (baseLast > -1n) {
             checkBase = baseLast + 1n
-            result = getPCache.get(`${length},${baseLast}`)
+            result = /** @type {BigInt} */ getPCache.get(`${length},${baseLast}`)
         }
 
         for (let runBase = checkBase; runBase <= base; runBase++) {
@@ -64,7 +64,7 @@ const getPermutations = (() => {
 
         if (baseLast > -1n) {
             checkLength = baseLast + 1n
-            result = cache.get(`${base},${baseLast}`)
+            result = /** @type {BigInt} */ cache.get(`${base},${baseLast}`)
         }
 
         for (let runLength = checkLength; runLength <= length; runLength++) {
