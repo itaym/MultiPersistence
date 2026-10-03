@@ -1,22 +1,16 @@
-/**
- * Runs every `*.test.js` file in the project as its own process, reporting all of them —
- * a failure doesn't stop the rest from running.
- *
- *     node test.js
- */
-
+/** Runs every `*.test.js` file in its own process and exits non-zero if any fail. */
 import { spawnSync } from 'node:child_process'
-import { join } from 'node:path'
 import { readdirSync } from 'node:fs'
+import { join } from 'node:path'
 
 /**
- * Recursively finds every `*.test.js` file under `dir`, skipping `node_modules`.
+ * All `*.test.js` paths under `dir`, sorted, skipping `node_modules`.
  *
  * @param {string} dir
  * @returns {string[]}
  */
-const findTestFiles = (dir) =>
-    readdirSync(dir, { recursive: true })
+const findTestFiles = dir =>
+    readdirSync(dir, { encoding: 'utf8', recursive: true })
         .filter(name => name.endsWith('.test.js') && !name.split(/[\\/]/).includes('node_modules'))
         .map(name => join(dir, name))
         .sort()

@@ -1,27 +1,16 @@
-import { createWorkerContext } from './workerContext.js'
-import { processFound } from './processFound.js'
+import processFound from './processFound.js'
+import createWorkerContext from './workerContext.js'
 
 /**
- * A message from the main thread.
- *
- * @typedef {Object} WorkerMessage
- * @property {'init' | 'stack' | 'found'} type
- * @property {*} data  `WorkerConfig` for `init`, `{ messages }` for `stack`, `FoundPayload` for `found`
- */
-
-/**
- * Creates the `parentPort` message listener. Each message flips `process.env.isWorkerReady`
- * back to `'true'` when done; `init` builds the {@link WorkerContext} the rest read from.
+ * Builds the persist worker's message handler; marks the worker ready after each message.
  *
  * @returns {(message: WorkerMessage) => Promise<void>}
  */
-export const createMessageHandler = () => {
-    /** @type {WorkerContext} */
+const createMessageHandler = () => {
     let context
 
-    return async ({ type, data }) => {
+    return async ({ data, type }) => {
         switch (type) {
-
             case 'init':
                 context = createWorkerContext(data)
                 break
@@ -33,8 +22,13 @@ export const createMessageHandler = () => {
             case 'found':
                 await processFound(context, data)
                 break
+
+            default:
+                break
         }
 
         process.env.isWorkerReady = 'true'
     }
 }
+
+export default createMessageHandler

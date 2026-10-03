@@ -1,12 +1,7 @@
-/**
- * Worker-thread entry point: boots config and routes every message to {@link createMessageHandler}.
- * Work lives in the siblings: `workerContext.js` (init), `processFound.js` (the `found` pipeline),
- * `foundRecorder.js` (folding a number into the stats).
- */
-
-import { initConfig } from '#Config/config.js'
-import { parentPort } from 'worker_threads'
-import { createMessageHandler } from './messageHandler.js'
+/** Persist worker entry: loads the config and routes parent messages to the message handler. */
+import initConfig from '#Config/config.js'
+import createMessageHandler from './messageHandler.js'
+import { parentPort } from 'node:worker_threads'
 
 initConfig()
 

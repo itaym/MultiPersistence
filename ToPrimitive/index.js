@@ -1,16 +1,17 @@
-/**
- * Wraps `obj`; converting it to a primitive yields `1n + fn(obj)`.
- *
- * @class
- * @param {Object} obj
- * @param {function(Object): BigInt} fn
- */
+/** Object whose primitive value is `1n + fn(obj)`, computed on every coercion. */
 class ToPrimitive {
-    constructor(obj, fn) {
+    /**
+     * @param {(obj: *) => *} fn called with `obj` on every coercion
+     * @param {*} obj bound first argument of `fn`
+     */
+    constructor(fn, obj) {
         this.obj = obj
         this.fn = fn.bind(null, this.obj)
     }
 
+    /**
+     * @returns {bigint} `1n + fn(obj)`
+     */
     [Symbol.toPrimitive]() {
         return 1n + this.fn()
     }

@@ -1,14 +1,14 @@
 import factorial from './factorial.js'
 
 /**
- * Product of the factorials of every value in `numbersArr` (`1n` when empty). Consumes the array.
+ * Product of the factorials of `numbersArr`; empties the array.
  *
- * @param {BigInt[]} numbersArr
- * @returns {BigInt}
+ * @param {bigint[]} numbersArr
+ * @returns {bigint}
  */
-const calcCellsArrFactorial = (numbersArr) => {
+const calcCellsArrFactorial = numbersArr => {
     if (!numbersArr.length) return 1n
-    let result = factorial(numbersArr.pop())
+    const result = factorial(numbersArr.pop())
     return result * calcCellsArrFactorial(numbersArr)
 }
 

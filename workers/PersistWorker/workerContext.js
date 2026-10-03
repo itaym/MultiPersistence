@@ -1,42 +1,29 @@
 import HugeIntEx from '#HugeIntEx/index.js'
 import logMultiPersistence from '#MultiplicativePersistence/logMultiPersistence.js'
-import { createFoundRecorder } from './foundRecorder.js'
+import createFoundRecorder from './foundRecorder.js'
 
 /**
- * Everything the worker builds once, on `init`, and reuses for every later message.
- *
- * @typedef {Object} WorkerContext
- * @property {BigInt} base numeric base for HugeInt operations
- * @property {ComputationState} computationState running search state, mutated in place and persisted
- * @property {BigInt} psudo_goal_number exclusive upper bound of this run's range
- * @property {(stats: Object) => string} log log-string builder from {@link logMultiPersistence}
- * @property {BigInt} range_start inclusive lower bound of this run's range
- * @property {FoundRecorder} recordFound folds one found number into `computationState`
- * @property {number} startSessionTime timestamp this session started (ms)
- * @property {number} startTime session start adjusted for prior uptime (ms)
- * @property {FoundMessage[][]} stackMessages batches awaiting the next `found` tick
- */
-
-/**
- * Builds the {@link WorkerContext} from the main thread's `init` payload.
+ * Builds the persist worker's context from its `init` config.
  *
  * @param {WorkerConfig} config
  * @returns {WorkerContext}
  */
-export const createWorkerContext = (config) => {
-    const base = config.base
+const createWorkerContext = config => {
+    const { base } = config
     const computationState = config.VARS
-    const goalNumber = new HugeIntEx(config.goalNumber, base)
+    const pseudoGoalNumber = new HugeIntEx(base, undefined, config.pseudoGoalNumber)
 
     return {
         base,
         computationState,
-        goal: config.goal,
-        log: logMultiPersistence({ base, goalNumber }),
+        log: logMultiPersistence({ base, pseudoGoalNumber }),
+        pseudoGoal: config.pseudoGoal,
         range_start: config.range_start,
         recordFound: createFoundRecorder(computationState),
+        stackMessages: [],
         startSessionTime: config.startSessionTime,
         startTime: config.startTime,
-        stackMessages: [],
     }
 }
+
+export default createWorkerContext

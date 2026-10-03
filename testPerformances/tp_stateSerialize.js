@@ -1,25 +1,6 @@
-/**
- * Results-file serialization: the computation-state object -> a string ready for
- * disk. This is the CPU part of a checkpoint save; the `writeFile` after it is
- * identical for both and not measured here.
- *
- * fn_0 — current: `JSON.stringify(state, replacer, '\t')` then the
- *        `collapseHistograms` regex. The replacer stringifies every BigInt and
- *        rebuilds each `productLengths` map into a sorted
- *        `[{ productLength, count }]` array.
- * fn_1 — new: a direct JS-source emitter. BigInt -> `123n` literal, identifier
- *        keys left unquoted, histograms stay plain maps (no array transform, no
- *        regex pass). Output is an ESM module (`export default { ... }`) that
- *        loads back with a plain `import`.
- *
- * Pool: synthetic ComputationState objects sized by the knobs below — a `steps`
- * array plus `number_lengths` buckets, each carrying `productLengths` /
- * `additionSums` histograms. Raise LENGTH_BUCKETS / HIST_KEYS / STEPS to model a
- * high-base checkpoint.
- */
-
+/** Benchmark: JSON checkpoint serializer vs the JS-source emitter. */
+import toJs from '#io/utils.js'
 import testPerformances from './testPerformances.js'
-import { toJs } from '#io/utils.js'
 
 // ---- size knobs (mid-size checkpoint by default) ----
 const STEPS = 10
@@ -29,29 +10,52 @@ const POOL = 6
 
 // ---- seeded rng ----
 let seed = 0x51ed2ab9
-const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff)
-const int = (n) => Math.floor(rnd() * n)
 
-const bigDigits = (n) => {
+/**
+ * Deterministic pseudo-random number in [0, 1].
+ *
+ * @returns {number}
+ */
+const rnd = () => ((seed = (seed * 1_103_515_245 + 12_345) & 0x7fffffff) / 0x7fffffff)
+
+/**
+ * @param {number} n
+ * @returns {number} random integer in [0, n)
+ */
+const int = n => Math.floor(rnd() * n)
+
+/**
+ * @param {number} n
+ * @returns {bigint} random `n`-digit number
+ */
+const bigDigits = n => {
     let v = 0n
     for (let i = 0; i < n; i++) v = v * 10n + BigInt(int(10))
     return v
 }
 
-/** ~`keys` distinct numeric-string keys -> small counts. */
-const hist = (keys) => {
+/**
+ * @param {number} keys
+ * @returns {Object<string, number>} random histogram
+ */
+const hist = keys => {
     const h = {}
     for (let i = 0; i < keys; i++) h[1 + int(keys * 3)] = 1 + int(50)
     return h
 }
 
+/** @returns {FoundSnapshot} random snapshot */
 const snapshot = () => ({
     additionSum: BigInt(int(9999)),
-    numberValue: bigDigits(40 + int(400)),
     multiplySum: BigInt(int(1 << 30)),
+    numberValue: bigDigits(40 + int(400)),
 })
 
-const stepBucket = (step) => ({
+/**
+ * @param {number} step
+ * @returns {TypeStep} random step bucket
+ */
+const stepBucket = step => ({
     additionSum: BigInt(int(1 << 30)),
     additionSums: hist(HIST_KEYS),
     atRunTime: int(1e9),
@@ -65,6 +69,7 @@ const stepBucket = (step) => ({
     step,
 })
 
+/** @returns {LengthStepBucket} random per-length step bucket */
 const lengthStepBucket = () => ({
     additionSum: BigInt(int(1 << 30)),
     additionSums: hist(HIST_KEYS),
@@ -76,6 +81,7 @@ const lengthStepBucket = () => ({
     productLengths: hist(HIST_KEYS),
 })
 
+/** @returns {ComputationState} random checkpoint state */
 const makeState = () => {
     const steps = []
     for (let s = 0; s < STEPS; s++) steps.push(rnd() < 0.2 ? null : stepBucket(s))
@@ -89,27 +95,35 @@ const makeState = () => {
     }
 
     return {
-        base: BigInt(20 + int(40)),
         iterations: {
-            calculated: bigDigits(18),
+            actual: bigDigits(18),
             count: int(2e9),
             found_nothing: int(1e6),
             found_nothing_break_at: 1_000_000_000,
         },
         last_number: bigDigits(60 + int(500)),
         number_lengths,
+        pseudoGoal: bigDigits(60 + int(500)),
+        range_start: 0n,
         steps,
         up_time: int(1e9),
     }
 }
-
+/** @type {ComputationState[]} */
 const pool = Array.from({ length: POOL }, makeState)
 
 // ---- fn_0: current serializer (copied from Config/computationStateIO.js) ----
+/**
+ * Old JSON replacer: productLengths as sorted rows, BigInt and HugeInt as strings.
+ *
+ * @param {string} key
+ * @param {*} value
+ * @returns {*}
+ */
 const replacer = (key, value) => {
     if (key === 'productLengths' && value && !Array.isArray(value)) {
         return Object.entries(value)
-            .map(([productLength, count]) => ({ productLength: Number(productLength), count }))
+            .map(([productLength, count]) => ({ count, productLength: Number(productLength) }))
             .sort((a, b) => a.productLength - b.productLength)
     }
     const name = value?.constructor?.name
@@ -117,13 +131,28 @@ const replacer = (key, value) => {
     if (name === 'HugeInt' || name === 'HugeIntEx') return value.value.toString()
     return value
 }
-const collapseHistograms = (json) => json
+
+/**
+ * Puts each `{ productLength, count }` row on one line.
+ *
+ * @param {string} json
+ * @returns {string}
+ */
+const collapseHistograms = json => json
     .replace(/\{\s*"productLength":\s*(\d+),\s*"count":\s*(\d+)\s*}/g, '{ "productLength": $1, "count": $2 }')
 
-const fn0 = (state) => collapseHistograms(JSON.stringify(state, replacer, '\t'))
+/**
+ * @param {ComputationState} state
+ * @returns {string}
+ */
+const fn0 = state => collapseHistograms(JSON.stringify(state, replacer, '\t'))
 
 // ---- fn_1: JS-source emitter (io/utils.js) ----
-const fn1 = (state) => `export default ${toJs(state)}\n`
+/**
+ * @param {ComputationState} state
+ * @returns {string}
+ */
+const fn1 = state => `export default ${toJs(state)}\n`
 
 // ---- sanity: both produce parseable output; report byte size ----
 {
@@ -133,19 +162,24 @@ const fn1 = (state) => `export default ${toJs(state)}\n`
     // eslint-disable-next-line no-new-func
     Function(`return (${out1.slice('export default '.length, -1)})`)()
 
-    const kb = (s) => `${(Buffer.byteLength(s) / 1024).toFixed(1)} KB`
+    /**
+     * @param {string} s
+     * @returns {string} size of `s` in KB
+     */
+    const kb = s => `${(Buffer.byteLength(s) / 1024).toFixed(1)} KB`
     console.log(`sample output — old: ${kb(out0)}   new: ${kb(out1)}`)
 }
 
 const L = pool.length
-let i0 = 0, i1 = 0
+let i0 = 0
+let i1 = 0
 
 testPerformances({
-    getArgs: [() => pool[i0++ % L], () => pool[i1++ % L]],
-    tests: [fn0, fn1],
-}, {
     multiplyBy: 1,
     numIterations: 1_000_001,
-    showAfter: 1_000,
+    showAfter: 1000,
     warmupIterations: 500,
+}, {
+    getArgs: [() => pool[i0++ % L], () => pool[i1++ % L]],
+    tests: [fn0, fn1],
 })

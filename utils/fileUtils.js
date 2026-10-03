@@ -1,48 +1,41 @@
-import { promises as fsPromises } from 'fs'
-import fs from 'fs'
-import { pathToFileURL } from 'url'
-import { resolve } from 'path'
+import fs, { promises as fsPromises } from 'node:fs'
+import { resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 /**
- * Imports `<stem>.js` as an ES module and returns its default export, falling back to
- * `<stem>.js.bak` (read as text and imported as an inline module) if the primary file is
- * missing or fails to import.
+ * Default export of `<stem>.js`, falling back to `<stem>.js.bak`.
  *
- * @param {string} stem path without the `.js` extension
- * @returns {Promise<*>} `undefined` if both imports fail
+ * @param {string} stem path without extension
+ * @returns {Promise<*>}
  */
-export const importJsFile = async (stem) => {
+export const importJsFile = async stem => {
     try {
         return (await import(pathToFileURL(resolve(`${stem}.js`)).href)).default
     } catch {}
 
-    try {
-        const src = await fsPromises.readFile(`${stem}.js.bak`, 'utf8')
-        return (await import(`data:text/javascript,${encodeURIComponent(src)}`)).default
-    } catch {}
-
-    return undefined
+    const src = await fsPromises.readFile(`${stem}.js.bak`, 'utf8')
+    return (await import(`data:text/javascript,${encodeURIComponent(src)}`)).default
 }
 
 /**
- * Writes `value` as JSON, renaming any existing file to `.bak` first.
+ * Writes `value` as JSON, keeping the previous file as `.bak`; no-op in debug.
  *
  * @param {string} filename
- * @param {Object|Array} value value to serialize
- * @param {function|string[]|number[]} [replacer] JSON replacer
- * @param {string|number} [space] indentation
- * @param {ObjectEncodingOptions} [encoding={ encoding: 'utf8' }]
- * @param {(json: string) => string} [transform] final pass over the serialized string before writing
+ * @param {((key: string, value: *) => *)|Array|null} replacer `JSON.stringify` replacer
+ * @param {string|number} space `JSON.stringify` indentation
+ * @param {*} value
+ * @param {Object|string} [encoding={ encoding: 'utf8' }]
+ * @param {(json: string) => string} [transform] applied to the JSON before writing
  * @returns {Promise<void>}
  */
-export const writeJsonFile = async (filename, value, replacer, space, encoding = { encoding: 'utf8' }, transform) => {
+// eslint-disable-next-line default-param-last
+export const writeJsonFile = async (filename, replacer, space, value, encoding = { encoding: 'utf8' }, transform) => {
     const { normalizedEnv } = process
-    if (normalizedEnv.debug === true) return
+    if (normalizedEnv.debug) return
 
     try {
         await fsPromises.rename(filename, `${filename}.bak`)
-    } catch {}
-    finally {
+    } catch {} finally {
         let json = JSON.stringify(value, replacer, space)
         if (transform) json = transform(json)
         await fsPromises.writeFile(filename, json, encoding)
@@ -50,82 +43,85 @@ export const writeJsonFile = async (filename, value, replacer, space, encoding =
 }
 
 /**
- * Writes `text` to a file, renaming any existing file to `.bak` first.
+ * Writes `text`, keeping the previous file as `.bak`; no-op in debug.
  *
  * @param {string} filename
  * @param {string} text
- * @param {ObjectEncodingOptions} [encoding={ encoding: 'utf8' }]
+ * @param {Object|string} [encoding={ encoding: 'utf8' }]
  * @returns {Promise<void>}
  */
 export const writeTextFile = async (filename, text, encoding = { encoding: 'utf8' }) => {
     const { normalizedEnv } = process
-    if (normalizedEnv.debug === true) return
+    if (normalizedEnv.debug) return
 
     try {
         await fsPromises.rename(filename, `${filename}.bak`)
-    } catch {}
-    finally {
+    } catch {} finally {
         await fsPromises.writeFile(filename, text, encoding)
     }
 }
 
 /**
- * Reads and parses a JSON file, falling back to `.bak`, then to `defaultJson`.
+ * Parsed JSON of `filename`, else of its `.bak`, else `defaultJson` (also in debug).
  *
  * @param {string} filename
- * @param {function} [reviver] JSON reviver
- * @param {Object|Array} [defaultJson={}] returned when both reads fail
- * @param {ObjectEncodingOptions|string} [encoding={ encoding: 'utf8' }]
- * @returns {Promise<Object|Array>} parsed JSON
+ * @param {(key: string, value: *) => *} reviver `JSON.parse` reviver
+ * @param {Object|Array} [defaultJson={}]
+ * @param {Object|string} [encoding={ encoding: 'utf8' }]
+ * @returns {Promise<Object|Array>}
  */
 export const readJsonFile = async (filename, reviver, defaultJson = {}, encoding = { encoding: 'utf8' }) => {
     const { normalizedEnv } = process
-    if (normalizedEnv.debug === true) return defaultJson
+    if (normalizedEnv.debug) return defaultJson
 
-    const readAndParse = async (file) => {
+    /**
+     * @param {string} file
+     * @returns {Promise<*>}
+     */
+    const readAndParse = async file => {
         const raw = await fsPromises.readFile(file, encoding)
         return JSON.parse(raw, reviver)
     }
 
     try {
         return await readAndParse(filename)
-    }
-    catch {
+    } catch {
         try {
             return await readAndParse(`${filename}.bak`)
-        }
-        catch {
+        } catch {
             return defaultJson
         }
     }
 }
 
 /**
- * Synchronous {@link readJsonFile}.
+ * Sync {@link readJsonFile}; `undefined` in debug.
  *
  * @param {string} filename
- * @param {function} [reviver] JSON reviver
- * @param {Object|Array} [defaultJson={}] returned when both reads fail
- * @param {ObjectEncodingOptions|string} [encoding={ encoding: 'utf8' }]
- * @returns {Object|Array} parsed JSON
+ * @param {(key: string, value: *) => *} reviver `JSON.parse` reviver
+ * @param {Object|Array} [defaultJson={}]
+ * @param {Object|string} [encoding={ encoding: 'utf8' }]
+ * @returns {Object}
  */
 export const readJsonFileSync = (filename, reviver, defaultJson = {}, encoding = { encoding: 'utf8' }) => {
     const { normalizedEnv } = process
-    if (normalizedEnv.debug === true) return
+    if (normalizedEnv.debug) return defaultJson
 
-    const readAndParse = (file) => {
-        const raw = fs.readFileSync(file, encoding)
+    /**
+     * @param {string} file
+     * @returns {Object}
+     */
+    const readAndParse = file => {
+        const raw = /** @type {string} */fs.readFileSync(file, encoding)
         return JSON.parse(raw, reviver)
     }
 
     try {
         return readAndParse(filename)
-    }
-    catch {
+    } catch {
         try {
             return readAndParse(`${filename}.bak`)
-        }
-        catch {
+        } catch {
             return defaultJson
         }
     }

@@ -1,92 +1,19 @@
-/**
- * {@link Store} — the client half of {@link module:io}: an in-memory `Map` for synchronous
- * `get`/`has`, backed by the shared {@link module:io/persist.worker} thread that owns the file.
- *
- * @module io/store
- */
-
-import fs from 'fs'
+import fs from 'node:fs'
 import {
-    Worker,
     MessageChannel,
     receiveMessageOnPort,
     SHARE_ENV,
-} from 'worker_threads'
+    Worker,
+} from 'node:worker_threads'
 
+/** @type {URL} */
 const WORKER_URL = new URL('./persist.worker.js', import.meta.url)
 
-/**
- * @typedef {Object} StoreOptions
- * @property {string} codecUrl    module URL exporting `serialize([entries])` and
- *                                `deserialize(text)`; imported on both threads
- * @property {boolean} [debug]    when true, never touch the disk (load still runs)
- * @property {string} file        absolute path of the JSON file to persist to
- * @property {number} [idleMs]    idle time before a dirty store is flushed; default 2000
- */
-
-/**
- * A disk-backed key/value store. Usable immediately: it looks empty until the worker reports
- * the file's contents, then back-fills the keys it has not already seen.
- */
-export class Store {
-    /** id → live Store, for routing worker messages. @type {Map<number, Store>} */
-    static #routes = new Map()
-    /** @type {Worker | null} */
-    static #worker = null
-    /** @type {MessagePort | null} */
-    static #port = null
-    static #nextId = 1
-    static #exitHooked = false
-
-    /** Lazily spawn the one shared persist worker. */
-    static #ensureWorker() {
-        if (Store.#worker) return
-
-        const { port1, port2 } = new MessageChannel()
-        Store.#port = port1
-        Store.#port.unref()
-
-        Store.#worker = new Worker(WORKER_URL, {
-            env: SHARE_ENV,
-            transferList: [port2],
-            workerData: { port: port2 },
-        })
-        Store.#worker.unref()
-        Store.#worker.on('error', (err) => {
-            console.error('io: persist worker error:', err)
-        })
-
-        if (!Store.#exitHooked) {
-            Store.#exitHooked = true
-            process.on('exit', () => {
-                for (const store of Store.#routes.values()) store.flushSync()
-            })
-        }
-    }
-
-    /** Drain the shared port and route each message to its owning store. */
-    static #drain() {
-        if (!Store.#port) return
-        let received
-        while ((received = receiveMessageOnPort(Store.#port))) {
-            const msg = received.message
-            Store.#routes.get(msg.id)?.#deliver(msg)
-        }
-    }
-
-    /** @type {Map<string, *>} */
-    #map = new Map()
-    #id = Store.#nextId++
-    #file
-    #debug
-    /** @type {{ serialize: Function, deserialize: Function } | null} */
-    #codec = null
-    #dirty = false
-    #loadedReceived = false
-    #loadedText = ''
-    #ready = false
-
-    /** @param {StoreOptions} options */
+/** Map mirrored to a JSON file by the shared persist worker; reads are sync, writes are debounced. */
+class Store {
+    /**
+     * @param {StoreOptions} options
+     */
     constructor({ codecUrl, debug = false, file, idleMs = 2000 }) {
         this.#file = file
         this.#debug = debug
@@ -94,10 +21,11 @@ export class Store {
         Store.#ensureWorker()
         Store.#routes.set(this.#id, this)
 
-        import(codecUrl).then((codec) => {
+        import(codecUrl).then(codec => {
             this.#codec = codec
             this.#applyLoaded()
-        }).catch((err) => {
+        }).catch(err => {
+            // eslint-disable-next-line no-console
             console.error(`io: failed to import codec ${codecUrl}:`, err)
         })
 
@@ -111,7 +39,88 @@ export class Store {
         })
     }
 
-    /** Handle one routed message from the worker. */
+    /** @type {Codec|null} */
+    #codec = null
+    /** @type {boolean} */
+    #debug
+    /** @type {boolean} unsaved changes */
+    #dirty = false
+    /** @type {boolean} */
+    static #exitHooked = false
+    /** @type {string} */
+    #file
+
+    /** @type {number} */
+    static #nextId = 1
+
+    /** @type {number} */
+    #id = Store.#nextId++
+
+    /** @type {boolean} */
+    #loadedReceived = false
+    /** @type {string} */
+    #loadedText = ''
+    /** @type {Map<*, *>} */
+    #map = new Map()
+    /** @type {MessagePort|null} */
+    static #port = null
+    /** @type {boolean} loaded entries merged in */
+    #ready = false
+    /** @type {Map<number, Store>} store id → store, for routing worker messages */
+    static #routes = new Map()
+    /** @type {Worker|null} */
+    static #worker = null
+    /**
+     * Starts the shared persist worker once and flushes every store on exit.
+     *
+     * @returns {void}
+     */
+    static #ensureWorker() {
+        if (Store.#worker) return
+
+        const { port1, port2 } = new MessageChannel()
+        Store.#port = port1
+        Store.#port.unref()
+
+        Store.#worker = new Worker(WORKER_URL, {
+            env: SHARE_ENV,
+            transferList: [port2],
+            workerData: { port: port2 },
+        })
+        Store.#worker.unref()
+        Store.#worker.on('error', err => {
+            // eslint-disable-next-line no-console
+            console.error('io: persist worker error:', err)
+        })
+
+        if (!Store.#exitHooked) {
+            Store.#exitHooked = true
+            process.on('exit', () => {
+                for (const store of Store.#routes.values()) store.flushSync()
+            })
+        }
+    }
+
+    /**
+     * Delivers every pending worker message to its store.
+     *
+     * @returns {void}
+     */
+    static #drain() {
+        if (!Store.#port) return
+        let received
+        while ((received = receiveMessageOnPort(Store.#port))) {
+            const msg = received.message
+            Store.#routes.get(msg.id)?.#deliver(msg)
+        }
+    }
+
+    /**
+     * Handles one routed worker message.
+     *
+     * @param {StoreWorkerMessage} msg
+     * @returns {void}
+     */
     #deliver(msg) {
         if (msg.type === 'loaded') {
             this.#loadedReceived = true
@@ -122,7 +131,11 @@ export class Store {
         }
     }
 
-    /** Fold the loaded file into {@link #map} once both it and the codec exist. */
+    /**
+     * Merges the loaded file into the map once both it and the codec are there.
+     *
+     * @returns {void}
+     */
     #applyLoaded() {
         if (this.#ready || !this.#loadedReceived || !this.#codec) return
 
@@ -139,7 +152,7 @@ export class Store {
     }
 
     /**
-     * @param {string} key
+     * @param {*} key
      * @returns {*}
      */
     get(key) {
@@ -148,7 +161,7 @@ export class Store {
     }
 
     /**
-     * @param {string} key
+     * @param {*} key
      * @returns {boolean}
      */
     has(key) {
@@ -157,7 +170,9 @@ export class Store {
     }
 
     /**
-     * @param {string} key
+     * Sets `key` and tells the worker to save.
+     *
+     * @param {*} key
      * @param {*} value
      * @returns {this}
      */
@@ -169,13 +184,14 @@ export class Store {
         return this
     }
 
+    /** @returns {number} */
     get size() {
         Store.#drain()
         return this.#map.size
     }
 
     /**
-     * Best-effort synchronous rewrite of the store file, from the `process` `exit` hook.
+     * Writes the map to disk synchronously when dirty.
      *
      * @returns {void}
      */
@@ -189,13 +205,13 @@ export class Store {
             fs.writeFileSync(this.#file, text)
             this.#dirty = false
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error(`io: exit flush failed for ${this.#file}:`, err)
         }
     }
 
     /**
-     * Asks the worker to flush and drop this store, and flushes here too. Optional — the
-     * `exit` hook covers the common case.
+     * Closes the store, flushing it first.
      *
      * @returns {void}
      */
@@ -205,3 +221,5 @@ export class Store {
         Store.#routes.delete(this.#id)
     }
 }
+
+export default Store

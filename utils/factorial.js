@@ -1,21 +1,17 @@
 import memorize from './memorize.js'
 
 /**
- * Factorial of `number` (`1n` for values ≤ 1n).
+ * `number!`, recursing through the memorized {@link factorial}.
  *
- * @param {BigInt} number
- * @returns {BigInt}
+ * @param {bigint} number
+ * @returns {bigint} `1n` for `number <= 1n`
  */
 const factorialFn = number => {
     if (!number || (number <= 1n)) return 1n
     return number * factorial(number - 1n)
 }
 
-/**
- * Memoized factorial function.
- *
- * @type {(number: BigInt) => BigInt}
- */
+/** @type {(number: bigint) => bigint} disk-memorized factorial */
 const factorial = memorize(factorialFn, 'factorial')
 
 export default factorial

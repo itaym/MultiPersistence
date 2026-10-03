@@ -1,73 +1,81 @@
 import { digitsObj as baseDigits } from '#Digits/index.js'
 
 /**
- * Groups this array's items by the key the callback returns.
+ * `Array.prototype.group` polyfill: groups items by `callback`'s result.
  *
- * @param {function(*, number, Array): string|number} callback returns a group key
- * @returns {Object<string, Array<*>>}
+ * @this {Array}
+ * @param {(item: *, index: number, array: Array) => string} callback
+ * @returns {Object<string, Array>}
  */
 function group(callback) {
     const result = {}
     this.forEach((item, index, array) => {
-        const group = callback(item, index, array)
-        if (!result[group]) result[group] = []
-        result[group].push(item)
+        const callbackResult = callback(item, index, array)
+        if (!result[callbackResult]) result[callbackResult] = []
+        result[callbackResult].push(item)
     })
     return result
 }
 
 /**
- * Extends `constructor.prototype.toString` to support radices > 36.
+ * Patches `constructor.prototype.toString` to support radixes above 36 via the `Digits` map.
  *
- * @param {{ prototype: { toString: function } }} constructor
+ * @param {Object} constructor
  * @returns {void}
  */
-function toString(constructor) {
+const toString = constructor => {
     const nativeToString = constructor.prototype.toString
 
+    /**
+     * @param {bigint|number} [radix=10n]
+     * @returns {string}
+     */
     constructor.prototype.toString = function (radix = 10n) {
         if (radix <= 36) {
             return nativeToString.call(this, Number(radix))
-        } else {
-            let initBigInt = BigInt(this)
-            if (initBigInt === 0n) return '0'
-
-            const bigIntBase = BigInt(radix)
-            let result = []
-
-            while (initBigInt !== 0n) {
-                const digit = initBigInt % bigIntBase
-                result.push(baseDigits.get(digit))
-                initBigInt /= bigIntBase
-            }
-
-            return result.reverse().join('')
         }
+        let initBigInt = BigInt(this)
+        if (initBigInt === 0n) return '0'
+
+        const bigIntBase = BigInt(radix)
+        const result = []
+
+        while (initBigInt !== 0n) {
+            const digit = initBigInt % bigIntBase
+            result.push(baseDigits.get(digit))
+            initBigInt /= bigIntBase
+        }
+
+        return result.reverse().join('')
     }
 }
 
 /**
- * Logarithm of `number` in an arbitrary `base`.
+ * `Math.logX`: logarithm of `number` in `base`.
  *
  * @param {number} base
  * @param {number} number
  * @returns {number}
  */
-function logX(base, number) {
-    return Math.log(number) / Math.log(base)
-}
-
-function rootX(root, number) {
-    return number ** (1 / number);
-}
+const logX = (base, number) => Math.log(number) / Math.log(base)
 
 /**
- * Initializes polyfills for the environment.
+ * `Math.rootX`: `root`-th root of `number`.
+ *
+ * @param {number} number
+ * @param {number} root
+ * @returns {number}
+ */
+const rootX = (number, root) => number ** (1 / root)
+
+/**
+ * Installs the polyfills: `Array.prototype.group`, BigInt `toString` radix > 36, `Math.logX`, `Math.rootX`.
  *
  * @returns {void}
  */
-export const initPollyFill = () => {
+const initPollyFill = () => {
     if (!Array.prototype.group) {
+        // eslint-disable-next-line no-extend-native
         Array.prototype.group = group
     }
 
@@ -75,3 +83,5 @@ export const initPollyFill = () => {
     Math.logX = logX
     Math.rootX = rootX
 }
+
+export default initPollyFill

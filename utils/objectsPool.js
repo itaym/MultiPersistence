@@ -1,25 +1,26 @@
+/** @type {symbol} key of an object's or pool's own index */
 const symbolIndex = Symbol('index')
+
+/** @type {Object[][]} all pools */
 let pools = []
+
+/** @type {number} objects per pool */
 let poolSize
+
+/** @type {number} */
 let numOfPools
+
+/** @type {number} index of the last pool in use */
 let currentPool = -1
 
 /**
- * An array of objects, each tagged with a hidden `symbolIndex` for its slot; the pool carries its own.
+ * Pool of `poolSize` indexed empty objects.
  *
- * @typedef {Object[]} PoolArray
- * @property {number} [symbolIndex] internal index of the pool itself
+ * @param {number} index pool index
+ * @returns {Object[]}
  */
-
-/**
- * Creates a pool of `poolSize` objects, tagged with `index`.
- *
- * @param {number} poolSize
- * @param {number} index index of this pool in the global `pools` array
- * @returns {PoolArray}
- */
-const _createPool = (poolSize, index) => {
-    const pool = /** @type PoolArray */ new Array(poolSize)
+const _createPool = index => {
+    const pool = new Array(poolSize)
         .fill(0)
         .map((_, i) => ({ [symbolIndex]: i }))
 
@@ -28,10 +29,11 @@ const _createPool = (poolSize, index) => {
 }
 
 /**
- * Initializes the global pool system: `initNumOfPools` pools of `poolInitSize` objects each.
+ * Creates the pools.
  *
  * @param {number} initNumOfPools
- * @param {number} poolInitSize
+ * @param {number} poolInitSize objects per pool
+ * @returns {void}
  */
 export const initPools = (initNumOfPools, poolInitSize) => {
     poolSize = poolInitSize
@@ -39,23 +41,24 @@ export const initPools = (initNumOfPools, poolInitSize) => {
     pools = new Array(numOfPools)
 
     for (let poolIndex = 0; poolIndex < numOfPools; poolIndex++) {
-        pools[poolIndex] = _createPool(poolSize, poolIndex)
+        pools[poolIndex] = _createPool(poolIndex, poolSize)
     }
 }
 
 /**
- * Retrieve the next available pool.
+ * Takes the next free pool.
  *
- * @returns {PoolArray}
+ * @returns {Object[]}
  */
 const _getPool = () => pools[++currentPool]
 
 /**
- * Returns a pool to the pool list (swap-based, O(1)).
+ * Returns `pool` to the free pools.
  *
- * @param {PoolArray} pool
+ * @param {Object[]} pool
+ * @returns {void}
  */
-const _dropPool = (pool) => {
+const _dropPool = pool => {
     const lastUsedPool = pools[currentPool]
 
     // swap pool indices
@@ -69,31 +72,28 @@ const _dropPool = (pool) => {
 }
 
 /**
- * Acquires a pool and returns its `getObject` / `dropObject` / `dropPool` interface.
+ * Takes a pool and returns handles to use it.
  *
- * @returns {{
- *   dropObject: (obj: object) => void,
- *   dropPool: () => void,
- *   getObject: () => object
- * }}
+ * @returns {PoolHandles}
  */
 export const getPool = () => {
     const pool = _getPool()
     let lastObject = -1
 
     /**
-     * Allocates the next object from the pool.
+     * Takes the next free object.
      *
-     * @returns {object}
+     * @returns {Object}
      */
     const getObject = () => pool[++lastObject]
 
     /**
-     * Returns an object to the pool (swap-based, O(1)).
+     * Returns `obj` to the free objects.
      *
-     * @param {object} obj
+     * @param {Object} obj
+     * @returns {void}
      */
-    const dropObject = (obj) => {
+    const dropObject = obj => {
         const lastUsedObj = pool[lastObject]
 
         // swap object indices

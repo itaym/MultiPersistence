@@ -1,12 +1,11 @@
-import { parentPort } from 'worker_threads'
+import { parentPort } from 'node:worker_threads'
 
 /**
- * Posts log text to the main thread instead of printing it — a worker's stdout is
- * piped through the parent and a slow terminal can stall the search loop.
+ * Sends `text` to the parent thread to be printed; no-op on the main thread.
  *
  * @param {string} text
- * @returns {void|undefined}
+ * @returns {undefined}
  */
-const showLog = (text) => parentPort?.postMessage({ type: 'showLog', text })
+const showLog = text => parentPort?.postMessage({ text, type: 'showLog' })
 
 export default showLog

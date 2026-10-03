@@ -1,2 +1,7 @@
+/** MultiplicativePersistence entry point. */
 export { multiPerSearch } from './multiPerSearch.js'
-export { multiPer, multiPerNBC } from './multiplicativePersistence.js'
+
+export {
+    multiPer,
+    multiPerNBC,
+} from './multiplicativePersistence.js'

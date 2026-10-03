@@ -1,21 +1,24 @@
 import { baseDigits } from '#Digits/index.js'
+import HugeInt from '#HugeInt/index.js'
+import { positionOf } from '#permutations/positionOf.js'
+import getTimeString from '#utils/getTimeString.js'
 import {
     sanitize,
     truncate,
     truncateWithRuler,
-} from '../utils/stringsUtils.js'
-import { getTimeString } from '#utils/getTimeString.js'
-import HugeInt from '#HugeInt/index.js'
+} from '#utils/stringsUtils.js'
 import chalk from 'chalk'
-import {positionOf} from "#permutations/positionOf.js";
 
+/** @type {number} log line width */
 const RULER_WIDTH = 140
+
+/** @type {bigint} cap for the time-left estimate */
 const MAX_MILLISECONDS = BigInt('9'.repeat(500))
 
 /**
- * Creates a color-toggling function for alternating log colors.
+ * Builds an alternator between the log line colors.
  *
- * @returns {function(): String} function returning the next color name
+ * @returns {() => string}
  */
 const getColor = () => {
     const colors = ['white', 'yellow']
@@ -27,51 +30,40 @@ const getColor = () => {
 }
 
 /**
- * Truncates text and pads it to a fixed column width with dashes.
+ * `text` truncated and dash-padded to `width`.
  *
- * @param {String} text - text to fit into the column
- * @param {Number} [width=70] - column width
- * @returns {String} truncated, dash-padded column
+ * @param {string} text
+ * @param {number} [width=70]
+ * @returns {string}
  */
-const formatColumn = (text, width = 70) => truncate(text, 2, width).padEnd(width, '-')
+const formatColumn = (text, width = 70) => truncate(width, 2, text).padEnd(width, '-')
 
 /**
- * Formats two texts as side-by-side dash-padded columns on one log line.
+ * Two formatted columns and a newline.
  *
- * @param {String} left - left column text
- * @param {String} right - right column text
- * @param {Number} [leftWidth=70] - left column width
- * @param {Number} [rightWidth=70] - right column width
- * @returns {String} the combined row, newline-terminated
+ * @param {string} left
+ * @param {string} right
+ * @param {number} [leftWidth=70]
+ * @param {number} [rightWidth=70]
+ * @returns {string}
  */
 const formatRow = (left, right, leftWidth = 70, rightWidth = 70) =>
     formatColumn(left, leftWidth) + formatColumn(right, rightWidth) + '\n'
 
 /**
- * Formats a byte count as gigabytes with two decimals.
- *
- * @param {Number} bytes
- * @returns {String}
+ * @param {number} bytes
+ * @returns {string} gigabytes, two decimals
  */
-const toGB = (bytes) => (bytes / 1024 ** 3).toFixed(2)
+const toGB = bytes => (bytes / 1024 ** 3).toFixed(2)
 
 /**
- * Computes the iteration-rate, ETA and progress stats shown in the log header.
+ * Rates, progress and time-left estimates for the log.
  *
- * @param {Object} params
- * @param {BigInt} params.calcIterations - calculated iterations so far
- * @param {Number} params.countIterations - actual iterations counted
- * @param {Number} params.endTime - current timestamp
- * @param {BigInt} params.exIterations - expected total iterations
- * @param {Number} params.iterationsPerLog - iterations since last log
- * @param {Number} params.notFound - current not-found count
- * @param {Number} params.notFoundLimit - max allowed not-found count
- * @param {Number} params.startTime - current run start timestamp
- * @param {Number} params.startTimeLog - last log timestamp
- * @returns {Object} derived rate/time stats
+ * @param {RateStatsParams} params
+ * @returns {LogRates}
  */
 const computeRateStats = ({
-    calcIterations,
+    actualIterations,
     countIterations,
     endTime,
     exIterations,
@@ -84,13 +76,14 @@ const computeRateStats = ({
     const numOfMilliseconds = endTime - startTime
     const numOfMillisecondsLog = endTime - startTimeLog
 
-    const iterationsPerSecond = Math.floor(Number(calcIterations / BigInt(Math.ceil(numOfMilliseconds / 1000))))
+    const iterationsPerSecond = Math.floor(Number(actualIterations / BigInt(Math.ceil(numOfMilliseconds / 1000))))
     const countIterationsPerSecond = Math.floor(countIterations / (numOfMilliseconds / 1000))
     const iterationsPerSecondLog = Math.floor(iterationsPerLog / (numOfMillisecondsLog / 1000))
     const notFoundTimeLeft = Math.max((notFoundLimit - notFound) / countIterationsPerSecond * 1000, 0)
-    const percentDone = (Number(calcIterations * 1_000_000_000_000n / exIterations * 100n) / 1_000_000_000_000).toFixed(10)
+    const percentDone = (Number(actualIterations * 1_000_000_000_000n / exIterations * 100n) / 1_000_000_000_000)
+        .toFixed(10)
 
-    let timeLeft = Math.max(Number((exIterations - calcIterations) / BigInt(iterationsPerSecond + 1)) * 1000, 0)
+    let timeLeft = Math.max(Number((exIterations - actualIterations) / BigInt(iterationsPerSecond + 1)) * 1000, 0)
     if (timeLeft === Infinity || timeLeft > MAX_MILLISECONDS) timeLeft = MAX_MILLISECONDS
     timeLeft = BigInt(timeLeft)
 
@@ -106,19 +99,12 @@ const computeRateStats = ({
 }
 
 /**
- * @typedef {Object} ProductLengthSummary
- * @property {number} max - largest step-1 product length seen
- * @property {number} min - smallest step-1 product length seen
- * @property {number} peak - the most common step-1 product length
- */
-
-/**
- * Reduces a step-1 product-length histogram to its min / max / most-common value.
+ * Min, max and most common product length of a histogram.
  *
- * @param {Object<string, number>} [hist] - `{ length: count }`
- * @returns {ProductLengthSummary | null} `null` when the histogram is empty
+ * @param {Object<string, number>} [hist]
+ * @returns {ProductLengthSummary|null}
  */
-const productLengthSummary = (hist) => {
+const productLengthSummary = hist => {
     const lens = hist ? Object.keys(hist).map(Number) : []
     if (lens.length === 0) return null
 
@@ -138,79 +124,61 @@ const productLengthSummary = (hist) => {
 }
 
 /**
- * Builds the per-step "found" log lines and the running total across all steps.
+ * One log line per persistence step, plus the total found.
  *
- * @param {CountStep[]} countSteps - per-step stats
- * @param {Number} endTime - current timestamp
- * @param {Number} startTime - current run start timestamp
- * @returns {{countLog: String[], totalFound: Number}}
+ * @param {TypeStep[]} countSteps
+ * @param {number} endTime
+ * @param {number} startTime
+ * @returns {CountStepsLog}
  */
 const buildCountStepsLog = (countSteps, endTime, startTime) => {
     const countLog = []
     let totalFound = 0
 
     for (const index in countSteps) {
-        const cs = countSteps[index]
-        if (!cs?.count) continue
+        if (Object.hasOwn(countSteps, index)) {
+            const cs = countSteps[index]
+            if (!cs?.count) continue
 
-        totalFound += cs.count
+            totalFound += cs.count
 
-        const stepCol = `${index}`.padStart(2, '0')
-        const countCol = cs.count.toLocaleString().padStart(16, ' ')
-        const iterationCol = truncate(cs.iteration.toLocaleString(), 2, 18).padStart(18, ' ')
-        const elapsedCol = truncate(getTimeString(endTime - cs.atRunTime - startTime), 2, 30).padEnd(31, ' ')
+            const stepCol = `${index}`.padStart(2, '0')
+            const countCol = cs.count.toLocaleString().padStart(16, ' ')
+            const iterationCol = truncate(18, 2, cs.iteration.toLocaleString()).padStart(18, ' ')
+            const elapsedCol = truncate(30, 2, getTimeString(endTime - cs.atRunTime - startTime)).padEnd(31, ' ')
 
-        const pLen = productLengthSummary(cs.productLengths)
-        const pLenCol = (pLen
-            ? (pLen.min === pLen.max ? `productLength ${pLen.min}` : `productLength ${pLen.min}-${pLen.max} ~${pLen.peak}`)
-            : ''
-        ).padEnd(26, ' ')
+            const pLen = productLengthSummary(cs.productLengths)
+            const pLenCol = (pLen
+                ? (pLen.min === pLen.max
+                    ? `productLength ${pLen.min}`
+                    : `productLength ${pLen.min}-${pLen.max} ~${pLen.peak}`)
+                : ''
+            ).padEnd(26, ' ')
 
-        countLog.push(`${stepCol} => ${countCol}  ${iterationCol}  ${elapsedCol}${pLenCol}`)
+            countLog.push(`${stepCol} => ${countCol}  ${iterationCol}  ${elapsedCol}${pLenCol}`)
+        }
     }
 
     return { countLog, totalFound }
 }
 
 /**
- * @typedef {Object} CountStep
- * @property {Number} atRunTime - timestamp when this step was reached
- * @property {Number} count - numbers found at this step
- * @property {HugeInt} first - first number found at this step
- * @property {BigInt} iteration - iteration count when first reached
- * @property {Object<string, number>} productLengths - histogram of step-1 product digit-lengths
- * @property {Number} step - step index
- */
-
-/**
- * @typedef {Object} LogSessionStats
- * @property {BigInt} calcIterations - calculated iterations so far
- * @property {Number} countIterations - actual iterations counted
- * @property {CountStep[]} countSteps - per-step stats
- * @property {BigInt} currentNo - current number being checked
- * @property {Number} endTime - current timestamp
- * @property {Number} iterationsPerLog - iterations since last log
- * @property {Object<String, {found: Number}>} lengths - stats keyed by number length
- * @property {Number} messagesCount - total messages sent
- * @property {Number} notFound - current not-found count
- * @property {Number} notFoundLimit - max allowed not-found count
- * @property {Number} startSessionTime - session start timestamp
- * @property {Number} startTime - current run start timestamp
- * @property {Number} startTimeLog - last log timestamp
- */
-
-/**
- * Creates a logging function for multiplicative-persistence sessions.
+ * Builds the progress log formatter.
  *
- * @param {BigInt} base - numeric base used for HugeInt operations
- * @param {HugeIntEx} goalNumber - the target number
- * @returns {function(LogSessionStats): String} function that formats and returns a log string
+ * @param {LogParams} params
+ * @returns {(stats: LogSessionStats) => string}
  */
-export default function logMultiPersistence({ base, goalNumber }) {
-    const exIterations = positionOf(goalNumber)
+const logMultiPersistence = ({ base, pseudoGoalNumber }) => {
+    const exIterations = positionOf(pseudoGoalNumber)
 
-    return function ({
-        calcIterations,
+    /**
+     * Full progress log text.
+     *
+     * @param {LogSessionStats} stats
+     * @returns {string}
+     */
+    return ({
+        actualIterations,
         countIterations,
         countSteps,
         currentNo,
@@ -223,24 +191,31 @@ export default function logMultiPersistence({ base, goalNumber }) {
         startSessionTime,
         startTime,
         startTimeLog,
-    }) {
+    }) => {
         const lastStep = countSteps[countSteps.length - 1]
         const maxSteps = lastStep?.step
-        const lastNumberFound = new HugeInt((lastStep?.first || 0n).numberValue, base)
-        const currentNoHI = new HugeInt(currentNo, base)
+        const lastNumberFound = new HugeInt(base, undefined, (lastStep?.first || 0n).numberValue)
+        const currentNoHI = new HugeInt(base, undefined, currentNo)
 
         const sessionMilliseconds = endTime - startSessionTime
         const cellNo = currentNoHI.cellsLength
         const currentNumberStr = sanitize(currentNoHI.toLocaleString())
-        const truncatedWithRuler = truncateWithRuler(currentNumberStr, baseDigits(base), 3, RULER_WIDTH)
-        const lastNumberFoundStr = truncate(sanitize(lastNumberFound.toLocaleString()), 2, 52)
+        const truncatedWithRuler = truncateWithRuler(baseDigits(base), RULER_WIDTH, 3, currentNumberStr)
+        const lastNumberFoundStr = truncate(52, 2, sanitize(lastNumberFound.toLocaleString()))
         const currentNoLength = currentNoHI.length
         const foundInLength = lengths[currentNoLength + '']?.found || 0
         const mem = process.memoryUsage()
 
         const rates = computeRateStats({
-            calcIterations, countIterations, endTime, exIterations, iterationsPerLog,
-            notFound, notFoundLimit, startTime, startTimeLog,
+            actualIterations,
+            countIterations,
+            endTime,
+            exIterations,
+            iterationsPerLog,
+            notFound,
+            notFoundLimit,
+            startTime,
+            startTimeLog,
         })
         const { countLog, totalFound } = buildCountStepsLog(countSteps, endTime, startTime)
 
@@ -248,36 +223,44 @@ export default function logMultiPersistence({ base, goalNumber }) {
         logStr += truncatedWithRuler.result + '\n'
         logStr += truncatedWithRuler.ruler + '\n'
 
-        logStr += 'Number found in ' + truncate(`${maxSteps} -> ${lastNumberFoundStr}`, 3, RULER_WIDTH).padEnd(54, '-') +
-            `Cells: ${cellNo.toLocaleString()}  RSS: ${toGB(mem.rss)} GB  worker heap: ${toGB(mem.heapUsed)} GB`.padEnd(70, '-') + '\n'
+        logStr += 'Number found in ' +
+            truncate(RULER_WIDTH, 3, `${maxSteps} -> ${lastNumberFoundStr}`).padEnd(54, '-') +
+            `Cells: ${cellNo.toLocaleString()}  RSS: ${toGB(mem.rss)} GB  worker heap: ${toGB(mem.heapUsed)} GB`
+                .padEnd(70, '-') + '\n'
 
         logStr += formatRow(
-            `Calc Iter.: ${calcIterations.toLocaleString()} (${rates.percentDone}%)`,
-            `Real Iter.: ${countIterations.toLocaleString()} saved: ${(calcIterations - BigInt(countIterations)).toLocaleString()}`
+            `Calc Iter.: ${actualIterations.toLocaleString()} (${rates.percentDone}%)`,
+            `Real Iter.: ${countIterations.toLocaleString()} ` +
+                `saved: ${(actualIterations - BigInt(countIterations)).toLocaleString()}`,
         )
 
         logStr += formatRow(
-            `Avg Calc Iter./sec: ${rates.iterationsPerSecond.toLocaleString()} (x ${(Number(calcIterations) / countIterations).toFixed(8)})`,
-            `Avg Real Iter./sec: ${rates.countIterationsPerSecond.toLocaleString()}`
+            `Avg Calc Iter./sec: ${rates.iterationsPerSecond.toLocaleString()} ` +
+                `(x ${(Number(actualIterations) / countIterations).toFixed(8)})`,
+            `Avg Real Iter./sec: ${rates.countIterationsPerSecond.toLocaleString()}`,
         )
 
         logStr += formatRow(
             `Log Iterations/sec: ${rates.iterationsPerSecondLog.toLocaleString()}`,
-            `Not Found: ${getTimeString(rates.notFoundTimeLeft)} ${notFound.toLocaleString()}/${notFoundLimit.toLocaleString()}`
+            `Not Found: ${getTimeString(rates.notFoundTimeLeft)} ` +
+                `${notFound.toLocaleString()}/${notFoundLimit.toLocaleString()}`,
         )
 
         logStr += formatRow(
             `Up Time: ${getTimeString(rates.numOfMilliseconds)}`,
-            `Time left: ${getTimeString(rates.timeLeft)}`
+            `Time left: ${getTimeString(rates.timeLeft)}`,
         )
 
         logStr += formatRow(
             `Session: ${getTimeString(sessionMilliseconds)}`,
-            `Base: ${base} found: ${messagesCount.toLocaleString()} / ${foundInLength.toLocaleString()} / ${totalFound.toLocaleString()}`
+            `Base: ${base} found: ${messagesCount.toLocaleString()} / ` +
+                `${foundInLength.toLocaleString()} / ${totalFound.toLocaleString()}`,
         )
 
         const getAColor = getColor()
-        countLog.forEach(logString => logStr += chalk[getAColor()](logString) + '\n')
+        countLog.forEach(logString => (logStr += chalk[getAColor()](logString) + '\n'))
         return logStr.slice(0, -1)
     }
 }
+
+export default logMultiPersistence

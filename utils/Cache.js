@@ -1,23 +1,17 @@
 import now from './now.js'
 
-/**
- * A `Map` with sliding-expiration TTL and least-frequently-used eviction.
- */
-export default class Cache extends Map {
-    /**
-     * @typedef {Object} DecayPolicy
-     * @property {number} [expireIn] TTL in ms; each `get()` refreshes it
-     * @property {number} [maxSize] max items, default `2**24`
-     */
-
+/** Map with per-entry expiry and a size cap that evicts the least-used entries. */
+class Cache extends Map {
     /**
      * @param {DecayPolicy} [decayPolicy={}]
-     * @param {string} [name] for debugging
+     * @param {string} [name='']
      */
-    constructor(decayPolicy = {}, name = undefined) {
+    constructor(decayPolicy = {}, name = '') {
         super()
 
+        /** @type {string|undefined} */
         this.name = name
+        /** @type {DecayPolicy} */
         this.decayPolicy = { ...decayPolicy }
 
         const max = (2 ** 24)
@@ -26,14 +20,15 @@ export default class Cache extends Map {
         this.decayPolicy.maxSize = this.decayPolicy.maxSize < 1 ? max : this.decayPolicy.maxSize
         this.decayPolicy.maxSize = Math.min(this.decayPolicy.maxSize, max)
 
-        if (!this.decayPolicy.expireIn)
+        if (!this.decayPolicy.expireIn) {
             this.decayPolicy.expireIn = max
+        }
     }
 
     /**
-     * Drops expired items, then evicts least-frequently-used ones until size ≤ maxSize.
+     * Drops expired entries, then least-used ones until under `maxSize`.
      *
-     * @private
+     * @returns {void}
      */
     #enforceDecayPolicy() {
         const time = +now
@@ -54,7 +49,7 @@ export default class Cache extends Map {
     }
 
     /**
-     * Value for `key`, or `undefined` if missing or expired. Refreshes the TTL and bumps the count.
+     * Item for `key`, renewing its expiry and use count; `undefined` when missing or expired.
      *
      * @param {*} key
      * @returns {*|undefined}
@@ -77,11 +72,11 @@ export default class Cache extends Map {
     }
 
     /**
-     * Stores `item` under `key`, running eviction first when the cache is full.
+     * Stores `item`, evicting first when full.
      *
      * @param {*} key
      * @param {*} item
-     * @returns {Cache}
+     * @returns {this}
      */
     set(key, item) {
         const existing = super.get(key)
@@ -101,3 +96,5 @@ export default class Cache extends Map {
         return this
     }
 }
+
+export default Cache

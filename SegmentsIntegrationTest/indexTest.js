@@ -1,21 +1,9 @@
-/**
- * Real, end-to-end check that segmenting a range and merging the results gives the same
- * substantive findings as running that same range continuously:
- *
- *   - segment A: 0 -> x, exactly 100,000,000 calcIterations
- *   - segment B: x -> y, another 100,000,000 calcIterations
- *   - segment C: 0 -> y, run continuously (same total range as A + B)
- *   - merge(A, B) must match C, aside from run-position metadata (timing, iteration index)
- *     that legitimately differs between a segmented and a continuous run.
- *
- *     node SegmentsIntegrationTest/indexTest.js
- */
-
+/** Checks that merging two consecutive segments equals one continuous run over both. */
+import { saveComputationState } from '#Config/computationStateIO.js'
+import mergeSegments from '#runningSegments/mergeSegments.js'
+import runSegment from './runSegment.js'
 import assert from 'node:assert/strict'
 import { tmpdir } from 'node:os'
-import { setComputationState } from '#Config/computationStateIO.js'
-import mergeSegments from './mergeSegments.js'
-import runSegment from './runSegment.js'
 
 process.normalizedEnv = {
     cache_idle_save_ms: 0,
@@ -27,14 +15,12 @@ const BASE = 10n
 const SEGMENT_ITERATIONS = 100_000_000n
 
 /**
- * Deep-clones a step-bucket map, dropping fields that reflect *when* in a run something
- * happened (`atRunTime`, `iteration`) rather than *what* was found — those legitimately
- * differ between a segmented and a continuous run of the same range.
+ * Copy of `steps` without the run-position fields.
  *
- * @param {Object<string, Object>} steps
- * @returns {Object<string, Object>}
+ * @param {Object<string, TypeStep>} steps
+ * @returns {Object<string, StrippedStep>}
  */
-const stripStepMetadata = (steps) => {
+const stripStepMetadata = steps => {
     const stripped = {}
     for (const [key, bucket] of Object.entries(steps)) {
         stripped[key] = { ...bucket }
@@ -45,12 +31,12 @@ const stripStepMetadata = (steps) => {
 }
 
 /**
- * Same idea for `number_lengths`, additionally dropping `time` (wall-clock duration).
+ * Copy of `numberLengths` without the run-position fields.
  *
  * @param {NumberLengths} numberLengths
- * @returns {NumberLengths}
+ * @returns {Object<string, StrippedLength>}
  */
-const stripNumberLengthsMetadata = (numberLengths) => {
+const stripNumberLengthsMetadata = numberLengths => {
     const stripped = {}
     for (const [length, stats] of Object.entries(numberLengths)) {
         stripped[length] = { found: stats.found, steps: stripStepMetadata(stats.steps) }
@@ -59,11 +45,13 @@ const stripNumberLengthsMetadata = (numberLengths) => {
 }
 
 /**
+ * The fields that must match between a merged and a continuous run.
+ *
  * @param {ComputationState} state
- * @returns {object}
+ * @returns {ComparableState}
  */
-const forComparison = (state) => ({
-    iterations: { calculated: state.iterations.calculated, count: state.iterations.count },
+const forComparison = state => ({
+    iterations: { actual: state.iterations.actual, count: state.iterations.count },
     last_number: state.last_number,
     number_lengths: stripNumberLengthsMetadata(state.number_lengths),
     steps: stripStepMetadata(state.steps),
@@ -72,28 +60,28 @@ const forComparison = (state) => ({
 console.log(`base ${BASE}, ${SEGMENT_ITERATIONS} iterations per segment`)
 
 console.time('segment A')
-const segmentA = runSegment(0n, BASE, SEGMENT_ITERATIONS)
+const segmentA = runSegment(BASE, SEGMENT_ITERATIONS, 0n)
 console.timeEnd('segment A')
-console.log(`  -> x = ${segmentA.last_number} (${segmentA.iterations.calculated} calcIterations)`)
+console.log(`  -> x = ${segmentA.last_number} (${segmentA.iterations.actual} actualIterations)`)
 process.normalizedEnv.results_file = 'segTestA'
-await setComputationState(segmentA, BASE)
+await saveComputationState(BASE, segmentA)
 
 console.time('segment B')
-const segmentB = runSegment(segmentA.last_number, BASE, SEGMENT_ITERATIONS)
+const segmentB = runSegment(BASE, SEGMENT_ITERATIONS, segmentA.last_number)
 console.timeEnd('segment B')
-console.log(`  -> y = ${segmentB.last_number} (${segmentB.iterations.calculated} calcIterations)`)
+console.log(`  -> y = ${segmentB.last_number} (${segmentB.iterations.actual} actualIterations)`)
 process.normalizedEnv.results_file = 'segTestB'
-await setComputationState(segmentB, BASE)
+await saveComputationState(BASE, segmentB)
 
-const merged = mergeSegments(segmentA, segmentB)
-const totalIterations = segmentA.iterations.count + segmentB.iterations.count
+const merged = mergeSegments(segmentB, segmentA)
+const pseudoGoalNumberOfIterations = segmentA.iterations.count + segmentB.iterations.count
 
 console.time('segment C (continuous)')
-const segmentC = runSegment(0n, BASE, totalIterations)
+const segmentC = runSegment(BASE, pseudoGoalNumberOfIterations, 0n)
 console.timeEnd('segment C (continuous)')
-console.log(`  -> ${segmentC.last_number} (${segmentC.iterations.calculated} calcIterations)`)
+console.log(`  -> ${segmentC.last_number} (${segmentC.iterations.actual} actualIterations)`)
 process.normalizedEnv.results_file = 'segTestC'
-await setComputationState(segmentC, BASE)
+await saveComputationState(BASE, segmentC)
 
 assert.equal(merged.last_number, segmentC.last_number, 'merged(A,B) and C ended on different numbers')
 assert.deepStrictEqual(forComparison(merged), forComparison(segmentC), 'merged(A,B) and C substantively disagree')

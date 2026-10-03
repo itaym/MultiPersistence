@@ -1,26 +1,23 @@
-import memorize from '#utils/memorize.js'
 import countPer from '#permutations/countPermutations.js'
+import memorize from '#utils/memorize.js'
 
 /**
- * Splits `cell`, leaving `countToLeave` digits in it, and increments the new cell's digit.
+ * Splits `cell` so `countToLeave` digits stay and bumps the digit of the split-off rest.
  *
- * @param {HugeInt} hugeInt
  * @param {DigitCell} cell
- * @param {BigInt} countToLeave digits to keep in the original cell
+ * @param {bigint} countToLeave
+ * @param {HugeIntEx} hugeInt owner of `cell`
  * @returns {void}
  */
-export const splitAfterCell = (hugeInt, cell, countToLeave) => {
+export const splitAfterCell = (cell, countToLeave, hugeInt) => {
     const newCell = hugeInt.splitCellBefore(cell, cell.count - countToLeave)
     newCell.digit++
 }
 
 /**
- * Permutations skipped after a digit mutation. Memoized.
+ * Canonical numbers skipped by bumping a run of `countChange` copies of `digit`; disk-memorized.
  *
- * @param {BigInt} digit the digit being modified
- * @param {BigInt} countChange digit copies affected
- * @param {BigInt} base
- * @returns {BigInt}
+ * @type {(digit: bigint, countChange: bigint, base: bigint) => bigint}
  */
 export const getPermutations = memorize((digit, countChange, base) => {
     if (countChange === 1n) return 1n
@@ -29,8 +26,8 @@ export const getPermutations = memorize((digit, countChange, base) => {
 }, 'getPermutations')
 
 /**
- * Placeholder for digits without pruning rules; always `0n`.
+ * Checker for digits with nothing to skip.
  *
- * @returns {BigInt}
+ * @returns {bigint} `0n`
  */
 export const emptyFunction = () => 0n

@@ -1,14 +1,13 @@
 import advanceBy from './advanceBy.js'
 
 /**
- * The end boundary of a segment starting at `startAt` that checks exactly `count` numbers,
- * `startAt` included.
+ * Last number of a segment that checks `count` canonical numbers starting at `startAt`.
  *
- * @param {BigInt} startAt
- * @param {BigInt} base
- * @param {BigInt} count numbers to check, including `startAt`
- * @returns {BigInt}
+ * @param {bigint} base
+ * @param {bigint} count canonical numbers in the segment, `startAt` included
+ * @param {bigint} startAt first number of the segment
+ * @returns {bigint}
  */
-const segmentEndAt = (startAt, base, count) => advanceBy(startAt, base, count - 1n)
+const segmentEndAt = (base, count, startAt) => advanceBy(base, count - 1n, startAt)
 
 export default segmentEndAt

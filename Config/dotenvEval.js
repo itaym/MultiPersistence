@@ -1,20 +1,23 @@
-import { argv } from 'node:process'
+/* eslint-disable no-unused-vars */
 // noinspection ES6UnusedImports
 import HugeInt from '#HugeInt/index.js'
+import { argv } from 'node:process'
 
 /**
- * Coerces a CLI argument string to boolean, null, undefined, BigInt, or the raw string.
+ * Command-line value → boolean, null, undefined, BigInt, or the raw string.
  *
  * @param {string} rawValue
- * @returns {boolean|bigint|null|undefined|string}
+ * @returns {*}
  */
-const coerceCliValue = (rawValue) => {
+const coerceCliValue = rawValue => {
     const lower = rawValue.toLowerCase()
 
-    if (lower === 'true') return true
-    if (lower === 'false') return false
-    if (lower === 'null') return null
-    if (lower === 'undefined') return undefined
+    const expectedRawValues = ['true', 'false', 'undefined', 'null']
+
+    if (expectedRawValues.includes(lower)) {
+        // eslint-disable-next-line no-eval
+        return eval(lower)
+    }
 
     try {
         return BigInt(rawValue)
@@ -24,16 +27,17 @@ const coerceCliValue = (rawValue) => {
 }
 
 /**
- * Builds a normalizedEnv object from dotenv values (trusted input) and derives `goal_number`.
+ * Lower-cases the keys and evaluates each value as JS, keeping the raw string when that fails.
  *
- * @param {Object<string,string>} parsed raw dotenv variables
- * @returns {object}
+ * @param {Object<string, string>} parsed
+ * @returns {NormalizedEnv}
  */
-const normalizeEnvFromDotenv = (parsed) => {
+const normalizeEnvFromDotenv = parsed => {
     const normalizedEnv = {}
 
     for (const [key, value] of Object.entries(parsed)) {
         try {
+            // eslint-disable-next-line no-eval
             normalizedEnv[key.toLowerCase()] = eval(value + '')
         } catch {
             normalizedEnv[key.toLowerCase()] = value
@@ -44,14 +48,14 @@ const normalizeEnvFromDotenv = (parsed) => {
 }
 
 /**
- * Applies `key=value` CLI args to `normalizedEnv` and `process.env`, re-deriving `goal_number`.
+ * Applies `key=value` command-line args to `normalizedEnv` and `process.env`, in place.
  *
- * @param {object} normalizedEnv
- * @param {string[]} argv
- * @returns {object}
+ * @param {string[]} args
+ * @param {NormalizedEnv} normalizedEnv
+ * @returns {NormalizedEnv} `normalizedEnv`
  */
-const applyCliOverrides = (normalizedEnv, argv) => {
-    const env = process.env
+const applyCliOverrides = (args, normalizedEnv) => {
+    const { env } = process
 
     for (const arg of argv) {
         const [key, rawValue] = arg.split('=')
@@ -68,18 +72,18 @@ const applyCliOverrides = (normalizedEnv, argv) => {
 }
 
 /**
- * Normalizes dotenv values then applies CLI overrides. Exits on a dotenv error.
+ * Turns a `dotenv.config` result into the normalized env with command-line overrides; exits on a load error.
  *
- * @param {Object<string,string>} parsed parsed dotenv variables
- * @param {Object<string,string>} error dotenv error, if any
- * @returns {object}
+ * @param {DotenvResult} result
+ * @returns {NormalizedEnv}
  */
-const dotenvEval = ({ parsed, error }) => {
+const dotenvEval = ({ error, parsed }) => {
     if (error) {
+        // eslint-disable-next-line no-console
         console.error(error)
         process.exit(1)
     }
-    return applyCliOverrides(normalizeEnvFromDotenv(parsed), argv)
+    return applyCliOverrides(argv, normalizeEnvFromDotenv(parsed))
 }
 
 export default dotenvEval

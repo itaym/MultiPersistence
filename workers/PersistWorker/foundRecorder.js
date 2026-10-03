@@ -2,40 +2,18 @@ import calcCellsArrFactorial from '#utils/calcCellsArrFactorial.js'
 import factorial from '#utils/factorial.js'
 
 /**
- * Immutable snapshot of a single found number, stored as `first` / `last` on the
- * per-step and per-length buckets.
- *
- * @typedef {Object} FoundSnapshot
- * @property {BigInt} additionSum    digit-addition sum of the number
- * @property {BigInt} numberValue the number itself
- * @property {BigInt} multiplySum    digit-multiplication sum of the number
- */
-
-/**
- * Callback run for every found number as its batch is drained.
- *
- * @callback FoundRecorder
- * @param {FoundMessage} found        the message describing the number
- * @param {HugeInt} currentNo         the number, parsed into a scratch HugeInt
- * @param {number} length             digit length of the number
- * @param {number} startTime          run start timestamp (ms)
- * @param {number} endTime            timestamp of the current log tick (ms)
- * @returns {void}
- */
-
-/**
- * @param {BigInt} additionSum
- * @param {BigInt} multiplySum
- * @param {BigInt} numberValue
+ * @param {bigint} additionSum
+ * @param {bigint} multiplySum
+ * @param {bigint} numberValue
  * @returns {FoundSnapshot}
  */
-const snapshot = (additionSum, multiplySum, numberValue) => ({ additionSum, numberValue, multiplySum })
+const snapshot = (additionSum, multiplySum, numberValue) => ({ additionSum, multiplySum, numberValue })
 
 /**
- * Bumps a `{ key: count }` histogram.
+ * Adds one to `hist[key]`.
  *
  * @param {Object<string, number>} hist
- * @param {number|string} key
+ * @param {string|bigint|number} key
  * @returns {void}
  */
 const bumpHist = (hist, key) => {
@@ -43,14 +21,14 @@ const bumpHist = (hist, key) => {
 }
 
 /**
- * Fresh accumulator for a persistence step, seeded with its first number.
+ * Empty totals bucket of one persistence step.
  *
- * @param {number} step
  * @param {number} atRunTime
  * @param {FoundSnapshot} first
+ * @param {number} step
  * @returns {TypeStep}
  */
-const createStepBucket = (step, atRunTime, first) => ({
+const createStepBucket = (atRunTime, first, step) => ({
     additionSum: 0n,
     additionSums: {},
     atRunTime,
@@ -65,12 +43,12 @@ const createStepBucket = (step, atRunTime, first) => ({
 })
 
 /**
- * Fresh accumulator for one persistence step within a given number length.
+ * Empty totals bucket of one persistence step within one number length.
  *
  * @param {FoundSnapshot} first
- * @returns {Object}
+ * @returns {LengthStepBucket}
  */
-const createLengthStepBucket = (first) => ({
+const createLengthStepBucket = first => ({
     additionSum: 0n,
     additionSums: {},
     combinations: 0n,
@@ -82,13 +60,12 @@ const createLengthStepBucket = (first) => ({
 })
 
 /**
- * Digit-cell repeat-counts of `currentNo` (the identical-digit permutation divisor), or `[1n]`
- * when every cell count is 1.
+ * Run lengths of `currentNo`'s cells above 1, or `[1n]` when there are none.
  *
  * @param {HugeInt} currentNo
- * @returns {BigInt[]}
+ * @returns {bigint[]}
  */
-const createLengthsArray = (currentNo) => {
+const createLengthsArray = currentNo => {
     const array = []
 
     for (let cell = currentNo.firstCell; cell; cell = cell.next) {
@@ -100,22 +77,40 @@ const createLengthsArray = (currentNo) => {
 }
 
 /**
- * Builds the {@link FoundRecorder} for `computationState`. It folds each found number into
- * `steps` (per persistence depth) and `number_lengths` (the same, sliced by digit length).
+ * Builds a recorder that adds each find to `computationState`'s step and number-length totals.
  *
- * @param {ComputationState} computationState
- * @returns {FoundRecorder}
+ * @param {ComputationState} computationState updated in place
+ * @returns {(currentNo: HugeInt, endTime: number, length: number, message: FoundMessage, startTime: number) => void}
  */
-export const createFoundRecorder = (computationState) => {
-    const { steps: countSteps, number_lengths: numberLengths } = computationState
+const createFoundRecorder = computationState => {
+    const { number_lengths: numberLengths, steps: countSteps } = computationState
 
-    /** @type {FoundRecorder} */
-    return ({ additionSum, atRunTime, calcIterations, multiplySum, productLength, steps }, currentNo, length, startTime, endTime) => {
+    /**
+     * Records one find.
+     *
+     * @param {HugeInt} currentNo
+     * @param {number} endTime
+     * @param {number} length digits of `currentNo`
+     * @param {FoundMessage} message
+     * @param {number} startTime
+     * @returns {void}
+     */
+    return (
+        currentNo,
+        endTime,
+        length,
+        { actualIterations, additionSum, atRunTime, multiplySum, productLength, steps },
+        startTime,
+    ) => {
         const numberValue = currentNo.value
         const combinations = factorial(BigInt(length)) / calcCellsArrFactorial(createLengthsArray(currentNo))
 
         // ---- totals for this persistence step ----
-        const step = (countSteps[steps] ??= createStepBucket(steps, atRunTime, snapshot(additionSum, multiplySum, numberValue)))
+        const step = (countSteps[steps] ??= createStepBucket(
+            atRunTime,
+            snapshot(additionSum, multiplySum, numberValue),
+            steps,
+        ))
 
         step.additionSum += additionSum
         step.multiplySum += multiplySum
@@ -123,7 +118,7 @@ export const createFoundRecorder = (computationState) => {
         step.count++
         step.last = snapshot(additionSum, multiplySum, numberValue)
         step.atRunTime = atRunTime
-        step.iteration = calcIterations
+        step.iteration = actualIterations
         bumpHist(step.additionSums ??= {}, additionSum) // ??= for buckets loaded from an older results file
         bumpHist(step.productLengths ??= {}, productLength)
 
@@ -133,7 +128,9 @@ export const createFoundRecorder = (computationState) => {
             steps: {},
             time: endTime - startTime,
         })
-        const lengthStep = (lengthStats.steps[steps] ??= createLengthStepBucket(snapshot(additionSum, multiplySum, numberValue)))
+        const lengthStep = (lengthStats.steps[steps] ??= createLengthStepBucket(
+            snapshot(additionSum, multiplySum, numberValue),
+        ))
 
         lengthStep.additionSum += additionSum
         lengthStep.multiplySum += multiplySum
@@ -145,3 +142,5 @@ export const createFoundRecorder = (computationState) => {
         lengthStats.found++
     }
 }
+
+export default createFoundRecorder

@@ -1,30 +1,27 @@
 import countPermutations from './countPermutations.js'
 
 /**
- * Exact count of non-decreasing digit sequences of length `length` over an alphabet of
- * `size` values (`1n` for the trivial empty completion when `length` is `0n`).
+ * Canonical numbers of exactly `length` digits over `size` digit values.
  *
- * @param {BigInt} length
- * @param {BigInt} size
- * @returns {BigInt}
+ * @param {bigint} length
+ * @param {bigint} size
+ * @returns {bigint}
  */
 const exactCount = (length, size) => {
     if (length === 0n) return 1n
-    return /** @type {BigInt} */ countPermutations(length, size) - countPermutations(length - 1n, size)
+    return countPermutations(length, size) - countPermutations(length - 1n, size)
 }
 
 /**
- * Position of `number` in the ordered list of canonical (non-decreasing, digits in
- * `[2, base-1]`) numbers — the same count `multiPerSearch` accumulates as `calcIterations`
- * reaching it from the start of that list.
+ * Position of `number` in the canonical (non-decreasing digits, no 0 or 1) order.
  *
- * @param {HugeIntEx} number
- * @returns {BigInt}
+ * @param {HugeInt} number
+ * @returns {bigint}
  */
-export const positionOf = (number) => {
-    const base = number.base
+export const positionOf = number => {
+    const { base } = number
     const alphabetSize = base - 2n
-    const length = number.length
+    const { length } = number
 
     const cellsMsbToLsb = []
     for (let cell = number.firstCell; cell; cell = cell.next) cellsMsbToLsb.unshift(cell)
@@ -47,13 +44,13 @@ export const positionOf = (number) => {
 }
 
 /**
- * The canonical number sitting at `position` in the ordered list — the inverse of {@link positionOf}.
+ * Canonical number at `position`; inverse of {@link positionOf}.
  *
- * @param {BigInt} position
- * @param {BigInt} base
- * @returns {BigInt}
+ * @param {bigint} base
+ * @param {bigint} position
+ * @returns {bigint}
  */
-export const numberAt = (position, base) => {
+export const numberAt = (base, position) => {
     const alphabetSize = base - 2n
 
     let length = 1n

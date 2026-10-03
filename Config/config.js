@@ -1,29 +1,43 @@
-import * as dotenv from 'dotenv'
 import { initPollyFill } from '#utils/pollyfill.js'
 import dotenvEval from './dotenvEval.js'
+import * as dotenv from 'dotenv'
 
+/** @type {NormalizedEnv|undefined} loaded env, set on first access */
 let normalizedEnv
 
 initPollyFill()
 
-const load = (options) => {
-    normalizedEnv = dotenvEval(/** @type any */ dotenv.config(options))
+/**
+ * Loads `.env` and normalizes it.
+ *
+ * @param {Object} [options] `dotenv.config` options
+ * @returns {NormalizedEnv|undefined}
+ */
+const load = options => {
+    normalizedEnv = dotenvEval(dotenv.config(options))
     return normalizedEnv
 }
 
 Object.defineProperty(process, 'normalizedEnv', {
     configurable: true,
+    /**
+     * @returns {NormalizedEnv}
+     */
     get: () => normalizedEnv ?? load(),
-    set: (value) => { normalizedEnv = value },
+    /**
+     * @param { normalizedEnv|undefined} value
+     */
+    set: value => { normalizedEnv = value },
 })
 
 /**
- * Triggers config loading if it hasn't run yet. Runs at most once.
+ * Loads the env once, if not loaded yet.
  *
- * @param {object} [options] passed to `dotenv.config`
+ * @param {Object} [options] `dotenv.config` options
  * @returns {void}
  */
-export const initConfig = (options = undefined) => {
+const initConfig = options => {
     if (!normalizedEnv) load(options)
 }
 
+export default initConfig

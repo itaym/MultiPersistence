@@ -2,14 +2,11 @@ import memorize from '#utils/memorize.js'
 import MultiMap from '#utils/MultiMap.js'
 
 /**
- * Permutations of length `length` over digits 1…base. Internally cached.
+ * Canonical numbers of exactly `length` digits whose values fit in `base` (1..base), cached by length.
  *
- * @param {BigInt} base max digit value
- * @param {BigInt} length permutation length
- * @returns {BigInt}
+ * @type {(base: bigint, length: bigint) => bigint}
  */
 const _getPermutations = (() => {
-
     const getPCache = new MultiMap()
     const getPCacheLast = new MultiMap()
 
@@ -26,7 +23,7 @@ const _getPermutations = (() => {
 
         if (baseLast > -1n) {
             checkBase = baseLast + 1n
-            result = /** @type {BigInt} */ getPCache.get(`${length},${baseLast}`)
+            result = getPCache.get(`${length},${baseLast}`)
         }
 
         for (let runBase = checkBase; runBase <= base; runBase++) {
@@ -39,19 +36,15 @@ const _getPermutations = (() => {
 })()
 
 /**
- * Total permutations for lengths 1…length over digits 1…base. Cached.
+ * Canonical numbers of 1..`length` digits whose values fit in `base`; disk-memorized.
  *
- * @param {BigInt} base max digit value
- * @param {BigInt} length max length to include
- * @returns {BigInt}
+ * @type {(base: bigint, length: bigint) => bigint}
  */
 const getPermutations = (() => {
-
     const cacheLast = new MultiMap()
     const cache = new MultiMap()
 
     return memorize((base, length) => {
-
         let baseLast = cacheLast.get(base)
         let checkLength = 1n
         let result = 0n
@@ -59,12 +52,13 @@ const getPermutations = (() => {
         if (!baseLast) baseLast = -1n
         const theLastOne = baseLast
 
-        if (baseLast > length)
+        if (baseLast > length) {
             baseLast = length
+        }
 
         if (baseLast > -1n) {
             checkLength = baseLast + 1n
-            result = /** @type {BigInt} */ cache.get(`${base},${baseLast}`)
+            result = cache.get(`${base},${baseLast}`)
         }
 
         for (let runLength = checkLength; runLength <= length; runLength++) {
@@ -80,11 +74,9 @@ const getPermutations = (() => {
 })()
 
 /**
- * Permutations of length `_length` over digits 1…base; `0n` for non-positive lengths.
+ * Canonical numbers of 1..`_length` digits over `base` digit values; `0n` for `_length <= 0n`; disk-memorized.
  *
- * @param {BigInt} _length permutation length
- * @param {BigInt} base max digit value
- * @returns {BigInt}
+ * @type {(_length: bigint, base: bigint) => bigint}
  */
 const countPermutations = memorize((_length, base) => {
     if (_length <= 0n) return 0n

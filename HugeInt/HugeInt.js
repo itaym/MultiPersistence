@@ -1,5 +1,8 @@
-import { digitsObj as baseDigits, digitsValue, toBigInt } from '#Digits/index.js'
-import { testDigitCellFactory } from './utils.js'
+import {
+    digitsObj as baseDigits,
+    digitsValue,
+    toBigInt,
+} from '#Digits/index.js'
 import {
     addGroups,
     bigIntToGroups,
@@ -8,22 +11,12 @@ import {
     multiplyGroups,
     multiplyGroupsByDigit,
 } from './multiply.js'
+import testDigitCellFactory from './utils.js'
 
 /**
- * A single digit-cell in the HugeInt linked list.
+ * Fresh digit cell: digit 0, run length 1, unlinked.
  *
- * @typedef {Object} DigitCell
- * @property {boolean} changed - Whether the cell was touched since the last persistence pass (used by the search via HugeIntEx).
- * @property {BigInt} count - Number of consecutive occurrences of this digit.
- * @property {BigInt} digit - The digit value (0 ≤ digit < base).
- * @property {DigitCell|null} next - Next cell (more significant digit).
- * @property {DigitCell|null} prev - Previous cell (less significant digit).
- */
-
-/**
- * Default {@link DigitCell} factory: a fresh, unlinked cell holding digit 0.
- *
- * @type {() => DigitCell}
+ * @returns {DigitCell}
  */
 export const defaultDigitCellFactory = () => ({
     changed: true,
@@ -33,43 +26,36 @@ export const defaultDigitCellFactory = () => ({
     prev: null,
 })
 
-/**
- * A large integer as a run-length-compressed linked list of digit cells, least-significant
- * first. Each cell is `{ digit, count, prev, next }`; adjacent cells never share a digit.
- *
- * @class HugeInt
- */
+/** Arbitrary-size non-negative integer stored as a doubly linked list of digit runs, the least significant first. */
 export class HugeInt {
-
     /**
-     * @constructor
-     * @param {BigInt} [initValue=0n]
-     * @param {BigInt} [base=10n]
-     * @param {() => DigitCell} [digitCellFactory] validated once, then used for every cell
-     * @returns {HugeInt}
+     * @param {bigint} [base=10n]
+     * @param {() => DigitCell} [digitCellFactory=defaultDigitCellFactory] must return a valid fresh {@link DigitCell}
+     * @param {bigint} [initValue=0n]
      */
-    constructor(initValue = 0n, base = 10n, digitCellFactory = undefined) {
-
+    constructor(base = 10n, digitCellFactory = defaultDigitCellFactory, initValue = 0n) {
         this.#base = base
         this.#baseMinusOne = this.#base - 1n
-        this.#digitCellFactory = digitCellFactory || defaultDigitCellFactory
+        this.#digitCellFactory = digitCellFactory
 
         if (!testDigitCellFactory(this.#digitCellFactory)) {
             throw new Error('digitCellFactory function must return a valid DigitCell object')
         }
 
-        if (initValue === 0n) {
+        let currentValue = initValue
+
+        if (currentValue === 0n) {
             this.firstCell = this.#digitCellFactory()
             this.lastCell = this.firstCell
         } else {
-            const digit = initValue % base
-            initValue /= base
+            let digit = initValue % base
+            currentValue /= base
             let currentCell = this.#digitCellFactory()
             currentCell.digit = digit
             this.firstCell = currentCell
-            while (initValue !== 0n) {
-                const digit = initValue % base
-                initValue /= base
+            while (currentValue !== 0n) {
+                digit = currentValue % base
+                currentValue /= base
                 if (currentCell.digit === digit) {
                     currentCell.count++
                 } else {
@@ -83,41 +69,44 @@ export class HugeInt {
         }
     }
 
-    /** @private @type {BigInt} base used for digit decomposition and arithmetic */
+    /** @type {bigint} */
     #base
-
-    /** @private @type {BigInt} cached `base - 1n`, for geometric-series sums */
+    /** @type {bigint} `base - 1n` */
     #baseMinusOne
-
-    /** @private @type {() => DigitCell} */
+    /** @type {() => DigitCell} */
     #digitCellFactory
 
+    /** @type {DigitCell} least significant cell */
+    firstCell
+
+    /** @type {DigitCell} most significant cell */
+    lastCell
+
     /**
-     * The numerical base.
-     *
-     * @readonly
-     * @returns {BigInt}
+     * @param {...bigint} args
+     * @returns {bigint}
      */
+    static maxBigInt = (...args) => args.reduce((a, b) => (a > b ? a : b))
+
+    /** @type {bigint} approximate BigInt size limit, in bits */
+    static maxBigIntBits = 1n << 30n
+    /**
+     * @param {...bigint} args
+     * @returns {bigint}
+     */
+    static minBigInt = (...args) => args.reduce((a, b) => (a < b ? a : b))
+
+    /** @returns {bigint} */
     get base() {
         return this.#base
     }
 
-    /**
-     * The cell before the last one, or `null` when there is only one cell.
-     *
-     * @readonly
-     * @returns {DigitCell|null}
-     */
+    /** @returns {DigitCell|null} cell before the most significant one */
     get beforeLastCell() {
         return this.lastCell.prev
     }
 
-    /**
-     * Number of digit-cells (distinct digit groups), not the digit count.
-     *
-     * @readonly
-     * @returns {number}
-     */
+    /** @returns {number} number of cells */
     get cellsLength() {
         let count = 0
         let cell = this.firstCell
@@ -128,18 +117,7 @@ export class HugeInt {
         return count
     }
 
-    /** @type {DigitCell} first digit-cell (least significant), non-null after construction */
-    firstCell
-
-    /** @type {DigitCell} last digit-cell (most significant), non-null after construction */
-    lastCell
-
-    /**
-     * Total digit count (sum of every cell's `count`).
-     *
-     * @readonly
-     * @returns {BigInt}
-     */
+    /** @returns {bigint} digit count */
     get length() {
         let count = 0n
         let cell = this.firstCell
@@ -150,22 +128,12 @@ export class HugeInt {
         return count
     }
 
-    /**
-     * The cell after `firstCell`, or `null` when there is only one cell.
-     *
-     * @readonly
-     * @returns {DigitCell|null}
-     */
+    /** @returns {DigitCell|null} */
     get secondCell() {
         return this.firstCell.next
     }
 
-    /**
-     * The full numeric value.
-     *
-     * @readonly
-     * @returns {BigInt}
-     */
+    /** @returns {bigint} */
     get value() {
         const o = this
         let value = 0n
@@ -182,20 +150,13 @@ export class HugeInt {
     }
 
     /**
-     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-     * @section @@METHODS
-     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-     */
-
-    /**
-     * Inserts `cell` immediately after `currentCell`, updating `lastCell` if needed.
+     * Links `cell` right after (more significant than) `currentCell`.
      *
-     * @method addCellAfter
+     * @param {DigitCell} cell
      * @param {DigitCell} currentCell
-     * @param {DigitCell} cell caller must ensure its fields are valid
-     * @returns {DigitCell} the inserted cell
+     * @returns {DigitCell} `cell`
      */
-    addCellAfter(currentCell, cell) {
+    addCellAfter(cell, currentCell) {
         currentCell.next && (currentCell.next.prev = cell)
 
         cell.next = currentCell.next
@@ -208,14 +169,13 @@ export class HugeInt {
     }
 
     /**
-     * Inserts `cell` immediately before `currentCell`, updating `firstCell` if needed.
+     * Links `cell` right before (less significant than) `currentCell`.
      *
-     * @method addCellBefore
-     * @param {DigitCell} currentCell
      * @param {DigitCell} cell
-     * @returns {DigitCell} the inserted cell
+     * @param {DigitCell} currentCell
+     * @returns {DigitCell} `cell`
      */
-    addCellBefore(currentCell, cell) {
+    addCellBefore(cell, currentCell) {
         currentCell.prev && (currentCell.prev.next = cell)
         cell.prev = currentCell.prev
         currentCell.prev = cell
@@ -227,14 +187,13 @@ export class HugeInt {
     }
 
     /**
-     * Replaces the contents with the number parsed from `str`, and switches to `base`.
+     * Replaces the value with `str` read in `base`; runs longer than 9999 are not supported.
      *
-     * @method fromString
-     * @param {string} str number in `base`
-     * @param {BigInt} base
-     * @returns {HugeInt} `this`
+     * @param {bigint} base
+     * @param {string} str
+     * @returns {this}
      */
-    fromString(str, base) {
+    fromString(base, str) {
         const digitsArr = str.match(/((.)\2*)/g) || [str]
 
         this.#base = base
@@ -244,7 +203,6 @@ export class HugeInt {
         this.firstCell = currentCell
 
         for (let index = digitsArr.length - 1; index > -1; index--) {
-
             currentCell.count = toBigInt[digitsArr[index].length]
             currentCell.digit = digitsValue[digitsArr[index][0]]
 
@@ -258,20 +216,13 @@ export class HugeInt {
         return this
     }
 
-    static maxBigInt = (...args) => args.reduce((a, b) => (a > b ? a : b))
-    static minBigInt = (...args) => args.reduce((a, b) => (a < b ? a : b))
-
-    /**
-     * Whether this HugeInt represents zero.
-     *
-     * @returns {boolean}
-     */
+    /** @returns {boolean} */
     isZero() {
         return !this.firstCell.next && this.firstCell.digit === 0n
     }
 
     /**
-     * Snapshots the digit-cells as {@link DigitGroups}.
+     * Cells as `[digit, count]` groups, least significant first.
      *
      * @returns {DigitGroups}
      */
@@ -284,8 +235,7 @@ export class HugeInt {
     }
 
     /**
-     * Rebuilds the digit-cell list from `groups`: merges equal neighbours, trims leading zero
-     * groups, and guarantees at least one cell.
+     * Replaces the cells with `groups`, merging equal neighbours and trimming leading zeros.
      *
      * @param {DigitGroups} groups
      * @returns {this}
@@ -324,9 +274,9 @@ export class HugeInt {
     }
 
     /**
-     * Coerces an operand to {@link DigitGroups} in this HugeInt's base.
+     * `other` as digit groups in this base.
      *
-     * @param {HugeInt | bigint | number} other
+     * @param {HugeInt|bigint|number} other
      * @returns {DigitGroups}
      */
     #coerceToGroups(other) {
@@ -334,19 +284,18 @@ export class HugeInt {
             if (other.#base !== this.#base) throw new Error('Base is incompatible.')
             return other.#toGroups()
         }
-        if (typeof other === 'bigint') return bigIntToGroups(other, this.#base)
+        if (typeof other === 'bigint') return bigIntToGroups(this.#base, other)
         if (typeof other === 'number') {
             if (!Number.isInteger(other)) throw new RangeError('HugeInt: expected an integer')
-            return bigIntToGroups(BigInt(other), this.#base)
+            return bigIntToGroups(this.#base, BigInt(other))
         }
         throw new TypeError('HugeInt: expected a HugeInt, bigint, or integer')
     }
 
     /**
-     * Whether {@link value} (with `extraDigits` more digits) fits V8's BigInt
-     * size limit, i.e. whether the `bigint` fast path is safe.
+     * Whether the value, grown by `extraDigits`, stays under {@link HugeInt.maxBigIntBits}.
      *
-     * @param {bigint} [extraDigits]
+     * @param {bigint} [extraDigits=0n]
      * @returns {boolean}
      */
     #fitsBigInt(extraDigits = 0n) {
@@ -355,46 +304,40 @@ export class HugeInt {
     }
 
     /**
-     * Builds a HugeInt directly from {@link DigitGroups} (`[[digit, repeatCount], …]`,
-     * least-significant group first). Repeat counts may be arbitrarily large.
-     *
-     * @param {DigitGroups} groups
-     * @param {BigInt} [base=10n]
+     * @param {[bigint|number, bigint|number][]} groups `[digit, count]`, least significant first
+     * @param {bigint} [base=10n]
      * @returns {HugeInt}
      */
     static fromGroups(groups, base = 10n) {
-        const hugeInt = new HugeInt(0n, base)
+        const hugeInt = new HugeInt(base, undefined, 0n)
         return hugeInt.#groupsToDigitCells(groups.map(([digit, count]) => [BigInt(digit), BigInt(count)]))
     }
 
-    /** Approximate V8 BigInt ceiling in bits; lowered by tests to force the digit-group path. */
-    static maxBigIntBits = 1n << 30n
-
     /**
-     * Adds `other` in place, group-wise (`O(groupCount)`).
+     * Adds `other` in place.
      *
-     * @param {HugeInt | bigint | number} other
+     * @param {HugeInt|bigint|number} other
      * @returns {this}
      */
     add(other) {
-        return this.#groupsToDigitCells(addGroups(this.#toGroups(), this.#coerceToGroups(other), this.#base))
+        return this.#groupsToDigitCells(addGroups(this.#base, this.#toGroups(), this.#coerceToGroups(other)))
     }
 
     /**
-     * Multiplies this HugeInt in place by a single digit (`0 ≤ digit < base`).
+     * Multiplies by a single digit in place.
      *
-     * @param {bigint} digit
+     * @param {bigint} digit in `[0, base]`
      * @returns {this}
      */
     multiplyByDigit(digit) {
         if (typeof digit !== 'bigint' || digit < 0n || digit >= this.#base) {
-            throw new RangeError('HugeInt.multiplyByDigit: expected a bigint digit in [0, base)')
+            throw new RangeError('HugeInt.multiplyByDigit: expected a bigint digit in [0, base]')
         }
-        return this.#groupsToDigitCells(multiplyGroupsByDigit(this.#toGroups(), digit, this.#base))
+        return this.#groupsToDigitCells(multiplyGroupsByDigit(this.#base, digit, this.#toGroups()))
     }
 
     /**
-     * Multiplies this HugeInt in place by `baseᵏ` (a left digit shift).
+     * Multiplies by `base ** k` in place.
      *
      * @param {bigint} k
      * @returns {this}
@@ -411,16 +354,15 @@ export class HugeInt {
         const cell = this.#digitCellFactory()
         cell.digit = 0n
         cell.count = k
-        this.addCellBefore(this.firstCell, cell)
+        this.addCellBefore(cell, this.firstCell)
         return this
     }
 
     /**
-     * Multiplies `other` in place. Uses the `bigint` fast path when the product fits V8's BigInt
-     * limit, else {@link module:HugeInt/multiply} (which may throw {@link BudgetExceededError}).
+     * Multiplies by `other` in place, via BigInt when small enough, else on digit groups.
      *
-     * @param {HugeInt | bigint | number} other
-     * @param {{ maxCells?: bigint }} [options]
+     * @param {HugeInt|bigint|number} other
+     * @param {MultiplyOptions} [options]
      * @returns {this}
      */
     multiply(other, options) {
@@ -435,20 +377,20 @@ export class HugeInt {
 
         if (this.#fitsBigInt(otherDigits)) {
             try {
-                return this.#groupsToDigitCells(bigIntToGroups(this.value * groupsToBigInt(otherGroups, this.#base), this.#base))
+                return this.#groupsToDigitCells(
+                    bigIntToGroups(this.#base, this.value * groupsToBigInt(this.#base, otherGroups)),
+                )
             } catch (err) {
                 if (err.name !== 'RangeError') throw err
             }
         }
-        return this.#groupsToDigitCells(multiplyGroups(this.#toGroups(), otherGroups, this.#base, options))
+        return this.#groupsToDigitCells(multiplyGroups(this.#base, this.#toGroups(), otherGroups, options))
     }
 
     /**
-     * Increments by 1 in place, splitting cells, rolling over at `base - 1`, and carrying to
-     * more significant cells (a leading digit-1 cell is appended on top-digit rollover).
+     * Adds one at `cell`, in place.
      *
-     * @method addOne
-     * @param {DigitCell|null} [cell=this.firstCell] cell to increment
+     * @param {DigitCell} [cell=this.firstCell]
      * @returns {void}
      */
     addOne(cell) {
@@ -464,7 +406,7 @@ export class HugeInt {
             cellToAdd = this.#digitCellFactory()
             cellToAdd.count = cell.count - 1n
             cellToAdd.digit = cell.digit
-            this.addCellAfter(cell, cellToAdd)
+            this.addCellAfter(cellToAdd, cell)
             cell.count = 1n
             cell.digit++
             return
@@ -479,40 +421,35 @@ export class HugeInt {
         if (cell === this.lastCell) {
             cellToAdd = this.#digitCellFactory()
             cellToAdd.digit = 1n
-            this.addCellAfter(cell, cellToAdd)
+            this.addCellAfter(cellToAdd, cell)
             return
         }
         this.addOne(cell.next)
     }
 
     /**
-     * Removes `cell`, fixing neighbour pointers and `firstCell` / `lastCell`.
+     * Unlinks `cell`.
      *
-     * @method removeCell
      * @param {DigitCell} cell
      * @returns {void}
      */
     removeCell(cell) {
         if (cell.prev) {
             cell.prev.next = cell.next
-        }
-        else {
+        } else {
             this.firstCell = cell.next
         }
         if (cell.next) {
             cell.next.prev = cell.prev
-        }
-        else {
+        } else {
             this.lastCell = cell.prev
         }
     }
 
     /**
-     * Decrements by 1 in place, splitting cells and borrowing through `base - 1` toward the last
-     * cell (which collapses to a single zero digit if the borrow reaches it).
+     * Subtracts one at `cell`, in place.
      *
-     * @method subtractOne
-     * @param {DigitCell|null} [cell=this.firstCell] cell to decrement
+     * @param {DigitCell} [cell=this.firstCell]
      * @returns {void}
      */
     subtractOne(cell) {
@@ -523,16 +460,15 @@ export class HugeInt {
             if (cell.count === 1n) {
                 cell.digit--
                 return
-            } else {
-                cellToAdd = this.#digitCellFactory()
-                cellToAdd.count = cell.count -1n
-                cellToAdd.digit = cell.digit
-
-                this.addCellAfter(cell, cellToAdd)
-                cell.count = 1n
-                cell.digit--
-                return
             }
+            cellToAdd = this.#digitCellFactory()
+            cellToAdd.count = cell.count - 1n
+            cellToAdd.digit = cell.digit
+
+            this.addCellAfter(cellToAdd, cell)
+            cell.count = 1n
+            cell.digit--
+            return
         }
 
         cell.digit = this.#baseMinusOne
@@ -545,22 +481,16 @@ export class HugeInt {
         this.subtractOne(cell.next)
     }
 
-    /**
-     * Whether the number has more than one digit (value ≥ base).
-     *
-     * @method isGTBase
-     * @returns {boolean}
-     */
+    /** @returns {boolean|DigitCell} truthy when the value is at least `base` */
     isGTBase() {
         return this.firstCell.count > 1n || this.firstCell.next
     }
 
     /**
-     * Total occurrences of `digit`.
+     * How many times `digit` occurs.
      *
-     * @method digitCount
-     * @param {BigInt} digit
-     * @returns {BigInt}
+     * @param {bigint} digit
+     * @returns {bigint}
      */
     digitCount(digit) {
         let cell = this.firstCell
@@ -573,10 +503,9 @@ export class HugeInt {
     }
 
     /**
-     * First digit-cell holding `digit`, or `null`.
+     * First cell holding `digit`.
      *
-     * @method getCellOf
-     * @param {BigInt} digit
+     * @param {bigint} digit
      * @returns {DigitCell|null}
      */
     getCellOf(digit) {
@@ -589,11 +518,8 @@ export class HugeInt {
     }
 
     /**
-     * Whether `digit` appears anywhere.
-     *
-     * @method isCellOf
-     * @param {BigInt} digit
-     * @returns {boolean}
+     * @param {bigint} digit
+     * @returns {boolean} whether `digit` occurs
      */
     isCellOf(digit) {
         let cell = this.firstCell
@@ -604,32 +530,17 @@ export class HugeInt {
         return false
     }
 
-    /**
-     * Whether the number is a single digit (value < base).
-     *
-     * @method isLTBase
-     * @returns {boolean}
-     */
+    /** @returns {boolean} whether the value is below `base` */
     isLTBase() {
         return (!this.firstCell.next) && this.firstCell.count === 1n
     }
 
-    /**
-     * The least-significant digit (`value % base`), in constant time.
-     *
-     * @method moduloBase
-     * @returns {BigInt}
-     */
+    /** @returns {bigint} value mod `base` */
     moduloBase() {
         return this.firstCell.digit
     }
 
-    /**
-     * Whether any digit is even.
-     *
-     * @method hasEvenDigits
-     * @returns {boolean}
-     */
+    /** @returns {boolean} whether any digit is even */
     hasEvenDigits() {
         let cell = this.firstCell
         while (cell) {
@@ -640,24 +551,20 @@ export class HugeInt {
     }
 
     /**
-     * Exponent of `factor` in the digit product `∏ digitᵢ` — each digit contributes how many
-     * times `factor` divides it, times the cell count. Any `factor ≥ 2` (e.g. `2n`: `"4"`→2,
-     * `"38"`→3). Digits `factor` doesn't divide (including `0`) contribute nothing.
+     * Factors of `factor` in the digit product from `cell` up.
      *
-     * @method factorCountOf
-     * @param {BigInt} factor `≥ 2`
-     * @param {DigitCell|null} [cell=this.firstCell] first cell to scan; pass `firstCell.next` to skip the LSB run
-     * @returns {BigInt}
+     * @param {bigint} factor
+     * @param {DigitCell} [cell=this.firstCell]
+     * @returns {bigint}
      */
     factorCountOf(factor, cell = this.firstCell) {
-
         let total = 0n
 
         while (cell) {
             let count = 0n
-            let digit = cell.digit
+            let { digit } = cell
             while (digit !== 0n && digit % factor === 0n) {
-                digit /= factor;
+                digit /= factor
                 count++
             }
             total += count * cell.count
@@ -668,11 +575,10 @@ export class HugeInt {
     }
 
     /**
-     * Splits `cell`, keeping `countToSplit` digits in it and putting the rest in a new cell after it.
+     * Splits `cell` so it keeps `countToSplit` digits and a new more-significant cell takes the rest.
      *
-     * @method splitCellAfter
      * @param {DigitCell} cell
-     * @param {BigInt} countToSplit digits to keep in the original cell
+     * @param {bigint} countToSplit
      * @returns {DigitCell} the new cell
      */
     splitCellAfter(cell, countToSplit) {
@@ -680,18 +586,17 @@ export class HugeInt {
         newCell.count = cell.count - countToSplit
         newCell.digit = cell.digit
 
-        this.addCellAfter(cell, newCell)
+        this.addCellAfter(newCell, cell)
         cell.count = countToSplit
         cell.changed = true
         return newCell
     }
 
     /**
-     * Splits `cell`, moving `countToSplit` digits into a new cell placed before it.
+     * Splits `countToSplit` digits of `cell` into a new less-significant cell.
      *
-     * @method splitCellBefore
      * @param {DigitCell} cell
-     * @param {BigInt} countToSplit digits to extract into the new cell
+     * @param {bigint} countToSplit
      * @returns {DigitCell} the new cell
      */
     splitCellBefore(cell, countToSplit) {
@@ -699,18 +604,13 @@ export class HugeInt {
         newCell.count = countToSplit
         newCell.digit = cell.digit
 
-        this.addCellBefore(cell, newCell)
+        this.addCellBefore(newCell, cell)
         cell.count -= countToSplit
         cell.changed = true
         return newCell
     }
 
-    /**
-     * The number as a plain string in its current base.
-     *
-     * @method toString
-     * @returns {string}
-     */
+    /** @returns {string} digits in `base`, most significant first */
     toString() {
         let tmpStr = ''
         let cell = this.lastCell
@@ -723,12 +623,7 @@ export class HugeInt {
         return tmpStr
     }
 
-    /**
-     * The number as a string grouped into threes by commas.
-     *
-     * @method toLocaleString
-     * @returns {string}
-     */
+    /** @returns {string} {@link toString} with a comma every three digits */
     toLocaleString() {
         const str = this.toString()
         const arr = []
@@ -743,13 +638,8 @@ export class HugeInt {
         return arr.join(',')
     }
 
-    /**
-     * Iterates the digit-cells, least-significant first.
-     *
-     * @method [Symbol.iterator]
-     * @returns {Iterator<DigitCell|null>}
-     */
-    *[Symbol.iterator] () {
+    /** @returns {Generator<DigitCell|null>} cells, the least significant first */
+    * [Symbol.iterator]() {
         let cell = this.firstCell
         while (cell) {
             yield cell
