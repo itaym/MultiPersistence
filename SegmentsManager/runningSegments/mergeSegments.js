@@ -1,5 +1,5 @@
 /**
- * Merges a `{ key: count }` histogram from `a` and `b` into a new object.
+ * Sum of two `{ key: count }` histograms.
  *
  * @param {Object<string, number>} a
  * @param {Object<string, number>} b
@@ -13,8 +13,7 @@ const mergeHistogram = (a, b) => {
 }
 
 /**
- * Merges one top-level persistence-step bucket (`ComputationState.steps[step]`) from a lower
- * and a higher segment.
+ * Merges a step bucket of a lower segment (`a`) and a higher one (`b`).
  *
  * @param {TypeStep} [a]
  * @param {TypeStep} [b]
@@ -39,13 +38,11 @@ const mergeStepBucket = (a, b) => {
 }
 
 /**
- * Merges one per-length-step bucket (`ComputationState.number_lengths[length].steps[step]`)
- * from a lower and a higher segment — same shape as {@link mergeStepBucket} minus the
- * run-position fields (`atRunTime` / `iteration` / `step`).
+ * Merges a per-length step bucket of a lower segment (`a`) and a higher one (`b`).
  *
- * @param {Object} [a]
- * @param {Object} [b]
- * @returns {Object}
+ * @param {LengthStepBucket} [a]
+ * @param {LengthStepBucket} [b]
+ * @returns {LengthStepBucket}
  */
 const mergeLengthStepBucket = (a, b) => {
     if (!a) return b
@@ -63,7 +60,7 @@ const mergeLengthStepBucket = (a, b) => {
 }
 
 /**
- * Merges every key of two step-bucket maps, using `mergeFn` for keys present in both.
+ * Merges every key of two bucket maps, with `mergeFn` for keys in both.
  *
  * @param {Object<string, Object>} a
  * @param {Object<string, Object>} b
@@ -79,7 +76,7 @@ const mergeBucketMap = (a, b, mergeFn) => {
 }
 
 /**
- * Merges `ComputationState.number_lengths` from a lower and a higher segment.
+ * Merges the `number_lengths` of a lower segment (`a`) and a higher one (`b`).
  *
  * @param {NumberLengths} a
  * @param {NumberLengths} b
@@ -96,25 +93,25 @@ const mergeNumberLengths = (a, b) => mergeBucketMap(a, b, (lengthA, lengthB) => 
 })
 
 /**
- * Merges two adjacent, already-run segments' stats into one, as if they'd been run
- * continuously: `first` comes from `lower`, `last` from `higher`, scalars add, histograms
- * merge by key. Assumes `lower` covers the numbers immediately before `higher`, no gap.
+ * Merges two adjacent segments' states as if run continuously: counts add, `first` from `lower`, `last` from `higher`.
  *
- * @param {ComputationState} lower
- * @param {ComputationState} higher
+ * @param {ComputationState} higher the later segment
+ * @param {ComputationState} lower the earlier segment
  * @returns {ComputationState}
  */
-const mergeSegments = (lower, higher) => ({
-    base: lower.meta.base,
+const mergeSegments = (higher, lower) => ({
     iterations: {
-        calculated: lower.iterations.calculated + higher.iterations.calculated,
+        actual: lower.iterations.actual + higher.iterations.actual,
         count: lower.iterations.count + higher.iterations.count,
-        found_nothing: higher.iterations.found_nothing,
+        found_nothing: lower.iterations.found_nothing + higher.iterations.found_nothing,
         found_nothing_break_at: higher.iterations.found_nothing_break_at,
     },
     last_number: higher.last_number,
     number_lengths: mergeNumberLengths(lower.number_lengths, higher.number_lengths),
+    pseudoGoal: higher.pseudoGoal,
+    range_start: lower.range_start,
     steps: mergeBucketMap(lower.steps, higher.steps, mergeStepBucket),
+    up_time: lower.up_time + higher.up_time,
 })
 
 export default mergeSegments

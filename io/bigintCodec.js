@@ -1,20 +1,9 @@
-/**
- * Serialization codec for `[key, value]` entry arrays whose values may be
- * `BigInt`. Shared verbatim by the {@link module:io} client and its persist
- * worker so both sides agree on the on-disk format.
- *
- * BigInts are tagged with a trailing `n` (`"720n"`) so the reviver can tell
- * them apart from plain strings that merely look numeric (e.g. baseDigits'
- * `"0123"`).
- *
- * @module io/bigintCodec
- */
-
-/** Matches a serialized BigInt: digits followed by a literal `n`, e.g. `"720n"`. */
+/** @type {RegExp} a serialized BigInt: digits followed by `n`, e.g. `"720n"` */
 export const BIGINT_TAG = /^-?\d+n$/
 
 /**
- * JSON replacer: tags BigInt values with a trailing `n`.
+ * `JSON.stringify` replacer: BigInt → `"<digits>n"`.
+ *
  * @param {string} key
  * @param {*} value
  * @returns {*}
@@ -23,7 +12,8 @@ export const replacer = (key, value) =>
     typeof value === 'bigint' ? `${value}n` : value
 
 /**
- * JSON reviver: converts `n`-tagged strings back to BigInt.
+ * `JSON.parse` reviver: `"<digits>n"` → BigInt.
+ *
  * @param {string} key
  * @param {*} value
  * @returns {*}
@@ -32,13 +22,17 @@ export const reviver = (key, value) =>
     typeof value === 'string' && BIGINT_TAG.test(value) ? BigInt(value.slice(0, -1)) : value
 
 /**
- * @param {[string, *][]} entries
+ * Serializes entries to tab-indented JSON with BigInt tagged.
+ *
+ * @param {*} entries
  * @returns {string}
  */
-export const serialize = (entries) => JSON.stringify(entries, replacer, '\t')
+export const serialize = entries => JSON.stringify(entries, replacer, '\t')
 
 /**
+ * Parses JSON written by {@link serialize}, restoring BigInt.
+ *
  * @param {string} text
- * @returns {[string, *][]}
+ * @returns {*}
  */
-export const deserialize = (text) => JSON.parse(text, reviver)
+export const deserialize = text => JSON.parse(text, reviver)

@@ -1,14 +1,16 @@
+import baseAccommodate from '#BaseAccommodate/index.js'
 import HugeIntEx from '#HugeIntEx/index.js'
-import baseAccommodate from './BaseAccommodate/index.js'
 import postMessages from '#utils/postMessage.js'
 import prepareMessage from '#utils/prepareMessage.js'
 import showLog from '#utils/showLog.js'
 import waitForWorker from '#utils/waitForWorker.js'
-import { multiPer, multiPerNBC } from './index.js'
+import {
+    multiPer,
+    multiPerNBC,
+} from './multiplicativePersistence.js'
 
 /**
- * Search-style digit cell — carries the `reduceHI` caches
- * (`changed` / `additionSum` / `multiplySum`).
+ * Search-style digit cell.
  *
  * @returns {DigitCell}
  */
@@ -23,19 +25,20 @@ const cellFactory = () => ({
 })
 
 /**
- * Runs the multiplicative-persistence search for one session, resuming past
- * `computationState.last_number` until the not-found tolerance runs out.
+ * Main search loop: steps through canonical numbers, reports finds and checkpoints to the persist worker,
+ * stops on the found-nothing limit.
  *
- * @param {number} check_interval_count        iterations between wall-clock checks
- * @param {number} checkpoint_interval         ms between checkpoint saves
- * @param {ComputationState} computationState  state to continue from
- * @param {number} log_interval                ms between log prints
- * @param {number} startSessionTime            wall-clock start of this session
- * @param {number} startTime                   virtual start (`now - total up_time`)
- * @param {() => Promise<void>} tick           called once per checkpoint; caller decides what it does
- * @param {Worker} worker                      receives results and log ticks
+ * @param {number} check_interval_count iterations between time checks
+ * @param {number} checkpoint_interval milliseconds between checkpoints
+ * @param {ComputationState} computationState state to resume from
+ * @param {number} log_interval milliseconds between log prints
+ * @param {number} startSessionTime
+ * @param {number} startTime
+ * @param {() => Promise<*>} tick yields to the event loop
+ * @param {Worker} worker persist worker
  * @returns {Promise<void>}
  */
+// eslint-disable-next-line import-x/prefer-default-export
 export const multiPerSearch = async (
     check_interval_count,
     checkpoint_interval,
@@ -46,19 +49,18 @@ export const multiPerSearch = async (
     tick,
     worker,
 ) => {
-    const { iterations, last_number, meta } = computationState
-    const { base } = meta
+    const { iterations, last_number } = computationState
+    const { base } = process.normalizedEnv
     const numBase = Number(base)
 
-    let calcIterations = iterations.calculated
+    let actualIterations = iterations.actual
     let countIterations = iterations.count
     let notFound = iterations.found_nothing
     let notFoundLimit = iterations.found_nothing_break_at
 
-    const currentNo = new HugeIntEx(last_number, base, cellFactory)
+    const currentNo = new HugeIntEx(base, cellFactory, last_number)
     const message = prepareMessage.bind(currentNo)
 
-    /** @type {ReduceResults} */
     let reduceResults
     let messages = []
 
@@ -66,32 +68,21 @@ export const multiPerSearch = async (
     let logLastTime = 0
     let checkpointLastTime = 0
 
-    /**
-     * Prunes `currentNo` past digit ranges that can't reach persistence > 2; returns the
-     * permutations skipped (`0n` for nothing, or a base with no rules).
-     *
-     * @type {(currentNo: HugeIntEx) => BigInt}
-     */
     const createPermutations = baseAccommodate(base)
 
     /**
-     * Records one found number: clears the not-found streak, ratchets
-     * `notFoundLimit` up to the current iteration count, and appends the number
-     * to the pending `messages` batch. At 100 the batch is handed to the worker
-     * as a `'stack'` message (and cleared) when the worker is ready.
+     * Stacks the current find and sends the stack when big enough.
      *
-     * @returns {boolean} `false` when the batch has grown past 10,000 and the
-     *   worker still isn't ready — the caller should `await waitForWorker()` to
-     *   let it drain; `true` otherwise.
+     * @returns {boolean} `false` when the stack is full and the worker is busy
      */
     const recordFound = () => {
         notFound = 0
         if (countIterations > notFoundLimit) notFoundLimit = countIterations
-        messages.push(message(startTime, calcIterations, reduceResults))
+        messages.push(message(actualIterations, reduceResults, startTime))
         if (messages.length >= 100) {
             if (messages.length >= 10_000 && process.env.isWorkerReady !== 'true') return false
 
-            if (postMessages(worker, 'stack', { messages })) messages = []
+            if (postMessages({ messages }, 'stack', worker)) messages = []
         }
         return true
     }
@@ -100,13 +91,18 @@ export const multiPerSearch = async (
     let iterationsAtLastLog = countIterations
     let startTimeLog = startSessionTime
 
-    /** Sends a `found` tick and re-estimates the next log point. */
-    const checkpoint = async (now) => {
+    /**
+     * Sends a `found` checkpoint with the progress and stacked finds.
+     *
+     * @param {number} now
+     * @returns {Promise<void>}
+     */
+    const checkpoint = async now => {
         const endTime = now
         const iterationsPerLog = countIterations - iterationsAtLastLog
 
-        if (postMessages(worker, 'found', {
-            calcIterations,
+        if (postMessages({
+            actualIterations,
             countIterations,
             currentNo: currentNo.value, // = last number checked
             endTime,
@@ -116,7 +112,7 @@ export const multiPerSearch = async (
             notFound,
             notFoundLimit,
             startTimeLog,
-        })) {
+        }, 'found', worker)) {
             messages = []
         }
 
@@ -129,10 +125,10 @@ export const multiPerSearch = async (
     // (only runs on a fresh start, or a resume that died mid-prologue)
     while (currentNo.length === 1n) {
         currentNo.addOneToSorted()
-        calcIterations += 1n
+        actualIterations += 1n
         countIterations++
         iterationsCheckCount++
-        reduceResults = multiPer(currentNo, numBase)
+        reduceResults = multiPer(numBase, currentNo)
         if (reduceResults.steps !== 2) recordFound()
         else notFound++
     }
@@ -141,15 +137,14 @@ export const multiPerSearch = async (
     // ---- main loop: every number is multi-digit, so skip the base-case check ----
     while (true) {
         currentNo.addOneToSorted()
-        calcIterations += 1n + createPermutations(currentNo)
+        actualIterations += 1n + createPermutations(currentNo)
         countIterations++
-        reduceResults = multiPerNBC(currentNo, numBase)
+        reduceResults = multiPerNBC(numBase, currentNo)
         if (reduceResults.steps !== 2) {
             if (!recordFound()) {
                 await waitForWorker()
             }
-        }
-        else notFound++
+        } else notFound++
 
         if (++iterationsCheckCount >= check_interval_count) {
             const now = Date.now()

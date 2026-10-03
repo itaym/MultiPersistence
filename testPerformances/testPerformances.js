@@ -1,68 +1,36 @@
+import getTimeString from '#utils/getTimeString.js'
 import measureTime from './measureTime.js'
-import { getTimeString } from '#utils/getTimeString.js'
-
-/**
- * A `TimingStats` snapshot with the baseline throughput to compare against
- * spliced in by {@link showStats} (here: the mean `perSecond` of the group).
- *
- * @typedef {TimingStats & { perSecond2: number }} ComparedStats
- */
-
-/**
- * One row of the printed `console.table`, all fields pre-formatted as strings.
- *
- * @typedef {Object} StatsRow
- * @property {string} count          call count, locale-formatted
- * @property {string} perSecond      throughput, rounded and locale-formatted
- * @property {string} percent        signed % gap vs the baseline, 4dp, padded
- * @property {string} totalDuration  accumulated time, humanized
- */
-
-/**
- * @typedef {Object} BenchSpec
- * @property {AnyFn[]} getArgs arg producers paired by index — `getArgs[i]()` feeds `tests[i]`
- * @property {AnyFn[]} tests functions to benchmark
- */
-
-/**
- * @typedef {Object} BenchOptions
- * @property {number} [multiplyBy=1]                  passed to `.stats()`, scales the per-call figures
- * @property {number} [numIterations=1_000_000_001]   measured iterations (upper bound on `counter`)
- * @property {number} [showAfter=1_000_000]           print a table every N iterations
- * @property {number} [warmupIterations=1_000_000]    unmeasured iterations run before the counters reset
- */
 
 // `counter` is module-global so it isn't reset between successive runs in one process.
+/** @type {number} iteration counter, kept across runs in one process */
 let counter = 1
 
 /**
- * Formats one stats object into a printable {@link StatsRow}.
+ * Display row of one function's stats.
  *
- * @param {ComparedStats} stats  stats plus a `perSecond2` baseline for `percent`
+ * @param {ComparedStats} stats
  * @returns {StatsRow}
  */
 const serializeStats = stats => ({
     count: stats.count.toLocaleString(),
-    perSecond: Math.round(stats.perSecond).toLocaleString(),
     percent: (stats.perSecond / stats.perSecond2 * 100 - 100).toFixed(4).padStart(8, ' ') + '%',
+    perSecond: Math.round(stats.perSecond).toLocaleString(),
     totalDuration: getTimeString(stats.totalDuration, false),
 })
 
 /**
- * Prints (and returns) the `console.table` of every function's throughput vs the group mean.
+ * Prints and returns the stats table of all tests and arg getters.
  *
- * @param {MeasuredFn[]} tests         measured benchmark functions
- * @param {MeasuredFn[]} args          measured arg producers, index-paired with `tests`
- * @param {number} [multiplyBy=1]      forwarded to `.stats()`
- * @returns {Object<string, StatsRow>} keyed `fn_0`, `ar_0`, `fn_1`, …
+ * @param {MeasuredFn[]} args measured arg getters
+ * @param {number} multiplyBy
+ * @param {MeasuredFn[]} tests measured functions
+ * @returns {Object<string, StatsRow>}
  */
-const showStats = (tests, args, multiplyBy) => {
-
+const showStats = (args, multiplyBy, tests) => {
     const funStats = {}
     const argStats = {}
     let funAverage = 0
     let argAverage = 0
-
 
     for (let x = 0; x < tests.length; x++) {
         const fnKey = `fn_${x}`
@@ -94,22 +62,19 @@ const showStats = (tests, args, multiplyBy) => {
 }
 
 /**
- * Runs every function in `tests` side by side over one iteration loop and reports their
- * throughput relative to the group mean, after a warm-up and every `showAfter` iterations.
+ * Benchmarks each test against the others, round-robin, printing stats every `showAfter` iterations.
  *
- * @param {BenchSpec} spec             functions to benchmark and their paired arg producers
- * @param {BenchOptions} [options]     iteration counts and reporting cadence
- * @returns {Object<string, StatsRow>} the final stats table (see {@link showStats})
+ * @param {BenchOptions} options
+ * @param {BenchSpec} spec
+ * @returns {Object<string, StatsRow>} final stats
  */
 const testPerformances = (
-    { getArgs, tests },
     {
         multiplyBy = 1,
         numIterations = 1_000_000_001,
         showAfter = 1_000_000,
         warmupIterations = 1_000_000,
-    }) => {
-
+    }, { getArgs, tests }) => {
     // fn_<i> / ar_<i> -> measured wrappers, index-paired with tests / getArgs
     const measureTimeFun = {}
     const measureTimeArg = {}
@@ -140,7 +105,6 @@ const testPerformances = (
 
     // Measured loop: round-robin every function once per iteration.
     for (; counter < numIterations; counter++) {
-
         for (let x = 0; x < tests.length; x++) {
             const fnKey = `fn_${x}`
             const arKey = `ar_${x}`
@@ -148,9 +112,10 @@ const testPerformances = (
         }
 
         if (counter % showAfter === 0) {
-            showStats(Object.values(measureTimeFun),Object.values(measureTimeArg), multiplyBy)
+            showStats(Object.values(measureTimeArg), multiplyBy, Object.values(measureTimeFun))
         }
     }
-    return showStats(Object.values(measureTimeFun),Object.values(measureTimeArg), multiplyBy)
+    return showStats(Object.values(measureTimeArg), multiplyBy, Object.values(measureTimeFun))
 }
+
 export default testPerformances

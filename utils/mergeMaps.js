@@ -1,19 +1,22 @@
-
-import { initConfig } from '#Config/config.js'
+/* eslint-disable no-console */
+import initConfig from '#Config/config.js'
 import { initPollyFill } from '#utils/pollyfill.js'
-import path from 'path'
-import { loadMapFromFileSync, saveMapToFile } from './memorize.js'
+import {
+    loadMapFromFileSync,
+    saveMapToFile,
+} from './memorize.js'
+import path from 'node:path'
 
 initConfig({ path: '../.env' })
 initPollyFill()
 
 /**
- * Merges maps into a new one; later maps overwrite earlier keys.
+ * Merges `maps` into one; later maps win on duplicate keys.
  *
- * @param {Map<string, any>[]} maps
- * @returns {Map<string, any>}
+ * @param {Map[]} maps
+ * @returns {Map}
  */
-const mergeMaps = (maps) => {
+const mergeMaps = maps => {
     console.log(`🔄 Starting merge of ${maps.length} maps...`)
 
     const resultMap = new Map()
@@ -32,12 +35,12 @@ const mergeMaps = (maps) => {
 }
 
 /**
- * Absolute JSON path in the cache dir. Joined onto `../` since this file runs from `utils/`.
+ * Full path of a memorize cache file, relative to the parent directory.
  *
- * @param {string} filename without extension
+ * @param {string} filename name without `.json`
  * @returns {string}
  */
-const normalizeFilename = (filename) => {
+const normalizeFilename = filename => {
     const { normalizedEnv: { memorize_cache_dir } } = process
     const fullPath = path.join(path.resolve('../', memorize_cache_dir), `${filename}.json`)
     console.log(`📁 Normalized filename: ${fullPath}`)
@@ -45,44 +48,47 @@ const normalizeFilename = (filename) => {
 }
 
 /**
- * Loads each bundle of maps from disk, merges it, and saves the result. Throws on a missing
- * or unparseable file. Filenames are edited by hand in the array below.
+ * Merges each group of memorize cache files into `<first>_joined.json`.
+ *
+ * @returns {void}
  */
-export const runMergeMap = () => {
+const runMergeMap = () => {
     console.log('🚀 Running merge process...')
 
     const bundle = [
         [
             'calcCellsArrFactorial',
             'calcCellsArrFactorial1',
-            'calcCellsArrFactorial2'],
-
+            'calcCellsArrFactorial2',
+        ],
         [
-            "countPermutations",
-            "countPermutations1",
-            "countPermutations2"],
+            'countPermutations',
+            'countPermutations1',
+            'countPermutations2',
+        ],
         [
-            "factorial",
-            "factorial1",
-            "factorial2"],
-
+            'factorial',
+            'factorial1',
+            'factorial2',
+        ],
         [
-            "getPermutation",
-            "getPermutation1",
-            "getPermutation2"],
-
+            'getPermutation',
+            'getPermutation1',
+            'getPermutation2',
+        ],
         [
-            "getPermutations",
-            "getPermutations1",
-            "getPermutations2"]
+            'getPermutations',
+            'getPermutations1',
+            'getPermutations2',
+        ],
     ]
 
-    for (let filenames of bundle) {
+    for (const filenames of bundle) {
         const mapsArray = []
 
         console.log(`📄 Preparing to load ${filenames.length} map files...`)
 
-        for (let filename of filenames) {
+        for (const filename of filenames) {
             const normalizedFilename = normalizeFilename(filename)
 
             console.log(`📥 Loading map from: ${normalizedFilename}`)
@@ -99,10 +105,8 @@ export const runMergeMap = () => {
 
         saveMapToFile(joinedMapsFilename, joinedMap)
 
-        console.log("🎉 Merge process completed successfully!")
+        console.log('🎉 Merge process completed successfully!')
     }
 }
 
 runMergeMap()
-
-

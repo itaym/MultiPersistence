@@ -1,17 +1,23 @@
 import { getPermutations } from './utils.js'
 
 /**
- * Base-10 accommodate rules. Looks at the first cell and, for digit 5 (with any even digit
- * present) or digit 6/8 (with a 5 present), bumps the digit and skips the permutations.
+ * Base-10 skipper: a 5 with any even digit makes a zero product, so the number is skipped.
  *
- * @function base00010
- * @param {HugeInt} currentNo examined and possibly mutated in place
- * @returns {BigInt} permutations skipped, or `0n`
+ * @type {(currentNo: HugeIntEx) => bigint} canonical numbers skipped
  */
+// eslint-disable-next-line import-x/prefer-default-export
 export const base00010 = (() => {
+    /** @type {bigint} scratch result */
     let permutationsSaved
 
-    const fn5 = (currentNo, cell5) => {
+    /**
+     * First cell is 5: skips it when the number has an even digit.
+     *
+     * @param {DigitCell} cell5
+     * @param {HugeIntEx} currentNo
+     * @returns {bigint} canonical numbers skipped
+     */
+    const fn5 = (cell5, currentNo) => {
         if (currentNo.hasEvenDigits()) {
             permutationsSaved = getPermutations(5n, cell5.count, 10n)
             cell5.digit++
@@ -19,7 +25,14 @@ export const base00010 = (() => {
         }
         return 0n
     }
-    const fnEven = (currentNo, checkCell) => {
+    /**
+     * First cell is even: skips it when the number has a 5.
+     *
+     * @param {DigitCell} checkCell
+     * @param {HugeIntEx} currentNo
+     * @returns {bigint} canonical numbers skipped
+     */
+    const fnEven = (checkCell, currentNo) => {
         if (currentNo.isCellOf(5n)) {
             permutationsSaved = getPermutations(checkCell.digit, checkCell.count, 10n)
             checkCell.digit++
@@ -27,12 +40,12 @@ export const base00010 = (() => {
         }
         return 0n
     }
-    return (currentNo) => {
+    return currentNo => {
         const checkCell = currentNo.firstCell
         switch (checkCell.digit) {
-            case 8n: return fnEven(currentNo, checkCell)
-            case 6n: return fnEven(currentNo, checkCell)
-            case 5n: return fn5(currentNo, checkCell)
+            case 8n: return fnEven(checkCell, currentNo)
+            case 6n: return fnEven(checkCell, currentNo)
+            case 5n: return fn5(checkCell, currentNo)
             default: return 0n
         }
     }

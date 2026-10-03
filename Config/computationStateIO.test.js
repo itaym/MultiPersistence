@@ -1,21 +1,19 @@
-/**
- * Standalone tests for Config/computationStateIO.js.
- *
- *     node Config/computationStateIO.test.js
- */
-
+/** Tests for computationStateIO: default state fields and their `toJs` round-trip. */
+import toJs from '#io/utils.js'
 import assert from 'node:assert/strict'
-import { writeFileSync, rmSync } from 'node:fs'
+import {
+    rmSync,
+    writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { toJs } from '#io/utils.js'
 
 process.normalizedEnv = {
     base: 6n,
     debug: true,
-    goal_number: 6n ** 499n,
     last_number: 0n,
+    pseudo_goal_number: 6n ** 499n,
     results_file: 'test',
 }
 
@@ -24,7 +22,14 @@ const { getComputationState } = await import('./computationStateIO.js')
 let passed = 0
 let failed = 0
 
-const test = async (name, fn) => {
+/**
+ * Runs `fn`, counting and logging a failure.
+ *
+ * @param {() => Promise<void>} fn
+ * @param {string} name
+ * @returns {Promise<void>}
+ */
+const test = async (fn, name) => {
     try {
         await fn()
         passed++
@@ -35,36 +40,40 @@ const test = async (name, fn) => {
     }
 }
 
-await test('defaultVars carries goal as a BigInt', async () => {
+await test(async () => {
     const state = await getComputationState()
-    assert.equal(typeof state.goal, 'bigint')
-    assert.equal(state.goal, 6n ** 499n)
-})
+    assert.equal(typeof state.pseudoGoal, 'bigint')
+    assert.equal(state.pseudoGoal, 6n ** 499n)
+}, 'defaultVars carries pseudoGoal as a BigInt')
 
-await test('defaultVars carries range_start as 0n', async () => {
+await test(async () => {
     const state = await getComputationState()
     assert.equal(typeof state.range_start, 'bigint')
     assert.equal(state.range_start, 0n)
-})
+}, 'defaultVars carries range_start as 0n')
 
-await test('goal / range_start survive a toJs round-trip', async () => {
+await test(async () => {
     const state = {
-        base: 6n, goal: 6n ** 12n, range_start: 222n,
-        iterations: {}, number_lengths: {}, steps: [], up_time: 0,
+        base: 6n,
+        iterations: {},
+        number_lengths: {},
+        pseudoGoal: 6n ** 12n,
+        range_start: 222n,
+        steps: [],
+        up_time: 0,
     }
-    const file = join(tmpdir(), `cs-roundtrip-${Date.now()}-${Math.random().toString(36).slice(2)}.mjs`)
+    const file = join(tmpdir(), `cs-round-trip-${Date.now()}-${Math.random().toString(36).slice(2)}.mjs`)
     writeFileSync(file, `export default ${toJs(state)}\n`)
     try {
         const back = (await import(pathToFileURL(file).href)).default
-        assert.equal(typeof back.goal, 'bigint')
-        assert.equal(back.goal, 6n ** 12n)
+        assert.equal(typeof back.pseudoGoal, 'bigint')
+        assert.equal(back.pseudoGoal, 6n ** 12n)
         assert.equal(typeof back.range_start, 'bigint')
         assert.equal(back.range_start, 222n)
-    }
-    finally {
+    } finally {
         rmSync(file, { force: true })
     }
-})
+}, 'pseudoGoal / range_start survive a toJs round-trip')
 
 console.log(`\n${passed} passed, ${failed} failed`)
 process.exit(failed ? 1 : 0)

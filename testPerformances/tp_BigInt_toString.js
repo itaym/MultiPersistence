@@ -1,3 +1,4 @@
+/** Benchmark: `BigInt#toString()` vs string concatenation. */
 import testPerformances from './testPerformances.js'
 
 const multiplyBy = 1
@@ -9,27 +10,28 @@ let number1 = 2n
 let number2 = 2n
 
 const tests = [
-    function(num) {
-        let s = num.toString()
+    num => {
+        const s = num.toString()
         if (s.length > 300) {
             number1 = 2n
         }
     },
-    function(num) {
-        let s = num + ''
+    num => {
+        const s = num + ''
         if (s.length > 300) {
             number2 = 2n
         }
     },
 ]
+
 const getArgs = [
     () => (number1 *= 3n, number1 /= 2n),
     () => (number2 *= 3n, number2 /= 2n),
 ]
 
-testPerformances({ getArgs, tests }, {
+testPerformances({
     multiplyBy,
     numIterations,
     showAfter,
     warmupIterations,
-})
+}, { getArgs, tests })

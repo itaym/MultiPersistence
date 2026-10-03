@@ -1,15 +1,13 @@
 /**
- * Sleeps for `milliseconds`, resolving with that same value.
+ * Resolves after `milliseconds`.
  *
  * @param {number} milliseconds
- * @returns {Promise<number>}
+ * @returns {Promise<number>} `milliseconds`
  */
+const gaySchluffen = milliseconds => new Promise(resolve => {
+    setTimeout(time => {
+        resolve(time)
+    }, milliseconds, milliseconds)
+})
 
-const gaySchluffen = function(milliseconds) {
-    return new Promise(function(resolve) {
-        setTimeout(function (time) {
-            resolve(time)
-        }, milliseconds, milliseconds)
-    })
-}
 export default gaySchluffen

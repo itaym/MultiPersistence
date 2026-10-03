@@ -1,20 +1,15 @@
 import { digitsValue } from '#Digits/index.js'
 
-/**
- * One reused result object — `multiPer` / `multiPerNBC` / `reduceHI` write into it and return
- * it, so the caller must read what it needs before the next call.
- *
- * @type {ReduceResults}
- */
+/** @type {ReduceResults} shared result, overwritten by every call */
 const result = { additionSum: 0n, multiplySum: 0n, productLength: 0, steps: 0 }
 
 /**
- * Digit product of a base-`base` string; `0n` when any digit is `0`.
+ * Product of the digits of `str` (via {@link digitsValue}).
  *
  * @param {string} str
- * @returns {BigInt}
+ * @returns {bigint}
  */
-function strDigitProduct(str) {
+const strDigitProduct = str => {
     if (str.includes('0')) return 0n
 
     let product = 1n
@@ -23,21 +18,22 @@ function strDigitProduct(str) {
 }
 
 /**
- * Digit product of a HugeInt, written into {@link result}, refreshing the per-cell
- * `multiplySum` / `additionSum` caches from the first `changed` cell onward.
+ * First step on the digit cells: digit product and sum, reusing sums cached on unchanged cells.
  *
- * @param {HugeInt} hugeInt
- * @returns {ReduceResults} the shared {@link result}, with `steps = 1`
+ * @param {HugeIntEx} hugeInt
+ * @returns {ReduceResults} the shared result
  */
-function reduceHI(hugeInt) {
+const reduceHI = hugeInt => {
     let cell = hugeInt.firstCell.next
-    let multiplySum, additionSum
+    let multiplySum
+    let additionSum
 
     while (cell && cell.changed) cell = cell.next
 
-    cell ?
-        (multiplySum = cell.multiplySum, additionSum = cell.additionSum, cell = cell.prev) :
-        (multiplySum = 1n, additionSum = 0n, cell = hugeInt.lastCell)
+    cell
+        // eslint-disable-next-line prefer-destructuring
+        ? (multiplySum = cell.multiplySum, additionSum = cell.additionSum, cell = cell.prev)
+        : (multiplySum = 1n, additionSum = 0n, cell = hugeInt.lastCell)
 
     do {
         // count === 1n every time the least-significant run is a lone digit,
@@ -58,15 +54,15 @@ function reduceHI(hugeInt) {
 }
 
 /**
- * Multiplicative persistence of a HugeInt. `steps = 0` for a single digit, else {@link multiPerNBC}.
+ * Multiplicative persistence of `currentNo`, handling single-digit numbers.
  *
- * @param {HugeInt} currentNo
  * @param {number} base
- * @returns {ReduceResults} the shared {@link result}
+ * @param {HugeIntEx} currentNo
+ * @returns {ReduceResults} the shared result
  */
-export const multiPer = function (currentNo, base) {
+export const multiPer = (base, currentNo) => {
     if (currentNo.isLTBase()) {
-        const digit = currentNo.firstCell.digit
+        const { digit } = currentNo.firstCell
         result.additionSum = digit
         result.multiplySum = digit
         result.productLength = 1
@@ -74,18 +70,17 @@ export const multiPer = function (currentNo, base) {
         return result
     }
 
-    return multiPerNBC(currentNo, base)
+    return multiPerNBC(base, currentNo)
 }
 
 /**
- * Multiplicative persistence of a HugeInt, no single-digit check. Step 1 is {@link reduceHI},
- * steps 2+ are {@link multiPer2}; also sets `productLength`.
+ * Multiplicative persistence of `currentNo`; assumes at least two digits.
  *
- * @param {HugeInt} currentNo
  * @param {number} base
- * @returns {ReduceResults} the shared {@link result}
+ * @param {HugeIntEx} currentNo
+ * @returns {ReduceResults} the shared result
  */
-export const multiPerNBC = function (currentNo, base) {
+export const multiPerNBC = (base, currentNo) => {
     reduceHI(currentNo)
     const product = result.multiplySum
 
@@ -96,18 +91,18 @@ export const multiPerNBC = function (currentNo, base) {
 
     const str = product.toString(base)
     result.productLength = str.length
-    result.steps += 1 + multiPer2(strDigitProduct(str), base)
+    result.steps += 1 + multiPer2(base, strDigitProduct(str))
     return result
 }
 
 /**
- * Persistence steps left from a step-2+ value `n` — digit product until a single digit.
+ * Steps until `product` is a single digit.
  *
- * @param {BigInt} product
  * @param {number} base
+ * @param {bigint} product
  * @returns {number}
  */
-const multiPer2 = function (product, base) {
+const multiPer2 = (base, product) => {
     let steps = 0
     while (product >= base) {
         product = strDigitProduct(product.toString(base))

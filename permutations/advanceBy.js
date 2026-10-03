@@ -1,15 +1,18 @@
 import HugeIntEx from '#HugeIntEx/index.js'
-import { numberAt, positionOf } from './positionOf.js'
+import {
+    numberAt,
+    positionOf,
+} from './positionOf.js'
 
 /**
- * The number reached after advancing `sourceNo` by exactly `iterations` calcIterations —
- * computed directly via {@link positionOf} / {@link numberAt}, no stepping loop.
+ * Canonical number `iterations` positions after `sourceNo`.
  *
- * @param {BigInt} sourceNo starting number
- * @param {BigInt} base
- * @param {BigInt} iterations calcIterations to advance by
- * @returns {BigInt} the number reached
+ * @param {bigint} base
+ * @param {bigint} iterations canonical positions to move forward
+ * @param {bigint} sourceNo starting number
+ * @returns {bigint}
  */
-const advanceBy = (sourceNo, base, iterations) => numberAt(positionOf(new HugeIntEx(sourceNo, base)) + iterations, base)
+const advanceBy = (base, iterations, sourceNo) =>
+    numberAt(base, positionOf(new HugeIntEx(base, undefined, sourceNo)) + iterations)
 
 export default advanceBy

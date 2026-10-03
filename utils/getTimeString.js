@@ -1,4 +1,7 @@
+/** @type {number} seconds per day */
 const ONE_DAY = 60 * 60 * 24
+
+/** @type {bigint[]} seconds per unit, year down to second */
 const TIME_UNITS = [
     BigInt(ONE_DAY * 365),
     BigInt(ONE_DAY * 365 / 12),
@@ -8,6 +11,7 @@ const TIME_UNITS = [
     BigInt(ONE_DAY / (24 * 60 * 60)),
 ]
 
+/** @type {string[]} unit names matching {@link TIME_UNITS}, plus milliseconds */
 const TIME_UNITS_NAMES = [
     'Year',
     'Month',
@@ -15,37 +19,37 @@ const TIME_UNITS_NAMES = [
     'Hour',
     'Minute',
     'Second',
-    'Milli'
+    'Milli',
 ]
 
 /**
- * Formats a unit count and its name, e.g. `"3 Hours"`. Long values use scientific notation.
+ * `"<count> <unit>[s]"`, in scientific notation past 15 digits.
  *
- * @param {BigInt} unitCount
- * @param {number} i index into `TIME_UNITS_NAMES`
+ * @param {number} i index into {@link TIME_UNITS_NAMES}
+ * @param {bigint} unitCount
  * @returns {string}
  */
-const getUnitString = function(unitCount, i) {
+const getUnitString = (i, unitCount) => {
     let unitString = unitCount.toString()
     if (unitString.length > 15) {
         unitString = `${unitString.charAt(0)}.${unitString.substring(1, 14)}E${unitString.length - 1}`
-    }
-    else {
+    } else {
         unitString = unitCount.toLocaleString()
     }
     return `${unitString} ${TIME_UNITS_NAMES[i]}${unitCount > 1 ? 's' : ''}`
 }
 
 /**
- * Converts a millisecond duration into a human-readable time string.
+ * Human-readable duration, e.g. `"1 Hour ,5 Minutes ,3 Seconds"`.
  *
- * @param {BigInt|number} numOfMilliseconds
- * @param {boolean} [excludeMilliseconds=true] omit the milliseconds unit
+ * @param {bigint|number} numOfMilliseconds
+ * @param {boolean} [excludeMilliseconds=true] rounds down to whole seconds
  * @returns {string}
  */
-export function getTimeString(numOfMilliseconds, excludeMilliseconds = true) {
-    if (numOfMilliseconds?.constructor?.name !== 'BigInt')
+const getTimeString = (numOfMilliseconds, excludeMilliseconds = true) => {
+    if (numOfMilliseconds?.constructor?.name !== 'BigInt') {
         numOfMilliseconds = Math.floor(numOfMilliseconds)
+    }
 
     let numOfMillis = BigInt(numOfMilliseconds)
 
@@ -53,7 +57,7 @@ export function getTimeString(numOfMilliseconds, excludeMilliseconds = true) {
         numOfMillis = numOfMillis / 1000n * 1000n
     }
 
-    let timeStrings = []
+    const timeStrings = []
 
     for (let i = 0; i < TIME_UNITS.length; i++) {
         const unit = TIME_UNITS[i] * 1000n
@@ -61,15 +65,17 @@ export function getTimeString(numOfMilliseconds, excludeMilliseconds = true) {
 
         if (unitCount >= 1) {
             numOfMillis -= unitCount * unit
-            timeStrings.push(getUnitString(unitCount, i))
-        }
-        else if (i > 4) {
+            timeStrings.push(getUnitString(i, unitCount))
+        } else if (i > 4) {
             numOfMillis -= unitCount * unit
-            timeStrings.push(getUnitString(unitCount, i))
+            timeStrings.push(getUnitString(i, unitCount))
         }
     }
-    if (numOfMillis > 0n && !excludeMilliseconds)
-        timeStrings.push(getUnitString(numOfMillis, 6))
+    if (numOfMillis > 0n && !excludeMilliseconds) {
+        timeStrings.push(getUnitString(6, numOfMillis))
+    }
 
     return timeStrings.join(' ,')
 }
+
+export default getTimeString

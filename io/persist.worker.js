@@ -1,36 +1,23 @@
-/**
- * Persist worker: the off-thread half of {@link module:io}. One instance per realm; per `open`
- * it loads the file, folds in every `set`, and rewrites the file after `idleMs` of quiet (also
- * on `flush` and `close`). Traffic runs over the {@link MessagePort} from `workerData`, tagged
- * with a numeric store `id`.
- *
- * @module io/persist.worker
- */
+/** Persist worker: keeps one Map per store, loads it from disk and writes it back when idle. */
+import fs from 'node:fs/promises'
+import { workerData } from 'node:worker_threads'
 
-import fs from 'fs/promises'
-import { workerData } from 'worker_threads'
-
-/** @type {MessagePort} */
+/** @type {MessagePort} channel to the main thread */
 const { port } = workerData
 
-/**
- * @typedef {Object} StoreState
- * @property {{ serialize: Function, deserialize: Function } | null} codec
- * @property {boolean} debug
- * @property {boolean} dirtyWhileWriting
- * @property {string} file
- * @property {number} idleMs
- * @property {NodeJS.Timeout | null} idleTimer
- * @property {Map<string, *>} map
- * @property {boolean} writing
- */
-
-/** id → per-store state. @type {Map<number, StoreState>} */
+/** @type {Map<number, StoreState>} store id → state */
 const stores = new Map()
 
-/** Cache of imported codec modules, keyed by URL. @type {Map<string, Promise<*>>} */
+/** @type {Map<string, Promise<*>>} codec module URL → import */
 const codecs = new Map()
-const loadCodec = (url) => {
+
+/**
+ * Imports the codec module at `url` once.
+ *
+ * @param {string} url
+ * @returns {Promise<*>}
+ */
+const loadCodec = url => {
     let pending = codecs.get(url)
     if (!pending) {
         pending = import(url)
@@ -40,8 +27,7 @@ const loadCodec = (url) => {
 }
 
 /**
- * Reads a store's file (or its `.bak`), seeds the map with keys not already set, and posts the
- * raw text back for the client to seed its own view.
+ * Reads the store file (or its `.bak`), merges it into the map, and reports `loaded` with the raw text.
  *
  * @param {number} id
  * @param {StoreState} state
@@ -69,8 +55,7 @@ const load = async (id, state) => {
 }
 
 /**
- * Rewrites a store's file (current file renamed to `.bak` first). Coalesces writes that land
- * while one is in flight.
+ * Writes the map to disk, keeping the previous file as `.bak`; reschedules if it changed meanwhile.
  *
  * @param {number} id
  * @param {StoreState} state
@@ -92,6 +77,7 @@ const save = async (id, state) => {
         await fs.writeFile(state.file, text)
         port.postMessage({ id, type: 'saved' })
     } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(`io persist worker: save failed for ${state.file}:`, err)
     } finally {
         state.writing = false
@@ -102,15 +88,22 @@ const save = async (id, state) => {
     }
 }
 
-/** (Re)arms a store's idle timer; the pending write slides out to the last `set`. */
+/**
+ * Re|rms the store's idle timer, so write happens `idleMs` after the last `set`.
+ *
+ * @param {number} id
+ * @param {StoreState} state
+ * @returns {void}
+ */
 const scheduleSave = (id, state) => {
     if (state.idleTimer) clearTimeout(state.idleTimer)
-    state.idleTimer = setTimeout(() => save(id, state), state.idleMs)
+    state.idleTimer = /** @type {NodeJS.Timeout|null} */ setTimeout(() => save(id, state), state.idleMs)
 }
 
-port.on('message', (msg) => {
+port.on('message', msg => {
     const state = stores.get(msg.id)
 
+    // eslint-disable-next-line default-case
     switch (msg.type) {
         case 'open': {
             if (stores.has(msg.id)) break
@@ -126,10 +119,11 @@ port.on('message', (msg) => {
                 writing: false,
             }
             stores.set(msg.id, fresh)
-            loadCodec(msg.codecUrl).then((codec) => {
+            loadCodec(msg.codecUrl).then(codec => {
                 fresh.codec = codec
                 return load(msg.id, fresh)
-            }).catch((err) => {
+            }).catch(err => {
+                // eslint-disable-next-line no-console
                 console.error(`io persist worker: codec load failed for ${msg.file}:`, err)
                 port.postMessage({ id: msg.id, text: null, type: 'loaded' })
             })

@@ -1,51 +1,31 @@
-/**
- * Digit-group-native multiplication for {@link HugeInt}.
- *
- * A number is handled here as {@link DigitGroups}: `[[digit, repeatCount], …]`,
- * least-significant group first, every entry a `bigint` pair. Repeat counts may
- * be astronomically large, so nothing in this module walks a group digit by
- * digit — the cost of every routine is `poly(groupCount, base, log totalDigits)`.
- *
- * The core is {@link multiplyGroupsByRepunit} (`A × 111…1`), which expresses the
- * product as a sliding digit-sum window over `A` — piecewise an arithmetic
- * progression with only `O(groups(A))` breakpoints — and carry-normalizes each
- * segment in closed form via {@link normalizeAPSegment}. General `A × B` is the
- * schoolbook sum of `digitⱼ · base^{offsetⱼ} · (A × repunit(onesⱼ))` over the
- * groups of `B`.
- *
- * The one case that cannot stay group-compressed is a non-constant carry pattern
- * that repeats across a huge span (both operands carrying large groups of
- * comparable length) — that throws {@link BudgetExceededError}.
- *
- * @module HugeInt/multiply
- */
-
-/**
- * @typedef {[bigint, bigint]} DigitGroup a digit and its run length: `[digit, repeatCount]`
- * @typedef {DigitGroup[]} DigitGroups a whole number as digit groups, least-significant first
- */
-
-/** Thrown when a product cannot be represented within the given cell budget. */
+/** Thrown when a product needs more digit groups than the cell budget allows. */
 export class BudgetExceededError extends Error {
-    constructor(message = 'HugeInt.multiply: product has a non-repeating span too large for digit-group representation') {
+    /**
+     * @param {string} [message]
+     */
+    constructor(
+        message = 'HugeInt.multiply: product has a non-repeating span too large for digit-group representation',
+    ) {
         super(message)
         this.name = 'BudgetExceededError'
     }
 }
 
-/** @param {DigitGroups} groups @returns {boolean} */
-const isZeroGroups = (groups) => groups.every(([digit]) => digit === 0n)
+/**
+ * @param {DigitGroups} groups
+ * @returns {boolean} whether every digit is 0
+ */
+const isZeroGroups = groups => groups.every(([digit]) => digit === 0n)
 
 /**
- * Appends `repeatCount` copies of `digit`, merging into the previous group when
- * equal.
+ * Appends a run of `repeatCount` × `digit`, merging with an equal last group.
  *
- * @param {DigitGroups} out
  * @param {bigint} digit
+ * @param {DigitGroups} out
  * @param {bigint} repeatCount
  * @returns {void}
  */
-function pushGroup(out, digit, repeatCount) {
+const pushGroup = (digit, out, repeatCount) => {
     if (repeatCount <= 0n) return
     const last = out[out.length - 1]
     if (last && last[0] === digit) last[1] += repeatCount
@@ -53,15 +33,18 @@ function pushGroup(out, digit, repeatCount) {
 }
 
 /**
- * Converts digit groups to their `bigint` value. For small numbers only — used
- * by the `bigint` fast path and by tests.
+ * Value of `groups` read in `base`.
  *
- * @param {DigitGroups} groups
  * @param {bigint} base
+ * @param {DigitGroups} groups
  * @returns {bigint}
  */
-export function groupsToBigInt(groups, base) {
-    const repunit = (onesCount) => (base ** onesCount - 1n) / (base - 1n === 0n ? 1n : base - 1n)
+export const groupsToBigInt = (base, groups) => {
+    /**
+     * @param {bigint} onesCount
+     * @returns {bigint} `onesCount` ones in `base`
+     */
+    const repunit = onesCount => (base ** onesCount - 1n) / (base - 1n === 0n ? 1n : base - 1n)
     let value = 0n
     let power = 1n
     for (const [digit, repeatCount] of groups) {
@@ -72,13 +55,13 @@ export function groupsToBigInt(groups, base) {
 }
 
 /**
- * Converts a non-negative `bigint` to digit groups in `base`.
+ * `value` as digit groups in `base`; throws on negatives.
  *
- * @param {bigint} value
  * @param {bigint} base
+ * @param {bigint} value
  * @returns {DigitGroups}
  */
-export function bigIntToGroups(value, base) {
+export const bigIntToGroups = (base, value) => {
     if (value < 0n) throw new RangeError('HugeInt cannot be negative')
     if (value === 0n) return [[0n, 1n]]
 
@@ -86,39 +69,24 @@ export function bigIntToGroups(value, base) {
     while (value > 0n) {
         const digit = value % base
         value /= base
-        pushGroup(groups, digit, 1n)
+        pushGroup(digit, groups, 1n)
     }
     return groups
 }
 
 /**
- * Carry-normalizes one arithmetic-progression segment of a base-`base` number.
+ * Normalizes a run whose raw digit sums form an arithmetic progression, pushing the output digits.
  *
- * Pre-carry, position `step` (for `0 ≤ step < length`) holds
- * `startValue + slope·step`. The emitted digits satisfy
- * `total = startValue + slope·step + γ`, `digit = total mod base`,
- * `γ_next = ⌊total / base⌋`, with `γ(0) = carryIn`. `startValue + slope·step` is
- * assumed `≥ 0` across the segment (true for a genuine digit-sum window).
- *
- * - `slope = 0`: the carry converges to a fixed point in `O(log startValue)`
- *   steps → the segment is `O(log startValue)` cells plus one group.
- * - `slope ≠ 0`: the reduced state `h(step) = (base−1)·γ − slope·step` advances
- *   by `−slope` modulo `base−1` and stays bounded, so it is eventually periodic
- *   with period `λ ≤ base−1`; `digit = (startValue − h) mod base`. The segment is
- *   a short transient plus a `λ`-digit pattern repeated `Q` times. A single-digit
- *   pattern collapses to one group; otherwise emitting `Q·λ` cells that would
- *   exceed `budgetLeft()` throws {@link BudgetExceededError}.
- *
- * @param {(digit: bigint, repeatCount: bigint) => void} pushDigit
- * @param {() => bigint} budgetLeft   remaining cell budget
- * @param {bigint} startValue         value at `step = 0`
- * @param {bigint} slope              per-step delta (`|slope|` bounded by `base−1` from a repunit product)
- * @param {bigint} length             segment length (may be enormous)
- * @param {bigint} carryIn            incoming carry `γ(0)`
  * @param {bigint} base
- * @returns {{ carryOut: bigint }}
+ * @param {() => bigint} budgetLeft cells still allowed
+ * @param {bigint} carryIn
+ * @param {bigint} length digits in the run
+ * @param {(digit: bigint, repeatCount: bigint) => void} pushDigit
+ * @param {bigint} slope per-digit change of the raw sum
+ * @param {bigint} startValue raw sum of the first digit
+ * @returns {APSegmentResult}
  */
-export function normalizeAPSegment(pushDigit, budgetLeft, startValue, slope, length, carryIn, base) {
+export const normalizeAPSegment = (base, budgetLeft, carryIn, length, pushDigit, slope, startValue) => {
     if (length <= 0n) return { carryOut: carryIn }
 
     const baseMinusOne = base - 1n
@@ -183,7 +151,7 @@ export function normalizeAPSegment(pushDigit, budgetLeft, startValue, slope, len
     const repeats = stepsToCover / patternLength
     const leftover = stepsToCover % patternLength
 
-    if (pattern.every((digit) => digit === pattern[0])) {
+    if (pattern.every(digit => digit === pattern[0])) {
         pushDigit(pattern[0], repeats * patternLength + leftover)
     } else {
         if (repeats * patternLength > budgetLeft()) throw new BudgetExceededError()
@@ -199,18 +167,14 @@ export function normalizeAPSegment(pushDigit, budgetLeft, startValue, slope, len
 }
 
 /**
- * Multiplies digit groups by a single digit (`0 ≤ digit < base`).
+ * `groups × digit`.
  *
- * Within a group the carry sequence `c ↦ ⌊(groupDigit·digit + c) / base⌋` is
- * monotonic and bounded by `digit`, so it reaches a fixed point in `≤ digit`
- * steps and the rest of the group shares one output digit.
- *
- * @param {DigitGroups} groups
- * @param {bigint} digit
  * @param {bigint} base
+ * @param {bigint} digit
+ * @param {DigitGroups} groups
  * @returns {DigitGroups}
  */
-export function multiplyGroupsByDigit(groups, digit, base) {
+export const multiplyGroupsByDigit = (base, digit, groups) => {
     if (digit === 0n || isZeroGroups(groups)) return [[0n, 1n]]
     if (digit === 1n) return groups.map(([groupDigit, repeatCount]) => [groupDigit, repeatCount])
 
@@ -224,34 +188,38 @@ export function multiplyGroupsByDigit(groups, digit, base) {
             const outDigit = total % base
             const nextCarry = total / base
             if (nextCarry === carry) {
-                pushGroup(out, outDigit, remaining)
+                pushGroup(outDigit, out, remaining)
                 remaining = 0n
             } else {
-                pushGroup(out, outDigit, 1n)
+                pushGroup(outDigit, out, 1n)
                 carry = nextCarry
                 remaining -= 1n
             }
         }
     }
     while (carry > 0n) {
-        pushGroup(out, carry % base, 1n)
+        pushGroup(carry % base, out, 1n)
         carry /= base
     }
     return out.length ? out : [[0n, 1n]]
 }
 
 /**
- * Adds two digit-group numbers. The carry of a two-operand addition is `0` or
- * `1` and stabilizes within one step of any constant-digit stretch.
+ * `leftGroups + rightGroups`.
  *
+ * @param {bigint} base
  * @param {DigitGroups} leftGroups
  * @param {DigitGroups} rightGroups
- * @param {bigint} base
- * @param {bigint} [maxCells]
+ * @param {bigint} [maxCells] output group budget
  * @returns {DigitGroups}
  */
-export function addGroups(leftGroups, rightGroups, base, maxCells) {
+export const addGroups = (base, leftGroups, rightGroups, maxCells) => {
     const out = []
+    /**
+     * @param {bigint} digit
+     * @param {bigint} repeatCount
+     * @returns {void}
+     */
     const push = (digit, repeatCount) => {
         if (repeatCount <= 0n) return
         const last = out[out.length - 1]
@@ -310,22 +278,15 @@ export function addGroups(leftGroups, rightGroups, base, maxCells) {
 }
 
 /**
- * Multiplies digit groups by the repunit `111…1` (`onesCount` ones in `base`),
- * i.e. `A · (base^onesCount − 1)/(base − 1)`.
+ * `groups × (onesCount ones)`, one arithmetic-progression run at a time.
  *
- * Output position `j` holds, pre-carry, the width-`onesCount` digit-sum window
- * `S(j) = prefixSum(j+1) − prefixSum(j+1−onesCount)` over the digits of `A`. `S`
- * is piecewise arithmetic with breakpoints only where `j` or `j−onesCount` meets
- * a group boundary of `A` (`O(groups(A))` of them); each segment is normalized
- * by {@link normalizeAPSegment}.
- *
- * @param {DigitGroups} groups
- * @param {bigint} onesCount   number of ones in the repunit (`≥ 1`)
  * @param {bigint} base
- * @param {bigint} maxCells    cell budget for the result
+ * @param {DigitGroups} groups
+ * @param {bigint} maxCells output group budget
+ * @param {bigint} onesCount
  * @returns {DigitGroups}
  */
-export function multiplyGroupsByRepunit(groups, onesCount, base, maxCells) {
+export const multiplyGroupsByRepunit = (base, groups, maxCells, onesCount) => {
     if (onesCount <= 0n || isZeroGroups(groups)) return [[0n, 1n]]
 
     const groupCount = groups.length
@@ -343,7 +304,11 @@ export function multiplyGroupsByRepunit(groups, onesCount, base, maxCells) {
     const digitSum = sum
 
     // sum of the first `count` digits of A (clamped to [0, totalDigits])
-    const prefixSum = (count) => {
+    /**
+     * @param {bigint} count
+     * @returns {bigint} sum of the lowest `count` digits
+     */
+    const prefixSum = count => {
         if (count <= 0n) return 0n
         if (count >= totalDigits) return digitSum
         let lo = 0
@@ -360,7 +325,11 @@ export function multiplyGroupsByRepunit(groups, onesCount, base, maxCells) {
     }
 
     // digit of A at position `at`, or 0 outside [0, totalDigits)
-    const digitAt = (at) => {
+    /**
+     * @param {bigint} at
+     * @returns {bigint} digit at `at`, 0 outside the number
+     */
+    const digitAt = at => {
         if (at < 0n || at >= totalDigits) return 0n
         let lo = 0
         let hi = groupCount - 1
@@ -375,7 +344,11 @@ export function multiplyGroupsByRepunit(groups, onesCount, base, maxCells) {
         return groups[found][0]
     }
 
-    const windowSum = (j) => prefixSum(j + 1n) - prefixSum(j + 1n - onesCount)
+    /**
+     * @param {bigint} j
+     * @returns {bigint} sum of the `onesCount` digits ending at `j`
+     */
+    const windowSum = j => prefixSum(j + 1n) - prefixSum(j + 1n - onesCount)
 
     const breakpointSet = new Set([0n, onesCount, totalDigits, totalDigits + onesCount])
     for (let i = 1; i < groupCount; i++) {
@@ -383,10 +356,15 @@ export function multiplyGroupsByRepunit(groups, onesCount, base, maxCells) {
         breakpointSet.add(groupStart[i] + onesCount)
     }
     const breakpoints = [...breakpointSet]
-        .filter((point) => point >= 0n && point <= totalDigits + onesCount)
+        .filter(point => point >= 0n && point <= totalDigits + onesCount)
         .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
 
     const out = []
+    /**
+     * @param {bigint} digit
+     * @param {bigint} repeatCount
+     * @returns {void}
+     */
     const pushDigit = (digit, repeatCount) => {
         if (repeatCount <= 0n) return
         const last = out[out.length - 1]
@@ -396,6 +374,7 @@ export function multiplyGroupsByRepunit(groups, onesCount, base, maxCells) {
             if (BigInt(out.length) > maxCells) throw new BudgetExceededError()
         }
     }
+    /** @returns {bigint} */
     const budgetLeft = () => maxCells - BigInt(out.length)
 
     let carry = 0n
@@ -404,13 +383,13 @@ export function multiplyGroupsByRepunit(groups, onesCount, base, maxCells) {
         const length = breakpoints[i + 1] - segmentStart
         if (length <= 0n) continue
         const result = normalizeAPSegment(
-            pushDigit,
-            budgetLeft,
-            windowSum(segmentStart),
-            digitAt(segmentStart) - digitAt(segmentStart - onesCount),
-            length,
-            carry,
             base,
+            budgetLeft,
+            carry,
+            length,
+            pushDigit,
+            digitAt(segmentStart) - digitAt(segmentStart - onesCount),
+            windowSum(segmentStart),
         )
         carry = result.carryOut
     }
@@ -422,27 +401,25 @@ export function multiplyGroupsByRepunit(groups, onesCount, base, maxCells) {
 }
 
 /**
- * Multiplies two digit-group numbers:
- * `A × B = Σⱼ digitⱼ · base^{offsetⱼ} · (A × repunit(onesⱼ))` over the groups
- * `(digitⱼ, onesⱼ)` of `B` at offsets `offsetⱼ`.
+ * `leftGroups × rightGroups`, summing a repunit product per right-hand group.
  *
+ * @param {bigint} base
  * @param {DigitGroups} leftGroups
  * @param {DigitGroups} rightGroups
- * @param {bigint} base
- * @param {{ maxCells?: bigint }} [options]
+ * @param {MultiplyOptions} [options]
  * @returns {DigitGroups}
  */
-export function multiplyGroups(leftGroups, rightGroups, base, { maxCells = 2_000_000n } = {}) {
+export const multiplyGroups = (base, leftGroups, rightGroups, { maxCells = 2_000_000n } = {}) => {
     if (isZeroGroups(leftGroups) || isZeroGroups(rightGroups)) return [[0n, 1n]]
 
     let acc = [[0n, 1n]]
     let offset = 0n
     for (const [digit, repeatCount] of rightGroups) {
         if (digit !== 0n) {
-            let term = multiplyGroupsByRepunit(leftGroups, repeatCount, base, maxCells)
-            if (digit !== 1n) term = multiplyGroupsByDigit(term, digit, base)
+            let term = multiplyGroupsByRepunit(base, leftGroups, maxCells, repeatCount)
+            if (digit !== 1n) term = multiplyGroupsByDigit(base, digit, term)
             if (offset > 0n) term = [[0n, offset], ...term]
-            acc = addGroups(acc, term, base, maxCells)
+            acc = addGroups(base, acc, term, maxCells)
         }
         offset += repeatCount
     }

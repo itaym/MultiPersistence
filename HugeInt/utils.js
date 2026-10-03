@@ -1,17 +1,19 @@
 /**
- * Whether `digitCellFactory()` returns an object with the required DigitCell fields and types.
+ * Whether `digitCellFactory` returns a valid fresh {@link DigitCell}.
  *
- * @param {() => Object} digitCellFactory
+ * @param {() => DigitCell} digitCellFactory
  * @returns {boolean}
  */
-export const testDigitCellFactory = (digitCellFactory) => {
+const testDigitCellFactory = digitCellFactory => {
     const testDigitCell = digitCellFactory()
 
     return (
-        (typeof(testDigitCell.changed) === 'boolean') &&
-        (typeof(testDigitCell.count) === 'bigint') &&
-        (typeof(testDigitCell.digit) === 'bigint') &&
+        (typeof testDigitCell.changed === 'boolean') &&
+        (typeof testDigitCell.count === 'bigint') &&
+        (typeof testDigitCell.digit === 'bigint') &&
         (testDigitCell.next === null) &&
         (testDigitCell.prev === null)
     )
 }
+
+export default testDigitCellFactory

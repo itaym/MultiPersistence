@@ -4,21 +4,30 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "prettier": "@glorification/prettier-config",
   "imports": {
+    "#BaseAccommodate/*": "./MultiplicativePersistence/BaseAccommodate/*",
     "#Config/*": "./Config/*",
     "#Digits/*": "./Digits/*",
     "#HugeInt/*": "./HugeInt/*",
     "#HugeIntEx/*": "./HugeIntEx/*",
     "#MultiplicativePersistence/*": "./MultiplicativePersistence/*",
+    "#PersistWorker/*": "./workers/PersistWorker/*",
+    "#SearchWorker/*": "./workers/SearchWorker/*",
+    "#SegmentsIntegrationTest/*": "./SegmentsIntegrationTest/*",
+    "#SegmentsManager/*": "./SegmentsManager/*",
     "#ToPrimitive/*": "./ToPrimitive/*",
     "#caching/*": "./caching/*",
     "#io/*": "./io/*",
     "#permutations/*": "./permutations/*",
+    "#runningSegments/*": "./SegmentsManager/runningSegments/*",
     "#testPerformances/*": "./testPerformances/*",
     "#utils/*": "./utils/*",
     "#workers/*": "./workers/*"
   },
   "scripts": {
+    "format": "prettier --write .",
+    "lint": "eslint .",
     "test": "node test.js"
   },
   "author": "Itay Merchav",
@@ -26,5 +35,12 @@
   "dependencies": {
     "chalk": "^5.2.0",
     "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "@glorification/eslint-config": "^0.1.1",
+    "@glorification/prettier-config": "^0.1.1",
+    "eslint": "^10.11.0",
+    "eslint-plugin-perfectionist": "^5.12.1",
+    "prettier": "^3.9.9"
   }
 }

@@ -1,19 +1,10 @@
-import memorize from "../utils/memorize.js";
-import {sanitize} from "../utils/stringsUtils.js";
+import memorize from '#utils/memorize.js'
+import { sanitize } from '#utils/stringsUtils.js'
 
-/**
- * Maximum supported numeric base for BigInt string conversion.
- *
- * @type {number}
- */
-const maxBase = 65536
+/** @type {number} highest base the digit maps cover */
+const MAX_BASE = 65_536
 
-
-/**
- * Mapping from digit values (BigInt) to their string representations.
- *
- * @type {Map<BigInt, string>}
- */
+/** @type {Map<bigint, string>} digit value → character */
 export const digitsObj = new Map([
     [0n, '0'], [1n, '1'], [2n, '2'], [3n, '3'], [4n, '4'], [5n, '5'], [6n, '6'], [7n, '7'],
     [8n, '8'], [9n, '9'], [10n, 'a'], [11n, 'b'], [12n, 'c'], [13n, 'd'], [14n, 'e'], [15n, 'f'],
@@ -25,30 +16,25 @@ export const digitsObj = new Map([
     [56n, 'U'], [57n, 'V'], [58n, 'W'], [59n, 'X'], [60n, 'Y'], [61n, 'Z'], [62n, '+'], [63n, '/'],
 ])
 
+/** @type {Object<string, bigint>} character → digit value */
 
-/**
- * Reverse mapping from digit characters to their BigInt values.
- *
- * @type {Object<string, BigInt>}
- */
 export const digitsValue = {
-    '0': 0n, '1': 1n, '2': 2n, '3': 3n, '4': 4n, '5': 5n, '6': 6n, '7': 7n,
-    '8': 8n, '9': 9n, 'a': 10n, 'b': 11n, 'c': 12n, 'd': 13n, 'e': 14n, 'f': 15n,
-    'g': 16n, 'h': 17n, 'i': 18n, 'j': 19n, 'k': 20n, 'l': 21n, 'm': 22n, 'n': 23n,
-    'o': 24n, 'p': 25n, 'q': 26n, 'r': 27n, 's': 28n, 't': 29n, 'u': 30n, 'v': 31n,
-    'w': 32n, 'x': 33n, 'y': 34n, 'z': 35n, 'A': 36n, 'B': 37n, 'C': 38n, 'D': 39n,
-    'E': 40n, 'F': 41n, 'G': 42n, 'H': 43n, 'I': 44n, 'J': 45n, 'K': 46n, 'L': 47n,
-    'M': 48n, 'N': 49n, 'O': 50n, 'P': 51n, 'Q': 52n, 'R': 53n, 'S': 54n, 'T': 55n,
-    'U': 56n, 'V': 57n, 'W': 58n, 'X': 59n, 'Y': 60n, 'Z': 61n, '+': 62n, '/': 63n,
+    /* eslint-disable @stylistic/object-property-newline */
+    '/': 63n, '+': 62n, 0: 0n, 1: 1n, 2: 2n, 3: 3n, 4: 4n, 5: 5n,
+    6: 6n, 7: 7n, 8: 8n, 9: 9n, a: 10n, A: 36n, b: 11n, B: 37n,
+    c: 12n, C: 38n, d: 13n, D: 39n, e: 14n, E: 40n, f: 15n, F: 41n,
+    g: 16n, G: 42n, h: 17n, H: 43n, i: 18n, I: 44n, j: 19n, J: 45n,
+    k: 20n, K: 46n, l: 21n, L: 47n, m: 22n, M: 48n, n: 23n, N: 49n,
+    o: 24n, O: 50n, p: 25n, P: 51n, q: 26n, Q: 52n, r: 27n, R: 53n,
+    s: 28n, S: 54n, t: 29n, T: 55n, u: 30n, U: 56n, v: 31n, V: 57n,
+    w: 32n, W: 58n, x: 33n, X: 59n, y: 34n, Y: 60n, z: 35n, Z: 61n,
 }
 
-
 // extend the digit maps for bases greater than 64
-if (maxBase > 64) {
+if (MAX_BASE > 64) {
     let offset = 0n
-    for (let x = 0n; x < maxBase + 64; x++) {
-
-        let char = String.fromCharCode(Number(x))
+    for (let x = 0n; x < MAX_BASE + 64; x++) {
+        const char = String.fromCharCode(Number(x))
         if (digitsValue[char] !== undefined) {
             offset++
             continue
@@ -60,18 +46,12 @@ if (maxBase > 64) {
 }
 
 /**
- * Builds the string of digit characters for a given base.
+ * Sanitized string of the first `base` digit characters; disk-memorized.
  *
- * @type {(base: BigInt) => String}
+ * @type {(base: bigint) => string}
  */
 export const baseDigits = memorize(
-    /**
-     * String of digit characters `0n..base-1n`.
-     *
-     * @param {BigInt} base
-     * @returns {String}
-     */
-    (base) => {
+    base => {
         let digitsString = ''
 
         for (let digit = 0n; digit < base; digit++) {
@@ -80,23 +60,15 @@ export const baseDigits = memorize(
 
         return sanitize(digitsString)
     },
-    'baseDigits'
+    'baseDigits',
 )
 
-/**
- * Precomputed BigInt values for integers 0 through 9999.
- *
- * @type {BigInt[]}
- */
+/** @type {bigint[]} */
 const _toBigInt = new Array(10_000)
+
 for (let int = 0; int < _toBigInt.length; int++) {
     _toBigInt[int] = BigInt(int)
 }
 
-
-/**
- * Exported BigInt lookup table.
- *
- * @type {BigInt[]}
- */
+/** @type {bigint[]} `BigInt(i)` for `i` below 10,000 */
 export const toBigInt = _toBigInt

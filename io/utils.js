@@ -1,19 +1,19 @@
 /**
- * Whether a key can be written as a bare identifier, without quotes.
+ * Whether `key` can be written as an unquoted object key.
  *
  * @param {string} key
  * @returns {boolean}
  */
-const isIdent = (key) => /^[A-Za-z_$][\w$]*$/.test(key)
+const isIdent = key => /^[A-Za-z_$][\w$]*$/.test(key)
 
 /**
- * Serializes `value` to JS source — a BigInt becomes a `123n` literal, HugeInt / HugeIntEx its value.
+ * JS source for `value`: BigInt as `n` literals, HugeInt as their value, tab-indented.
  *
  * @param {*} value
- * @param {string} [indent] leading whitespace for the current depth
+ * @param {string} [indent=''] current indentation
  * @returns {string}
  */
-export const toJs = (value, indent = '') => {
+const toJs = (value, indent = '') => {
     if (value === null || value === undefined) return 'null'   // array holes land here too
     if (typeof value === 'bigint') return `${value}n`
     if (typeof value === 'string') return JSON.stringify(value)
@@ -34,7 +34,9 @@ export const toJs = (value, indent = '') => {
     const keys = Object.keys(value)
     if (!keys.length) return '{}'
     const body = keys
-        .map((key) => `${pad}${isIdent(key) ? key : JSON.stringify(key)}: ${toJs(value[key], pad)}`)
+        .map(key => `${pad}${isIdent(key) ? key : JSON.stringify(key)}: ${toJs(value[key], pad)}`)
         .join(',\n')
     return `{\n${body}\n${indent}}`
 }
+
+export default toJs

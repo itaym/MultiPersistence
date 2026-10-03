@@ -1,23 +1,25 @@
 import ToPrimitive from '#ToPrimitive/index.js'
 
+/** @type {bigint} high-resolution time at module load, in nanoseconds */
 const hrMilliseconds = process.hrtime.bigint()
+
+/** @type {number} wall-clock time at module load, in milliseconds */
 const dateNow = Date.now()
 
 /**
- * Builds a timestamp function: an initial wall-clock time advanced by monotonic hrtime deltas.
+ * Builds a clock: wall-clock milliseconds advanced by high-resolution elapsed time.
  *
- * @param {bigint} hrMilliseconds initial high-resolution timestamp
- * @param {number} dateNow initial wall-clock timestamp
- * @returns {() => number} current timestamp in milliseconds
+ * @param {number} dateNow wall-clock start, in milliseconds
+ * @param {bigint} hrMilliseconds high-resolution start, in nanoseconds
+ * @returns {() => number}
  */
-const now = (hrMilliseconds, dateNow) => () => {
+// eslint-disable-next-line no-shadow
+const now = (dateNow, hrMilliseconds) => () => {
     const hrNowMilliseconds = process.hrtime.bigint()
     return dateNow + Math.floor(Number(hrNowMilliseconds - hrMilliseconds) / 1_000_000)
 }
 
-/**
- * High‑resolution timestamp exposed as a ToPrimitive instance.
- *
- * @type {ToPrimitive}
- */
-export default new ToPrimitive(null, now(hrMilliseconds, dateNow))
+/** Monotonic wall clock; coerces to `1n +` current milliseconds. */
+const clock = new ToPrimitive(now(dateNow, hrMilliseconds), null)
+
+export default clock

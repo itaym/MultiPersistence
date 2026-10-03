@@ -1,9 +1,9 @@
 import gaySchluffen from './gaySchluffen.js'
 
 /**
- * Waits until the worker signals readiness via `process.env.isWorkerReady`.
+ * Resolves once `process.env.isWorkerReady` is `'true'`.
  *
- * @param {number} [milliSeconds=20] delay between checks
+ * @param {number} [milliSeconds=20] polling interval
  * @returns {Promise<void>}
  */
 const waitForWorker = async (milliSeconds = 20) => {

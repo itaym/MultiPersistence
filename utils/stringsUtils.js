@@ -1,33 +1,24 @@
-import memorize from "./memorize.js";
+import memorize from './memorize.js'
+
 /**
- * Sanitizes a string for terminal-safe output — control, zero-width and bidi characters become 'X'.
+ * Replaces control, zero-width and bidi characters with `X`.
  *
  * @param {string} str
  * @returns {string}
  */
-export const sanitize = (str) => {
-    return str
-        // ASCII control chars + DEL + C1 control chars
-        .replace(/[\x00-\x1F\x7F-\x9F]/g, 'X')
-        // Zero‑width characters
-        .replace(/[\u200B-\u200D]/g, 'X')
-        // Bidirectional control characters
-        .replace(/[\u202A-\u202E]/g, 'X')
-}
+export const sanitize = str => str
+    // ASCII control chars + DEL + C1 control chars
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\x00-\x1F\x7F-\x9F]/g, 'X')
+    // Zero‑width characters
+    .replace(/[\u200B-\u200D]/g, 'X')
+    // Bidirectional control characters
+    .replace(/[\u202A-\u202E]/g, 'X')
 
 /**
- * @typedef {Object} SegmentBounds
- * @property {number[]} segLens - length of each segment
- * @property {number[]} segStarts - start index of each segment in source
- */
-
-/**
- * Start index and length of each segment when the source exceeds `lengthLimit`.
+ * Lengths and starts of the kept segments of a truncated string; disk-memorized.
  *
- * @param {number} sourceLength length of the source string
- * @param {number} segments number of chunks
- * @param {number} lengthLimit max length of the final joined result
- * @returns {SegmentBounds}
+ * @type {(sourceLength: number, segments: number, lengthLimit: number) => SegmentBounds}
  */
 const computeSegments = memorize((sourceLength, segments, lengthLimit) => {
     const dotsTotal = 3 * (segments - 1)
@@ -68,18 +59,19 @@ const computeSegments = memorize((sourceLength, segments, lengthLimit) => {
 }, 'computeSegments')
 
 /**
- * Dash/number ruler map for a single segment `[segStart, segStart + segLen)`.
+ * Ruler segment: the set-char ranks at the segment's two ends, dashes elsewhere.
  *
- * @param {(number|null)[]} rank rtl running count of set-chars per index, null if not a set char
- * @param {number} width digit width for padding rank numbers
- * @param {number} segStart segment start index in source
- * @param {number} segLen segment length
- * @returns {string} ruler map string of length segLen
+ * @param {(number|null)[]} rank set-char rank per index, `null` for other chars
+ * @param {number} segLen
+ * @param {number} segStart
+ * @param {number} width digits of the highest rank
+ * @returns {string}
  */
-const buildSegmentMap = (rank, width, segStart, segLen) => {
+const buildSegmentMap = (rank, segLen, segStart, width) => {
     const buf = new Array(segLen).fill('-')
 
-    let leftIdx = -1, rightIdx = -1
+    let leftIdx = -1
+    let rightIdx = -1
     for (let i = segStart; i < segStart + segLen; i++) {
         if (rank[i] !== null) { leftIdx = i; break }
     }
@@ -125,14 +117,14 @@ const buildSegmentMap = (rank, width, segStart, segLen) => {
 }
 
 /**
- * Truncates `source` to `lengthLimit` as `segments` chunks joined by "...".
+ * `source` cut to `lengthLimit` as `segments` pieces joined by `...`.
  *
+ * @param {number} lengthLimit
+ * @param {number} segments
  * @param {string} source
- * @param {number} segments chunk count when source exceeds lengthLimit
- * @param {number} lengthLimit max length of the returned result
  * @returns {string}
  */
-export const truncate = (source, segments, lengthLimit) => {
+export const truncate = (lengthLimit, segments, source) => {
     if (source.length <= lengthLimit) return source
 
     const { segLens, segStarts } = computeSegments(source.length, segments, lengthLimit)
@@ -147,25 +139,19 @@ export const truncate = (source, segments, lengthLimit) => {
 }
 
 /**
- * @typedef {Object} RulerResult
- * @property {string} chars_set - the set of characters counted toward the rank
- * @property {number} lengthLimit - the max length constraint applied
- * @property {string} result - the truncated string
- * @property {string} ruler - the ruler map string
- * @property {number} segments - number of chunks used
- * @property {string} source - the original input string
- */
-
-/**
- * {@link truncate} plus a same-length ruler map marking set-char ranks at each chunk's edges.
+ * {@link truncate} plus a ruler that numbers the `charsSet` characters from the right.
  *
+ * @param {string} charsSet characters to count
+ * @param {number} lengthLimit
+ * @param {number} segments
  * @param {string} source
- * @param {string} charsSet characters that count toward the rank
- * @param {number} segments chunk count when source exceeds lengthLimit
- * @param {number} lengthLimit max length of the returned result
  * @returns {RulerResult}
  */
-export const truncateWithRuler = (source, charsSet, segments, lengthLimit) => {
+export const truncateWithRuler = (charsSet, lengthLimit, segments, source) => {
+    /**
+     * @param {string} ch
+     * @returns {boolean}
+     */
     const isSetChar = ch => charsSet.includes(ch)
 
     // rank[i] = count of set-chars from i to end of source (rtl running count), null if not a set char
@@ -180,11 +166,12 @@ export const truncateWithRuler = (source, charsSet, segments, lengthLimit) => {
     const totalSetChars = running
     const width = String(totalSetChars).length
 
-    let result, ruler
+    let result
+    let ruler
 
     if (source.length <= lengthLimit) {
         result = source
-        ruler = buildSegmentMap(rank, width, 0, source.length)
+        ruler = buildSegmentMap(rank, source.length, 0, width)
     } else {
         const { segLens, segStarts } = computeSegments(source.length, segments, lengthLimit)
 
@@ -194,7 +181,7 @@ export const truncateWithRuler = (source, charsSet, segments, lengthLimit) => {
             const st = segStarts[s]
             const len = segLens[s]
             resultParts.push(source.slice(st, st + len))
-            mapParts.push(buildSegmentMap(rank, width, st, len))
+            mapParts.push(buildSegmentMap(rank, len, st, width))
         }
         result = resultParts.join('...')
         ruler = mapParts.join('...')

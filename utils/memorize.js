@@ -1,33 +1,37 @@
-import fs from 'fs'
-import path from 'path'
+import {
+    replacer,
+    reviver,
+} from '#io/bigintCodec.js'
 import { createStore } from '#io/index.js'
-import { readJsonFileSync } from './fileUtils.js'
-import { writeJsonFile } from './fileUtils.js'
-import { replacer, reviver } from '#io/bigintCodec.js'
+import {
+    readJsonFileSync, writeJsonFile,
+} from './fileUtils.js'
+import fs from 'node:fs'
+import path from 'node:path'
 
-/** Module URL of the codec, shared with the `io` persist worker. */
-const CODEC_URL = new URL('../io/bigintCodec.js', import.meta.url).href
+/** @type {string} module URL of the codec, shared with the persist worker */
+const CODEC_URL = import.meta.resolve('#io/bigintCodec.js')
 
 /**
- * Saves a Map to a JSON file. Legacy helper for `utils/mergeMaps.js`.
+ * Writes `map`'s entries as JSON.
  *
  * @param {string} filename
- * @param {Map<string, BigInt>} map
+ * @param {Map} map
  * @returns {void}
  */
-export function saveMapToFile(filename, map) {
-    writeJsonFile(filename, Array.from(map.entries()), replacer, '\t').then()
+export const saveMapToFile = (filename, map) => {
+    writeJsonFile(filename, replacer, '\t', Array.from(map.entries())).then()
 }
 
 /**
- * Loads a Map from a JSON file, or an empty Map on failure. Legacy helper for `utils/mergeMaps.js`.
+ * Loads a Map saved by {@link saveMapToFile}, sorted by key, and saves it back sorted; empty on failure.
  *
  * @param {string} filename
- * @returns {Map<string, BigInt>}
+ * @returns {Map}
  */
-export function loadMapFromFileSync(filename) {
+export const loadMapFromFileSync = filename => {
     try {
-        const json = readJsonFileSync(filename, reviver, [])
+        const json = readJsonFileSync(filename, reviver, {})
         const entries = json.sort((a, b) => {
             if (a[0] > b[0]) return 1
             if (a[0] < b[0]) return -1
@@ -36,26 +40,24 @@ export function loadMapFromFileSync(filename) {
         const map = new Map(entries)
         saveMapToFile(filename, map)
         return map
-    }
-    catch {
+    } catch {
         return new Map()
     }
 }
 
+/** @type {Set<string>} cache file names already taken */
 const usedNames = new Set()
 
 /**
- * Checks whether a cache `name` is usable as a file name.
- *
  * @param {*} name
- * @returns {boolean}
+ * @returns {boolean} whether `name` is a non-empty string
  */
-const isValidName = (name) => typeof name === 'string' && name.length > 0
+const isValidName = name => typeof name === 'string' && name.length > 0
 
 /**
- * Ensures the cache directory exists and returns its absolute path.
+ * Creates the cache directory if needed.
  *
- * @returns {string}
+ * @returns {string} its absolute path
  */
 const ensureCacheDir = () => {
     const dir = path.resolve(process.normalizedEnv.memorize_cache_dir)
@@ -64,13 +66,12 @@ const ensureCacheDir = () => {
 }
 
 /**
- * Memoizes `fn` into a plain in-process Map, keyed by `args.join()`.
+ * Memorizes `fn` in memory, keyed by `args.join()`.
  *
- * @template {(...args: any[]) => any} F
- * @param {F} fn
- * @returns {(...args: Parameters<F>) => ReturnType<F>}
+ * @param {AnyFn} fn
+ * @returns {AnyFn}
  */
-const memoInMemory = (fn) => {
+const memoInMemory = fn => {
     const cache = new Map()
 
     return (...args) => {
@@ -84,16 +85,13 @@ const memoInMemory = (fn) => {
 }
 
 /**
- * Memorizes `fn` through an {@link module:io} store at `{cache_dir}/{name}.json`. The store is
- * created lazily on the first call, after Config has populated `process.normalizedEnv`.
+ * Memorizes `fn` in a disk-backed {@link Store} named `name`, keyed by `args.join()`.
  *
- * @template {(...args: any[]) => any} F
- * @param {F} fn
- * @param {string} name cache file name without extension
- * @returns {(...args: Parameters<F>) => ReturnType<F>}
+ * @param {AnyFn} fn
+ * @param {string} name cache file name
+ * @returns {AnyFn}
  */
 const memoOnDisk = (fn, name) => {
-    /** @type {import('../io/index.js').Store} */
     let store
 
     return (...args) => {
@@ -115,14 +113,13 @@ const memoOnDisk = (fn, name) => {
 }
 
 /**
- * Memorizes `fn`, keyed by `args.join()`. With a `name` the cache is disk-backed, else memory-only.
+ * Memorizes `fn` on disk under `name`, or in memory when `name` is missing; throws on a reused name.
  *
- * @template {(...args: any[]) => any} F
- * @param {F} fn
- * @param {string} [name] cache file name without extension; omit for memory-only
- * @returns {(...args: Parameters<F>) => ReturnType<F>}
+ * @param {AnyFn} fn
+ * @param {string} [name]
+ * @returns {AnyFn}
  */
-export default function memorize(fn, name) {
+const memorize = (fn, name) => {
     if (!isValidName(name)) return memoInMemory(fn)
 
     if (usedNames.has(name)) {
@@ -132,3 +129,5 @@ export default function memorize(fn, name) {
 
     return memoOnDisk(fn, name)
 }
+
+export default memorize

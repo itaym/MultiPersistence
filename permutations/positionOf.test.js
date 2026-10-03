@@ -1,16 +1,13 @@
-/**
- * Tests for {@link positionOf} / {@link numberAt} / {@link advanceBy} — jumping to any point
- * in the canonical-number ordering by counting, instead of stepping through it.
- *
- *     node permutations/positionOf.test.js
- */
-
+/** Tests for positionOf / numberAt / advanceBy. */
+import baseAccommodate from '#BaseAccommodate/index.js'
+import HugeIntEx from '#HugeIntEx/index.js'
+import advanceBy from './advanceBy.js'
+import {
+    numberAt,
+    positionOf,
+} from './positionOf.js'
 import assert from 'node:assert/strict'
 import { tmpdir } from 'node:os'
-import advanceBy from './advanceBy.js'
-import baseAccommodate from '#MultiplicativePersistence/BaseAccommodate/index.js'
-import HugeIntEx from '#HugeIntEx/index.js'
-import { numberAt, positionOf } from './positionOf.js'
 
 process.normalizedEnv = {
     cache_idle_save_ms: 0,
@@ -21,10 +18,14 @@ process.normalizedEnv = {
 let passed = 0
 let failed = 0
 
-/** @param {string} name
+/**
+ * Runs `fn`, counting and logging a failure.
+ *
  * @param {() => void} fn
+ * @param {string} name
+ * @returns {void}
  */
-function test(name, fn) {
+const test = (fn, name) => {
     try {
         fn()
         passed++
@@ -36,77 +37,76 @@ function test(name, fn) {
 }
 
 /**
- * Real search stepping (`addOneToSorted` + `baseAccommodate`), the slow oracle `advanceBy`
- * is checked against.
+ * Number reached by a real search run of `realIterationsForSegment` canonical positions from `startValue`.
  *
- * @param {BigInt} startValue
- * @param {BigInt} base
- * @param {BigInt} targetIterations
- * @returns {BigInt}
+ * @param {bigint} base
+ * @param {bigint} realIterationsForSegment
+ * @param {bigint} startValue
+ * @returns {bigint}
  */
-const bruteForceAdvance = (startValue, base, targetIterations) => {
-    const currentNo = new HugeIntEx(startValue, base)
+const bruteForceAdvance = (base, realIterationsForSegment, startValue) => {
+    const currentNo = new HugeIntEx(base, undefined, startValue)
     const createPermutations = baseAccommodate(base)
-    let calcIterations = 0n
+    let actualIterations = 0n
 
-    while (calcIterations < targetIterations) {
+    while (actualIterations < realIterationsForSegment) {
         currentNo.addOneToSorted()
-        calcIterations += 1n + createPermutations(currentNo)
+        actualIterations += 1n + createPermutations(currentNo)
     }
 
     return currentNo.value
 }
 
-test('positionOf: known base-6 single-digit values', () => {
-    assert.equal(positionOf(new HugeIntEx(2n, 6n)), 0n)
-    assert.equal(positionOf(new HugeIntEx(3n, 6n)), 1n)
-    assert.equal(positionOf(new HugeIntEx(4n, 6n)), 2n)
-    assert.equal(positionOf(new HugeIntEx(5n, 6n)), 3n)
-})
+test(() => {
+    assert.equal(positionOf(new HugeIntEx(6n, undefined, 2n)), 0n)
+    assert.equal(positionOf(new HugeIntEx(6n, undefined, 3n)), 1n)
+    assert.equal(positionOf(new HugeIntEx(6n, undefined, 4n)), 2n)
+    assert.equal(positionOf(new HugeIntEx(6n, undefined, 5n)), 3n)
+}, 'positionOf: known base-6 single-digit values')
 
-test('positionOf: first two-digit base-6 number follows the four single-digit ones', () => {
-    assert.equal(positionOf(new HugeIntEx(14n, 6n)), 4n) // "22" in base 6 = 2*6+2 = 14
-})
+test(() => {
+    assert.equal(positionOf(new HugeIntEx(6n, undefined, 14n)), 4n) // "22" in base 6 = 2*6+2 = 14
+}, 'positionOf: first two-digit base-6 number follows the four single-digit ones')
 
-test('numberAt: inverse of the known base-6 cases', () => {
-    assert.equal(numberAt(0n, 6n), 2n)
-    assert.equal(numberAt(1n, 6n), 3n)
-    assert.equal(numberAt(4n, 6n), 14n)
-})
+test(() => {
+    assert.equal(numberAt(6n, 0n), 2n)
+    assert.equal(numberAt(6n, 1n), 3n)
+    assert.equal(numberAt(6n, 4n), 14n)
+}, 'numberAt: inverse of the known base-6 cases')
 
-test('positionOf / numberAt / advanceBy match real stepping, at every real calcIterations value', () => {
+test(() => {
     for (const base of [6n, 8n, 9n, 10n, 12n]) {
         const seed = 2n * base + 2n // "22"
-        const seedPosition = positionOf(new HugeIntEx(seed, base))
-        const currentNo = new HugeIntEx(seed, base)
+        const seedPosition = positionOf(new HugeIntEx(base, undefined, seed))
+        const currentNo = new HugeIntEx(base, undefined, seed)
         const createPermutations = baseAccommodate(base)
-        let calcIterations = 0n
+        let actualIterations = 0n
 
         for (let step = 0n; step < 500n; step++) {
             currentNo.addOneToSorted()
-            calcIterations += 1n + createPermutations(currentNo)
+            actualIterations += 1n + createPermutations(currentNo)
 
-            const expectedPosition = seedPosition + calcIterations
+            const expectedPosition = seedPosition + actualIterations
             assert.equal(positionOf(currentNo), expectedPosition,
                 `base ${base}, step ${step}: positionOf mismatch`)
-            assert.equal(numberAt(expectedPosition, base), currentNo.value,
+            assert.equal(numberAt(base, expectedPosition), currentNo.value,
                 `base ${base}, step ${step}: numberAt mismatch`)
-            assert.equal(advanceBy(seed, base, calcIterations), currentNo.value,
+            assert.equal(advanceBy(base, actualIterations, seed), currentNo.value,
                 `base ${base}, step ${step}: advanceBy mismatch`)
         }
     }
-})
+}, 'positionOf / numberAt / advanceBy match real stepping, at every real actualIterations value')
 
-test('advanceBy can land on a number a real run would have skipped over — that is intended', () => {
+test(() => {
     // base 6, seed "22": addOneToSorted alone gives "23", but baseAccommodate immediately
-    // promotes it to "24" (a 2-cell exists), crediting 1 skipped number to calcIterations.
-    // So the real run jumps from calcIterations 0 straight to 2, never visiting rank 1 ("23")
+    // promotes it to "24" (a 2-cell exists), crediting 1 skipped number to actualIterations.
+    // So the real run jumps from actualIterations 0 straight to 2, never visiting rank 1 ("23")
     // on its own — but advanceBy still resolves rank 1 to "23", since a segment boundary is
     // just a plain number, not something that needs to have been individually checked.
-    assert.equal(bruteForceAdvance(14n, 6n, 1n), 16n) // real run: seed -> "24" (rank 2)
-    assert.equal(advanceBy(14n, 6n, 1n), 15n) // exact rank 1 -> "23", the skipped number
-    assert.equal(advanceBy(14n, 6n, 2n), 16n) // exact rank 2 -> "24", matches the real run
-})
+    assert.equal(bruteForceAdvance(6n, 1n, 14n), 16n) // real run: seed -> "24" (rank 2)
+    assert.equal(advanceBy(6n, 1n, 14n), 15n) // exact rank 1 -> "23", the skipped number
+    assert.equal(advanceBy(6n, 2n, 14n), 16n) // exact rank 2 -> "24", matches the real run
+}, 'advanceBy can land on a number a real run would have skipped over — that is intended')
 
 console.log(`\n${passed} passed, ${failed} failed`)
 process.exit(failed ? 1 : 0)

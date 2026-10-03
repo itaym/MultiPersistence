@@ -1,21 +1,10 @@
-/** @typedef {(...args: any[]) => any} AnyFn  any function; args and return value pass through untouched */
-
 /**
- * @typedef {Object} TimingStats
- * @property {number} averageDuration  mean ms per call, scaled by `multiplyBy`
- * @property {number} count            calls since the last reset
- * @property {number} perSecond        throughput, 1000 / averageDuration
- * @property {number} totalDuration    raw accumulated ms
- */
-
-/**
- * Wraps `fn` in a drop-in timing harness that accumulates wall-clock duration and a call count.
+ * Wraps `fn` so every call is timed.
  *
- * @param {AnyFn} fn        function to measure
- * @returns {MeasuredFn}    wrapper around `fn` carrying `.reset()` and `.stats()`
+ * @param {AnyFn} fn
+ * @returns {MeasuredFn}
  */
-function measureTime(fn) {
-
+const measureTime = fn => {
     let count = 0            // number of times callFn has run since the last reset
     let totalDuration = 0    // summed (endTime - startTime), in milliseconds
     let endTime = 0          // scratch: end of the most recent call
@@ -23,12 +12,12 @@ function measureTime(fn) {
     let startTime = 0        // scratch: start of the most recent call
 
     /**
-     * Timed pass-through to `fn`.
+     * Calls `fn` and adds its duration to the totals.
      *
-     * @param {...any} args  forwarded verbatim to `fn`
-     * @returns {any}        whatever `fn` returns
+     * @param {...*} args passed to `fn`
+     * @returns {*} `fn`'s result
      */
-    function callFn(...args) {
+    const callFn = (...args) => {
         count++
         startTime = performance.now()
         result = fn(...args)
@@ -38,11 +27,11 @@ function measureTime(fn) {
     }
 
     /**
-     * Zeroes the call count and accumulated duration (run after warm-up).
+     * Clears the totals.
      *
      * @returns {void}
      */
-    callFn.reset = function() {
+    callFn.reset = () => {
         count = 0
         totalDuration = 0
         endTime = 0
@@ -51,31 +40,24 @@ function measureTime(fn) {
     }
 
     /**
-     * Snapshot of the counters since the last reset.
+     * Totals so far.
      *
-     * @param {number} [multiplyBy=1]  scales `averageDuration`/`perSecond`, e.g. when one call does `multiplyBy` ops
+     * @param {number} [multiplyBy=1] scales the average duration
      * @returns {TimingStats}
      */
-    callFn.stats = function(multiplyBy) {
+    callFn.stats = multiplyBy => {
         multiplyBy ??= 1
-        let averageDuration = totalDuration / count * multiplyBy
+        const averageDuration = totalDuration / count * multiplyBy
         return {
             averageDuration,
             count,
-            perSecond: 1_000 / averageDuration,
+            perSecond: 1000 / averageDuration,
+            // TODO: shorthand is the rule; kept long form (measured slightly faster), revisit
+            // eslint-disable-next-line object-shorthand
             totalDuration: totalDuration,
         }
     }
     return callFn
 }
-
-/**
- * A timed wrapper produced by {@link measureTime}. Call it exactly like the
- * original function; `.reset()` and `.stats()` manage the timing counters.
- *
- * @typedef {AnyFn} MeasuredFn
- * @property {() => void} reset                             zero the call count and accumulated duration
- * @property {(multiplyBy?: number) => TimingStats} stats   read the counters since the last reset
- */
 
 export default measureTime

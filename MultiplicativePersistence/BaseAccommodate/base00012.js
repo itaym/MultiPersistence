@@ -1,20 +1,26 @@
-import { getPermutations, splitAfterCell } from './utils.js'
+import {
+    getPermutations,
+    splitAfterCell,
+} from './utils.js'
 
 /**
- * Base-12 accommodate rules on the first-cell digit. A matching rule bumps the digit
- * (or splits the cell) and returns the permutations skipped:
- *   3 → >1 two-component pair; 4 → a 3 present; 6 → any two-component pair, else count > 1 split;
- *   8 → a 3 or 6 present; 9 → >1 pair, else a 6 with count > 1; A → a pair with a 9 or 3, else a 6.
- *   5, 7, 11 → no rule.
+ * Base-12 skipper: skips numbers whose digit product gets a 0 digit from 3·4-type factors (`12 = 10₁₂`).
  *
- * @function base00012
- * @param {HugeInt} currentNo examined and possibly mutated in place
- * @returns {BigInt} permutations skipped, or `0n`
+ * @type {(currentNo: HugeIntEx) => bigint} canonical numbers skipped
  */
+// eslint-disable-next-line import-x/prefer-default-export
 export const base00012 = (() => {
+    /** @type {bigint} */
     const base = 12n
 
-    const fn3 = (currentNo, cell3) => {
+    /**
+     * First cell is 3: skips it when the rest has more than one factor 2.
+     *
+     * @param {DigitCell} cell3
+     * @param {HugeIntEx} currentNo
+     * @returns {bigint} canonical numbers skipped
+     */
+    const fn3 = (cell3, currentNo) => {
         let permutationsSaved = 0n
 
         const countTwoComponents = currentNo.cTCNFC()
@@ -25,7 +31,14 @@ export const base00012 = (() => {
         }
         return permutationsSaved
     }
-    const fn4 = (currentNo, cell4) => {
+    /**
+     * First cell is 4: skips it when the number has a 3.
+     *
+     * @param {DigitCell} cell4
+     * @param {HugeIntEx} currentNo
+     * @returns {bigint} canonical numbers skipped
+     */
+    const fn4 = (cell4, currentNo) => {
         let permutationsSaved = 0n
 
         if (currentNo.isCellOf(3n)) {
@@ -34,7 +47,14 @@ export const base00012 = (() => {
         }
         return permutationsSaved
     }
-    const fn6 = (currentNo, cell6) => {
+    /**
+     * First cell is 6: skips it when the number has an even digit, else keeps a single 6.
+     *
+     * @param {DigitCell} cell6
+     * @param {HugeIntEx} currentNo
+     * @returns {bigint} canonical numbers skipped
+     */
+    const fn6 = (cell6, currentNo) => {
         let permutationsSaved = 0n
 
         if (currentNo.hasEvenDigits()) {
@@ -44,11 +64,18 @@ export const base00012 = (() => {
         }
         if (cell6.count > 1n) {
             permutationsSaved = getPermutations(cell6.digit, cell6.count - 1n, base)
-            splitAfterCell(currentNo, cell6, 1n)
+            splitAfterCell(cell6, 1n, currentNo)
         }
         return permutationsSaved
     }
-    const fn8 = (currentNo, cell8) => {
+    /**
+     * First cell is 8: skips it when the number has a 3 or a 6.
+     *
+     * @param {DigitCell} cell8
+     * @param {HugeIntEx} currentNo
+     * @returns {bigint} canonical numbers skipped
+     */
+    const fn8 = (cell8, currentNo) => {
         let permutationsSaved = 0n
 
         if (currentNo.isCellOf(3n)) {
@@ -63,7 +90,14 @@ export const base00012 = (() => {
         }
         return permutationsSaved
     }
-    const fn9 = (currentNo, cell9) => {
+    /**
+     * First cell is 9: skips it when the rest has more than one factor 2 or two 6s.
+     *
+     * @param {DigitCell} cell9
+     * @param {HugeIntEx} currentNo
+     * @returns {bigint} canonical numbers skipped
+     */
+    const fn9 = (cell9, currentNo) => {
         let permutationsSaved = 0n
 
         const countTwoComponents = currentNo.cTCNFC()
@@ -82,7 +116,14 @@ export const base00012 = (() => {
         }
         return permutationsSaved
     }
-    const fn10 = (currentNo, cellA) => {
+    /**
+     * First cell is 10: skips it when the rest has a factor 2 and a 3 or 9, or when the number has a 6.
+     *
+     * @param {DigitCell} cellA
+     * @param {HugeIntEx} currentNo
+     * @returns {bigint} canonical numbers skipped
+     */
+    const fn10 = (cellA, currentNo) => {
         let permutationsSaved = 0n
 
         const countTwoComponents = currentNo.cTCNFC()
@@ -108,19 +149,18 @@ export const base00012 = (() => {
         return permutationsSaved
     }
 
-    /** @param {HugeInt} currentNo */
-    return (currentNo) => {
+    return currentNo => {
         const checkCell = currentNo.firstCell
         switch (checkCell.digit) {
             case 11n: return 0n
-            case 10n: return fn10(currentNo, checkCell)
-            case 9n: return fn9(currentNo, checkCell)
-            case 8n: return fn8(currentNo, checkCell)
+            case 10n: return fn10(checkCell, currentNo)
+            case 9n: return fn9(checkCell, currentNo)
+            case 8n: return fn8(checkCell, currentNo)
             case 7n: return 0n
-            case 6n: return fn6(currentNo, checkCell)
+            case 6n: return fn6(checkCell, currentNo)
             case 5n: return 0n
-            case 4n: return fn4(currentNo, checkCell)
-            case 3n: return fn3(currentNo, checkCell)
+            case 4n: return fn4(checkCell, currentNo)
+            case 3n: return fn3(checkCell, currentNo)
             default: return 0n
         }
     }

@@ -1,15 +1,15 @@
 /**
- * Sends a message to the worker when it is ready; type `"init"` is always sent.
+ * Posts `{ data, type }` to `worker` when it is ready (always for `'init'`), then marks it busy.
  *
+ * @param {*} data
+ * @param {string} type
  * @param {Worker} worker
- * @param {string} type message type
- * @param {any} data message payload
- * @returns {boolean} whether the message was sent
+ * @returns {boolean} whether the message was posted
  */
-const postMessage = (worker, type, data) => {
-
-    if (type === 'init')
+const postMessage = (data, type, worker) => {
+    if (type === 'init') {
         process.env.isWorkerReady = 'true'
+    }
 
     if (process.env.isWorkerReady === 'true') {
         process.env.isWorkerReady = 'false'

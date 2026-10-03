@@ -1,18 +1,19 @@
-/**
- * A `Map` that never hits V8's ~16.7M (2^24) entry limit — chains additional `Map` instances
- * once the current one fills up.
- */
+/** Map that chains inner Maps past V8's ~16.7M entry limit. */
 class MultiMap {
+    /** Starts with one empty inner Map. */
     constructor() {
+        /** @type {Map[]} inner Maps, newest last */
         this.maps = [new Map()]
     }
 
+    /** @type {number} entries per inner Map */
     #sizeLimit = 16_777_216
 
     /**
+     * Value for `key`, newest inner Map first.
+     *
      * @param {*} key
-     * @returns {*} the value for `key`, checking each underlying `Map` from most to least recently
-     *   added — `undefined` if not found
+     * @returns {*}
      */
     get(key) {
         let entry
@@ -24,6 +25,8 @@ class MultiMap {
     }
 
     /**
+     * Sets `key` in the newest inner Map, opening a new one when it is full.
+     *
      * @param {*} key
      * @param {*} item
      * @returns {void}
