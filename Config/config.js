@@ -1,4 +1,4 @@
-import { initPollyFill } from '#utils/pollyfill.js'
+import initPollyFill from '#utils/pollyfill.js'
 import dotenvEval from './dotenvEval.js'
 import * as dotenv from 'dotenv'
 

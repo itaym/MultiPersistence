@@ -1,11 +1,13 @@
 /** Main entry: starts the search worker and prints its logs. */
 // noinspection ES6UnusedImports
-// import initConfig from '#Config/config.js'
+import initConfig from '#Config/config.js'
 import gaySchluffen from '#utils/gaySchluffen.js'
 import {
     SHARE_ENV,
     Worker,
 } from 'node:worker_threads'
+
+initConfig()
 
 /** @type {number} longest `setTimeout` delay; keeps the main thread alive */
 const MAX_MILLISECONDS_FOR_TIMEOUT = 2_147_483_647
