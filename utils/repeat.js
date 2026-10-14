@@ -2,7 +2,7 @@
  * Returned by `repeat(fn)`; `.for(count)` sets how many calls.
  *
  * @typedef {Object} Repeater
- * @property {(count: number|bigint) => RepeatCount} for takes the number of calls, `Infinity` allowed
+ * @property {(count: number|bigint) => RepeatCount} for takes the amount calls, `Infinity` allowed
  */
 
 /**
@@ -15,7 +15,7 @@
 /**
  * Calls `fn` `count` times on `.times()`, passing the index from 0 up.
  *
- * @param {(index: number|bigint) => void} fn called with the index, from 0 up, same type as `count`
+ * @param {(index: number|bigint) => void} fn called with the index, from 0 up, same type as `count`.
  * @returns {Repeater}
  */
 const repeat = fn => ({
