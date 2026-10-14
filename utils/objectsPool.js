@@ -1,3 +1,5 @@
+import repeat from './repeat.js'
+
 /** @type {symbol} key of an object's or pool's own index */
 const symbolIndex = Symbol('index')
 
@@ -40,9 +42,9 @@ export const initPools = (initNumOfPools, poolInitSize) => {
     numOfPools = initNumOfPools
     pools = new Array(numOfPools)
 
-    for (let poolIndex = 0; poolIndex < numOfPools; poolIndex++) {
+    repeat(poolIndex => {
         pools[poolIndex] = _createPool(poolIndex, poolSize)
-    }
+    }).for(numOfPools).times()
 }
 
 /**

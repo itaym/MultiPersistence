@@ -1,4 +1,5 @@
 import memorize from '#utils/memorize.js'
+import repeat from '#utils/repeat.js'
 import { sanitize } from '#utils/stringsUtils.js'
 
 /** @type {number} highest base the digit maps cover */
@@ -33,16 +34,16 @@ export const digitsValue = {
 // extend the digit maps for bases greater than 64
 if (MAX_BASE > 64) {
     let offset = 0n
-    for (let x = 0n; x < MAX_BASE + 64; x++) {
+    repeat(x => {
         const char = String.fromCharCode(Number(x))
         if (digitsValue[char] !== undefined) {
             offset++
-            continue
+            return
         }
 
         digitsObj.set(x + 64n - offset, char)
         digitsValue[char] = x + 64n - offset
-    }
+    }).for(BigInt(MAX_BASE + 64)).times()
 }
 
 /**
@@ -54,9 +55,9 @@ export const baseDigits = memorize(
     base => {
         let digitsString = ''
 
-        for (let digit = 0n; digit < base; digit++) {
+        repeat(digit => {
             digitsString += digitsObj.get(digit)
-        }
+        }).for(base).times()
 
         return sanitize(digitsString)
     },
@@ -66,9 +67,9 @@ export const baseDigits = memorize(
 /** @type {bigint[]} */
 const _toBigInt = new Array(10_000)
 
-for (let int = 0; int < _toBigInt.length; int++) {
+repeat(int => {
     _toBigInt[int] = BigInt(int)
-}
+}).for(_toBigInt.length).times()
 
 /** @type {bigint[]} `BigInt(i)` for `i` below 10,000 */
 export const toBigInt = _toBigInt

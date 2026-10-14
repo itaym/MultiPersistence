@@ -1,4 +1,5 @@
 /** Benchmark: three ways to get the digit product of a large base-9 number. */
+import repeat from '#utils/repeat.js'
 import testPerformances from './testPerformances.js'
 
 const BASE = 9
@@ -23,7 +24,9 @@ const pool = []
 
 while (pool.length < POOL_SIZE) {
     let n = 0n
-    for (let i = 0; i < DIGITS; i++) n = n * BASE_N + BigInt(1 + Math.floor(rnd() * (BASE - 1)))
+    repeat(() => {
+        n = n * BASE_N + BigInt(1 + Math.floor(rnd() * (BASE - 1)))
+    }).for(DIGITS).times()
     pool.push(n)
 }
 

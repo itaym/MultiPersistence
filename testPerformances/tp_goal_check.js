@@ -1,5 +1,6 @@
 /** Benchmark: cost of the per-iteration goal check vs no check. */
 import HugeIntEx from '#HugeIntEx/index.js'
+import repeat from '#utils/repeat.js'
 import testPerformances from './testPerformances.js'
 
 const BASE = 11n
@@ -10,10 +11,10 @@ const goalNo = new HugeIntEx(BASE, undefined, 0n).fromString(BASE, '2'.repeat(40
 const pool = []
 const walk = new HugeIntEx(BASE, undefined, 2n)
 
-for (let step = 0; step < 20_000; step++) {
+repeat(() => {
     pool.push(new HugeIntEx(BASE, undefined, walk.value))
     walk.addOneToSorted()
-}
+}).for(20_000).times()
 
 // ---- fn_0: current check ----
 /**

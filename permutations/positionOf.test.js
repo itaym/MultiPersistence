@@ -1,6 +1,7 @@
 /** Tests for positionOf / numberAt / advanceBy. */
 import baseAccommodate from '#BaseAccommodate/index.js'
 import HugeIntEx from '#HugeIntEx/index.js'
+import repeat from '#utils/repeat.js'
 import advanceBy from './advanceBy.js'
 import {
     numberAt,
@@ -82,7 +83,7 @@ test(() => {
         const createPermutations = baseAccommodate(base)
         let actualIterations = 0n
 
-        for (let step = 0n; step < 500n; step++) {
+        repeat(step => {
             currentNo.addOneToSorted()
             actualIterations += 1n + createPermutations(currentNo)
 
@@ -93,7 +94,7 @@ test(() => {
                 `base ${base}, step ${step}: numberAt mismatch`)
             assert.equal(advanceBy(base, actualIterations, seed), currentNo.value,
                 `base ${base}, step ${step}: advanceBy mismatch`)
-        }
+        }).for(500n).times()
     }
 }, 'positionOf / numberAt / advanceBy match real stepping, at every real actualIterations value')
 

@@ -1,5 +1,6 @@
 /** Benchmark: JSON checkpoint serializer vs the JS-source emitter. */
 import toJs from '#io/utils.js'
+import repeat from '#utils/repeat.js'
 import testPerformances from './testPerformances.js'
 
 // ---- size knobs (mid-size checkpoint by default) ----
@@ -30,7 +31,9 @@ const int = n => Math.floor(rnd() * n)
  */
 const bigDigits = n => {
     let v = 0n
-    for (let i = 0; i < n; i++) v = v * 10n + BigInt(int(10))
+    repeat(() => {
+        v = v * 10n + BigInt(int(10))
+    }).for(n).times()
     return v
 }
 
@@ -40,7 +43,9 @@ const bigDigits = n => {
  */
 const hist = keys => {
     const h = {}
-    for (let i = 0; i < keys; i++) h[1 + int(keys * 3)] = 1 + int(50)
+    repeat(() => {
+        h[1 + int(keys * 3)] = 1 + int(50)
+    }).for(keys).times()
     return h
 }
 
@@ -84,15 +89,19 @@ const lengthStepBucket = () => ({
 /** @returns {ComputationState} random checkpoint state */
 const makeState = () => {
     const steps = []
-    for (let s = 0; s < STEPS; s++) steps.push(rnd() < 0.2 ? null : stepBucket(s))
+    repeat(s => {
+        steps.push(rnd() < 0.2 ? null : stepBucket(s))
+    }).for(STEPS).times()
 
     const number_lengths = {}
-    for (let i = 0; i < LENGTH_BUCKETS; i++) {
+    repeat(i => {
         const stepsObj = {}
         const k = 1 + int(3)
-        for (let j = 0; j < k; j++) stepsObj[3 + j] = lengthStepBucket()
+        repeat(j => {
+            stepsObj[3 + j] = lengthStepBucket()
+        }).for(k).times()
         number_lengths[2 + i] = { found: 1 + int(1e6), steps: stepsObj, time: int(1e9) }
-    }
+    }).for(LENGTH_BUCKETS).times()
 
     return {
         iterations: {

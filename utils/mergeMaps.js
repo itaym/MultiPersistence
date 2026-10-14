@@ -5,6 +5,7 @@ import {
     loadMapFromFileSync,
     saveMapToFile,
 } from './memorize.js'
+import repeat from './repeat.js'
 import path from 'node:path'
 
 initConfig({ path: '../.env' })
@@ -21,14 +22,14 @@ const mergeMaps = maps => {
 
     const resultMap = new Map()
 
-    for (let i = 0; i < maps.length; i++) {
+    repeat(i => {
         const map = maps[i]
         console.log(`  ➕ Merging map #${i + 1} with ${map.size} entries`)
 
         for (const [key, value] of map) {
             resultMap.set(key, value)
         }
-    }
+    }).for(maps.length).times()
 
     console.log(`✅ Merge complete. Total keys: ${resultMap.size}`)
     return resultMap

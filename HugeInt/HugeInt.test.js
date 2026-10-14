@@ -1,4 +1,5 @@
 /** Tests for HugeInt. */
+import repeat from '#utils/repeat.js'
 import { HugeInt } from './HugeInt.js'
 import assert from 'node:assert/strict'
 
@@ -51,7 +52,9 @@ const randInt = n => Math.floor(rand() * n)
 const randBig = (base, maxDigits) => {
     let value = 0n
     const digits = 1 + randInt(maxDigits)
-    for (let i = 0; i < digits; i++) value = value * base + BigInt(randInt(Number(base)))
+    repeat(() => {
+        value = value * base + BigInt(randInt(Number(base)))
+    }).for(digits).times()
     return value
 }
 
@@ -71,10 +74,10 @@ const hi = (value, base = 10n) => new HugeInt(base, undefined, value)
 
 test(() => {
     for (const base of VALUE_BASES) {
-        for (let i = 0; i < 300; i++) {
+        repeat(() => {
             const value = randBig(base, 90)
             assert.equal(hi(value, base).value, value, `base ${base}`)
-        }
+        }).for(300).times()
     }
 }, 'constructor / value round-trip')
 
@@ -145,13 +148,13 @@ test(() => {
 
 test(() => {
     for (const base of STRING_BASES) {
-        for (let i = 0; i < 150; i++) {
+        repeat(() => {
             const value = randBig(base, 80)
             const str = value.toString(Number(base))
             const n = new HugeInt(10n, undefined, 0n).fromString(base, str)
             assert.equal(n.value, value, `base ${base}: ${str}`)
             assert.equal(n.toString(), str, `base ${base}: ${str}`)
-        }
+        }).for(150).times()
     }
 }, 'fromString / toString round-trip')
 
@@ -253,12 +256,12 @@ test(() => {
 
 test(() => {
     for (const base of [2n, 10n, 16n]) {
-        for (let i = 0; i < 400; i++) {
+        repeat(() => {
             const value = randBig(base, 40)
             const n = hi(value, base)
             assert.equal((n.addOne()), undefined) // returns void
             assert.equal(n.value, value + 1n, `base ${base}: ${value}`)
-        }
+        }).for(400).times()
     }
 }, 'addOne == +1')
 
@@ -271,12 +274,12 @@ test(() => {
 
 test(() => {
     for (const base of [2n, 10n, 16n]) {
-        for (let i = 0; i < 400; i++) {
+        repeat(() => {
             const value = randBig(base, 40)
             const n = hi(value, base)
             n.subtractOne()
             assert.equal(n.value, value === 0n ? 0n : value - 1n, `base ${base}: ${value}`)
-        }
+        }).for(400).times()
     }
 }, 'subtractOne == -1, clamped at zero')
 

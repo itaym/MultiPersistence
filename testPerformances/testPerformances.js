@@ -1,4 +1,5 @@
 import getTimeString from '#utils/getTimeString.js'
+import repeat from '#utils/repeat.js'
 import measureTime from './measureTime.js'
 
 // `counter` is module-global so it isn't reset between successive runs in one process.
@@ -32,7 +33,7 @@ const showStats = (args, multiplyBy, tests) => {
     let funAverage = 0
     let argAverage = 0
 
-    for (let x = 0; x < tests.length; x++) {
+    repeat(x => {
         const fnKey = `fn_${x}`
         const arKey = `ar_${x}`
         funStats[fnKey] = tests[x].stats(multiplyBy)
@@ -40,14 +41,14 @@ const showStats = (args, multiplyBy, tests) => {
 
         funAverage += funStats[fnKey].perSecond
         argAverage += argStats[arKey].perSecond
-    }
+    }).for(tests.length).times()
 
     funAverage /= tests.length
     argAverage /= args.length
 
     const results = {}
 
-    for (let x = 0; x < tests.length; x++) {
+    repeat(x => {
         const fnKey = `fn_${x}`
         const arKey = `ar_${x}`
         funStats[fnKey].perSecond2 = funAverage
@@ -55,7 +56,7 @@ const showStats = (args, multiplyBy, tests) => {
 
         results[fnKey] = serializeStats(funStats[fnKey])
         results[arKey] = serializeStats(argStats[arKey])
-    }
+    }).for(tests.length).times()
 
     console.table(results)
     return results
@@ -79,12 +80,12 @@ const testPerformances = (
     const measureTimeFun = {}
     const measureTimeArg = {}
 
-    for (let x = 0; x < tests.length; x++) {
+    repeat(x => {
         const fnKey = `fn_${x}`
         const arKey = `ar_${x}`
         measureTimeFun[fnKey] = measureTime(tests[x])
         measureTimeArg[arKey] = measureTime(getArgs[x])
-    }
+    }).for(tests.length).times()
 
     // Warm-up: let the JIT specialize each function before anything is measured.
     for (let x = 0; x < warmupIterations; x++) {
@@ -96,12 +97,12 @@ const testPerformances = (
     }
 
     // Drop the warm-up timings; only what follows counts.
-    for (let x = 0; x < tests.length; x++) {
+    repeat(x => {
         const fnKey = `fn_${x}`
         const arKey = `ar_${x}`
         measureTimeFun[fnKey].reset()
         measureTimeArg[arKey].reset()
-    }
+    }).for(tests.length).times()
 
     // Measured loop: round-robin every function once per iteration.
     for (; counter < numIterations; counter++) {

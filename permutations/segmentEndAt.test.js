@@ -1,6 +1,7 @@
 /** Tests for segmentEndAt. */
 import baseAccommodate from '#BaseAccommodate/index.js'
 import HugeIntEx from '#HugeIntEx/index.js'
+import repeat from '#utils/repeat.js'
 import advanceBy from './advanceBy.js'
 import segmentEndAt from './segmentEndAt.js'
 import assert from 'node:assert/strict'
@@ -53,7 +54,7 @@ test(() => {
         const currentNo = new HugeIntEx(base, undefined, startAt)
         let checked = 1n // startAt itself is check #1
 
-        for (let step = 0n; step < 400n; step++) {
+        repeat(step => {
             currentNo.addOneToSorted()
             checked += 1n + createPermutations(currentNo)
 
@@ -61,7 +62,7 @@ test(() => {
             // included), so a `checked`-sized segment must end exactly on currentNo.
             assert.equal(segmentEndAt(base, checked, startAt), currentNo.value,
                 `base ${base}, step ${step}`)
-        }
+        }).for(400n).times()
     }
 }, 'a segment of count numbers checks exactly count numbers, startAt included')
 

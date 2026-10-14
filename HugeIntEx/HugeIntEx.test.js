@@ -1,5 +1,6 @@
 /** Tests for HugeIntEx. */
 import HugeInt from '#HugeInt/index.js'
+import repeat from '#utils/repeat.js'
 import { HugeIntEx } from './HugeIntEx.js'
 import assert from 'node:assert/strict'
 
@@ -103,7 +104,7 @@ test(() => {
 
 test(() => {
     const n = ex(2n, 9n)
-    for (let i = 0; i < 5000; i++) {
+    repeat(() => {
         let prev = null
         for (const cell of n) {
             assert.ok(cell.digit >= 0n && cell.digit < 9n, `digit ${cell.digit} out of base`)
@@ -111,7 +112,7 @@ test(() => {
             prev = cell.digit
         }
         n.addOneToSorted()
-    }
+    }).for(5000).times()
 }, 'addOneToSorted keeps runs merged and digits non-increasing LSB->MSB')
 
 test(() => {
@@ -165,7 +166,9 @@ test(() => {
 test(() => {
     const n = ex(2n, 9n)
     assert.equal(n.length, 1n)
-    for (let i = 0; i < 7; i++) n.addOneToSorted()   // 2..8 then 8 -> "22"
+    repeat(() => {   // 2..8 then 8 -> "22"
+        n.addOneToSorted()
+    }).for(7).times()
     assert.equal(n.toString(), '22')
     assert.equal(n.length, 2n)
 
@@ -224,10 +227,10 @@ test(() => {
     for (const base of [3n, 6n, 9n, 10n, 16n]) {
         const nums = []
         const walk = ex(2n, base)
-        for (let i = 0; i < 60; i++) {
+        repeat(() => {
             nums.push({ hi: fs(walk.toString(), base), v: walk.value })
             walk.addOneToSorted()
-        }
+        }).for(60).times()
         for (const a of nums) {
             for (const b of nums) {
                 const want = a.v < b.v ? -1 : a.v > b.v ? 1 : 0

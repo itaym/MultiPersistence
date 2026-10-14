@@ -1,4 +1,5 @@
 import memorize from './memorize.js'
+import repeat from './repeat.js'
 
 /**
  * Replaces control, zero-width and bidi characters with `X`.
@@ -28,10 +29,10 @@ const computeSegments = memorize((sourceLength, segments, lengthLimit) => {
 
     // remainder chars go to the LATER segments (confirmed: 18 then 19 for limit 40 / 2 segs)
     const segLens = []
-    for (let s = 0; s < segments; s++) {
+    repeat(s => {
         const extra = s >= segments - remainder ? 1 : 0
         segLens.push(base + extra)
-    }
+    }).for(segments).times()
 
     // NOTE: only segments=2 was confirmed by examples (first segment from the
     // start, last segment from the end). For segments > 2 this spaces middle

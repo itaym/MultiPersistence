@@ -1,4 +1,5 @@
 /** Benchmark: `BigInt(n)` vs a lookup table of pre-built BigInt. */
+import repeat from '#utils/repeat.js'
 import testPerformances from './testPerformances.js'
 
 const multiplyBy = 1
@@ -11,9 +12,9 @@ let number2 = 0
 
 const tbi = new Array(1001)
 
-for (let int = 0; int < 1001; int++) {
+repeat(int => {
     tbi[int] = BigInt(int)
-}
+}).for(1001).times()
 
 const tests = [
     num => {

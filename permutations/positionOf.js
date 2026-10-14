@@ -1,3 +1,4 @@
+import repeat from '#utils/repeat.js'
 import countPermutations from './countPermutations.js'
 
 /**
@@ -61,7 +62,7 @@ export const numberAt = (base, position) => {
     let remaining = length
     let value = 0n
 
-    for (let i = 0n; i < length; i++) {
+    repeat(() => {
         let digit = minDigit
 
         while (true) {
@@ -74,7 +75,7 @@ export const numberAt = (base, position) => {
         value = value * base + (digit + 1n)
         minDigit = digit
         remaining -= 1n
-    }
+    }).for(length).times()
 
     return value
 }

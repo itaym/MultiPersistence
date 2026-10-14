@@ -1,4 +1,5 @@
 /** Tests for the digit-group arithmetic in multiply.js and HugeInt's arithmetic on top of it. */
+import repeat from '#utils/repeat.js'
 import {
     BudgetExceededError,
     HugeInt,
@@ -63,7 +64,9 @@ const randInt = n => Math.floor(rand() * n)
 const randBig = (base, maxDigits) => {
     const digits = 1 + randInt(maxDigits)
     let value = 0n
-    for (let i = 0; i < digits; i++) value = value * base + BigInt(randInt(Number(base)))
+    repeat(() => {
+        value = value * base + BigInt(randInt(Number(base)))
+    }).for(digits).times()
     return value
 }
 
@@ -75,10 +78,10 @@ const BASES = [2n, 3n, 7n, 10n, 12n, 16n, 100n, 256n]
 
 test(() => {
     for (const base of BASES) {
-        for (let i = 0; i < 200; i++) {
+        repeat(() => {
             const value = randBig(base, 60)
             assert.equal(groupsToBigInt(base, bigIntToGroups(base, value)), value)
-        }
+        }).for(200).times()
     }
 }, 'bigIntToGroups / groupsToBigInt round-trip')
 
@@ -92,7 +95,7 @@ test(() => {
 
 test(() => {
     for (const base of BASES) {
-        for (let i = 0; i < 300; i++) {
+        repeat(() => {
             const a = randBig(base, 80)
             const d = BigInt(randInt(Number(base)))
             assert.equal(
@@ -100,13 +103,13 @@ test(() => {
                 a * d,
                 `base ${base}: ${a} * ${d}`,
             )
-        }
+        }).for(300).times()
     }
 }, 'multiplyGroupsByDigit vs BigInt')
 
 test(() => {
     for (const base of BASES) {
-        for (let i = 0; i < 300; i++) {
+        repeat(() => {
             const a = randBig(base, 80)
             const b = randBig(base, 80)
             assert.equal(
@@ -114,13 +117,13 @@ test(() => {
                 a + b,
                 `base ${base}: ${a} + ${b}`,
             )
-        }
+        }).for(300).times()
     }
 }, 'addGroups vs BigInt')
 
 test(() => {
     for (const base of BASES) {
-        for (let i = 0; i < 200; i++) {
+        repeat(() => {
             const a = randBig(base, 50)
             const c = BigInt(1 + randInt(40))
             const repunit = (base ** c - 1n) / (base - 1n === 0n ? 1n : base - 1n)
@@ -130,13 +133,13 @@ test(() => {
                 expected,
                 `base ${base}: ${a} * R(${c})`,
             )
-        }
+        }).for(200).times()
     }
 }, 'multiplyGroupsByRepunit vs BigInt')
 
 test(() => {
     for (const base of BASES) {
-        for (let i = 0; i < 400; i++) {
+        repeat(() => {
             const a = randBig(base, 70)
             const b = randBig(base, 70)
             assert.equal(
@@ -144,7 +147,7 @@ test(() => {
                 a * b,
                 `base ${base}: ${a} * ${b}`,
             )
-        }
+        }).for(400).times()
     }
 }, 'multiplyGroups vs BigInt')
 
@@ -154,12 +157,12 @@ test(() => {
 
 test(() => {
     for (const base of BASES) {
-        for (let i = 0; i < 200; i++) {
+        repeat(() => {
             const a = randBig(base, 60)
             const b = randBig(base, 60)
             assert.equal(new HugeInt(base, undefined, a).multiply(new HugeInt(base, undefined, b)).value, a * b)
             assert.equal(new HugeInt(base, undefined, a).multiply(b).value, a * b)
-        }
+        }).for(200).times()
     }
 }, 'HugeInt#multiply fast path vs BigInt')
 
@@ -168,7 +171,7 @@ test(() => {
     HugeInt.maxBigIntBits = 1n
     try {
         for (const base of BASES) {
-            for (let i = 0; i < 150; i++) {
+            repeat(() => {
                 const a = randBig(base, 50)
                 const b = randBig(base, 50)
                 assert.equal(
@@ -176,7 +179,7 @@ test(() => {
                     a * b,
                     `base ${base}: ${a}*${b}`,
                 )
-            }
+            }).for(150).times()
         }
     } finally {
         HugeInt.maxBigIntBits = saved
@@ -185,23 +188,23 @@ test(() => {
 
 test(() => {
     for (const base of BASES) {
-        for (let i = 0; i < 200; i++) {
+        repeat(() => {
             const a = randBig(base, 60)
             const b = randBig(base, 60)
             assert.equal(new HugeInt(base, undefined, a).add(new HugeInt(base, undefined, b)).value, a + b)
-        }
+        }).for(200).times()
     }
 }, 'HugeInt#add vs BigInt')
 
 test(() => {
     for (const base of BASES) {
-        for (let i = 0; i < 200; i++) {
+        repeat(() => {
             const a = randBig(base, 60)
             const d = BigInt(randInt(Number(base)))
             const k = BigInt(randInt(20))
             assert.equal(new HugeInt(base, undefined, a).multiplyByDigit(d).value, a * d)
             assert.equal(new HugeInt(base, undefined, a).shiftLeft(k).value, a * base ** k)
-        }
+        }).for(200).times()
     }
 }, 'HugeInt#multiplyByDigit / #shiftLeft vs BigInt')
 

@@ -1,3 +1,5 @@
+import repeat from './repeat.js'
+
 /** @type {number} seconds per day */
 const ONE_DAY = 60 * 60 * 24
 
@@ -59,7 +61,7 @@ const getTimeString = (numOfMilliseconds, excludeMilliseconds = true) => {
 
     const timeStrings = []
 
-    for (let i = 0; i < TIME_UNITS.length; i++) {
+    repeat(i => {
         const unit = TIME_UNITS[i] * 1000n
         const unitCount = numOfMillis / unit
 
@@ -70,7 +72,7 @@ const getTimeString = (numOfMilliseconds, excludeMilliseconds = true) => {
             numOfMillis -= unitCount * unit
             timeStrings.push(getUnitString(i, unitCount))
         }
-    }
+    }).for(TIME_UNITS.length).times()
     if (numOfMillis > 0n && !excludeMilliseconds) {
         timeStrings.push(getUnitString(6, numOfMillis))
     }

@@ -1,3 +1,5 @@
+import repeat from '#utils/repeat.js'
+
 /**
  * Whether `key` can be written as an unquoted object key.
  *
@@ -27,7 +29,9 @@ const toJs = (value, indent = '') => {
     if (Array.isArray(value)) {
         if (!value.length) return '[]'
         const items = []
-        for (let i = 0; i < value.length; i++) items.push(pad + toJs(value[i], pad))
+        repeat(i => {
+            items.push(pad + toJs(value[i], pad))
+        }).for(value.length).times()
         return `[\n${items.join(',\n')}\n${indent}]`
     }
 

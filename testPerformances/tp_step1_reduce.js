@@ -1,5 +1,6 @@
 /** Benchmark: three ways to get a product's length and next digit product. */
 import { digitsValue } from '#Digits/index.js'
+import repeat from '#utils/repeat.js'
 import testPerformances from './testPerformances.js'
 
 const BASE = 9
@@ -19,7 +20,9 @@ const pool = []
 
 while (pool.length < 400) {
     let n = 0n
-    for (let i = 0; i < 150; i++) n = n * BASE_N + BigInt(2 + Math.floor(rnd() * 7))
+    repeat(() => {
+        n = n * BASE_N + BigInt(2 + Math.floor(rnd() * 7))
+    }).for(150).times()
     let p = 1n
     let m = n
     while (m > 0n) { p *= m % BASE_N; m /= BASE_N }
